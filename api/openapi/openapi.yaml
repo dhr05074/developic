@@ -1,0 +1,138 @@
+openapi: "3.0.0"
+info:
+    version: "0.1.0"
+    title: "CodeConnect"
+    description: "CodeConnect API"
+servers:
+    - url: "https://api.codeconnect.io"
+paths:
+    /problem:
+        post:
+            summary: "Create a new problem"
+            operationId: "createProblem"
+            requestBody:
+                description: "Problem to create"
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Problem"
+            responses:
+                "201":
+                    $ref: "#/components/responses/CreateProblemResponse"
+                "400":
+                    description: "Invalid problem"
+                "500":
+                    description: "Internal server error"
+    /analyze:
+        post:
+            summary: "Analyze code"
+            operationId: "analyzeCode"
+            requestBody:
+                description: "Code to analyze"
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AnalyzeCodeRequest"
+            responses:
+                "200":
+                    $ref: "#/components/responses/AnalyzeCodeResponse"
+                "400":
+                    description: "Invalid code"
+                "500":
+                    description: "Internal server error"
+components:
+    schemas:
+        CreateProblemRequest:
+            description: "Problem to create"
+            type: object
+            required:
+                - language
+                - factors
+            properties:
+                language:
+                    type: string
+                    description: "Language of the problem"
+                    example: "python"
+                factors:
+                    type: array
+                    description: "Factors of the problem"
+                    items:
+                        type: string
+                        example: "Maintainable code"
+        AnalyzeCodeRequest:
+            description: "Code to analyze"
+            type: object
+            required:
+                - code
+                - statement
+                - points
+            properties:
+                code:
+                    type: string
+                    description: "Code to analyze"
+                    example: "def foo():\n    return 1"
+                problem_id:
+                    type: string
+                    description: "ID of the problem"
+                    example: "1234567890"
+        Problem:
+            description: "Problem"
+            type: object
+            required:
+                - id
+                - language
+                - factors
+            properties:
+                id:
+                    type: string
+                    description: "ID of the problem"
+                    example: "1234567890"
+                language:
+                    type: string
+                    description: "Language of the problem"
+                    example: "python"
+                factors:
+                    type: array
+                    description: "Factors of the problem"
+                    items:
+                        type: string
+                        example: "Maintainable code"
+        AnalyzeResult:
+            description: "Result of the analysis"
+            type: object
+            required:
+                - strengths
+                - weaknesses
+                - points
+            properties:
+                strengths:
+                    type: array
+                    description: "Strengths of the code"
+                    items:
+                        type: string
+                        example: "Maintainable code"
+                weaknesses:
+                    type: array
+                    description: "Weaknesses of the code"
+                    items:
+                        type: string
+                        example: "Maintainable code"
+                points:
+                    type: integer
+                    description: "Points of the code"
+                    example: 100
+    responses:
+        CreateProblemResponse:
+            description: "Problem created"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/Problem"
+        AnalyzeCodeResponse:
+            description: "Code analyzed"
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/AnalyzeResult"
