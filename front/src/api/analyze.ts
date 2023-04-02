@@ -1,9 +1,13 @@
+import axios from "axios";
+
 const instance = axios.create({
-    baseURL: "http://localhost:8080/",
+    baseURL: "http://localhost:8080",
     // timeout: 1000,
     // headers: {'X-Custom-Header': 'foobar'}
 });
-const analyze = await instance.get("analyze", { headers }).catch(function (error) {
+const headers = { "Content-Type": `application/json` };
+
+const apiErrorHandler = (error) => {
     if (error.response) {
         // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답했습니다.
         console.log(error.response.data);
@@ -19,4 +23,14 @@ const analyze = await instance.get("analyze", { headers }).catch(function (error
         console.log("Error", error.message);
     }
     console.log(error.config);
-});
+};
+
+export const analyze = async (data: string) => {
+    const utf8Str = unescape(encodeURIComponent(data));
+    const base64 = btoa(utf8Str);
+    try {
+        const response = await instance.post("/analyze", { base64 }, { headers });
+    } catch (error) {
+        apiErrorHandler(error);
+    }
+};
