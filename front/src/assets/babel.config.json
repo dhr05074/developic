@@ -1,8 +1,7 @@
 {
-    "env": {
-      "development": {
-        "plugins": ["styled-components"]
-      }
+  "env": {
+    "development": {
+      "plugins": ["styled-components"]
     }
   }
-  
+}
