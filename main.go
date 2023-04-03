@@ -4,10 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"
+
+	"github.com/labstack/echo/v4"
+	"github.com/sashabaranov/go-openai"
 )
 
 type Body struct {

@@ -6,7 +6,8 @@ export default function TextArea() {
     const onTextChange = (e) => {
         setText(e.target.value);
     };
-    const onClickAPI = () => {
+    const onClickAPI = (e) => {
+        e.preventDefault();
         console.log(textareaValue);
         analyze(textareaValue);
     };
