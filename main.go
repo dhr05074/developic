@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/sashabaranov/go-openai"
 	"log"
@@ -38,6 +39,7 @@ func main() {
 	apiKey := os.Getenv("CHATGPT_API_KEY")
 	cli := openai.NewClient(apiKey)
 	app := echo.New()
+	app.Use(middleware.CORS())
 
 	app.POST("/problem", func(c echo.Context) error {
 		var body ProblemBody
