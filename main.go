@@ -1,16 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"os"
-	"strings"
 )
 
 type Body struct {
@@ -19,14 +18,16 @@ type Body struct {
 	Code      string   `json:"code"`
 }
 
-type ProblemBody struct {
-	Factors  []string `json:"factors"`
-	Language string   `json:"language"`
+type ProblemRequestBody struct {
+	Difficulty int32  `json:"difficulty"`
+	Language   string `json:"language"`
 }
 
-type ProblemResponse struct {
-	Statement   string    `json:"statement"`
-	SubProblems []Problem `json:"sub_problems"`
+type ProblemResponseBody struct {
+	Statement    string   `json:"statement"`
+	Functions    []string `json:"functions"`
+	Requirements []string `json:"requirements"`
+	TestCases    []string `json:"test_cases"`
 }
 
 type Problem struct {
@@ -41,73 +42,79 @@ func main() {
 	app := echo.New()
 	app.Use(middleware.CORS())
 
+	gptClient := ChatGPTClient{cli: cli}
+
 	app.POST("/problem", func(c echo.Context) error {
-		var body ProblemBody
+		var body ProblemRequestBody
 		if err := c.Bind(&body); err != nil {
 			return err
 		}
 
-		sampleResponse := ProblemResponse{
-			Statement: "You should create an internet shopping mall service",
-			SubProblems: []Problem{
-				{
-					Statement: "Design and create a database schema to support an internet shopping mall service. The schema should be able to handle the following requirements",
-					Conditions: []string{
-						"Each product can have multiple categories.",
-						"Each product has a unique ID, name, description, image, price, and inventory count.",
-						"Users can view products and add them to their shopping cart.",
-						"Users can create an account and log in to the service.",
-						"Users can view their order history.",
-						"Users can place orders and receive an order confirmation with a unique order ID.",
-					},
-				},
+		if body.Difficulty == 0 {
+			body.Difficulty = 50
+		}
+
+		if body.Language == "" {
+			body.Language = "Go"
+		}
+
+		sample := ProblemResponseBody{
+			Statement: "Implement a search functionality in Go for the e-commerce platform. The function should take a search query string and return a list of products that match the query criteria. The search should take into account various attributes such as name, description, price, and category.",
+			Functions: []string{"func searchProducts(query string, products []Product) ([]Product, error)"},
+			Requirements: []string{
+				"The search should be case-insensitive.",
+				"The search should match partial words as well as whole words.",
+				"The search should prioritize exact matches over partial matches.",
+				"The search should allow for filtering by category.",
+				"The search results should be sorted by relevance, with exact matches appearing first.",
+			},
+			TestCases: []string{
+				"When given a search query \"shoe\", the function should return a list of products that have \"shoe\" in their name or description, sorted by relevance.",
+				"When given a search query \"Nike running shoes\", the function should return a list of products that have \"Nike\" and \"running\" and \"shoes\" in their name or description, sorted by relevance.",
+				"When given a search query \"dress\" and a category filter of \"women's clothing\", the function should return a list of women's dresses that have \"dress\" in their name or description, sorted by relevance.",
 			},
 		}
-		sampleJSON, _ := json.Marshal(sampleResponse)
+		sampleJSON, _ := json.Marshal(sample)
 
-		result, err := cli.CreateChatCompletion(c.Request().Context(), openai.ChatCompletionRequest{
-			Model:       openai.GPT3Dot5Turbo0301,
-			Temperature: 1,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: "You should create a coding test which is composed of four sub-problems which has a statement and conditions to evaluate the characteristics of the programmer based on the following conditions and program language and give a test in a JSON format.",
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: "Example is like this:",
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: string(sampleJSON),
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: fmt.Sprintf("Conditions: \n%s", strings.Join(body.Factors, "\n")),
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: fmt.Sprintf("Language: %s\n", body.Language),
-				},
+		messages := []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: fmt.Sprintf("Make a real world scenario briefly for a developer. The complexity should be %d out of 100. Exclude the AI technology.", body.Difficulty),
 			},
-		})
+		}
+
+		_, err := gptClient.CompleteChatWithContext(c.Request().Context(), messages)
 		if err != nil {
 			return err
 		}
 
-		log.Println(result.Choices[0].Message.Content)
+		messages = []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: fmt.Sprintf("Using the previous scenario, select one functionality and make a coding test to implement it in %s. It should evaluate the technical skills, problem solving and analytical skills of the developer. Don’t give the sample code, and hints. Give a problem statement, a function signature, five requirements and three test cases. The difficulty is %d out of 100. You must give the result as a JSON format like following example.", body.Language, body.Difficulty),
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "Example should be like this:",
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: string(sampleJSON),
+			},
+		}
 
-		var response ProblemResponse
-		if err := json.Unmarshal([]byte(result.Choices[0].Message.Content), &response); err != nil {
+		msg, err := gptClient.CompleteChatWithContext(c.Request().Context(), messages)
+		if err != nil {
+			return err
+		}
+
+		var response ProblemResponseBody
+		if err := json.Unmarshal([]byte(msg), &response); err != nil {
 			log.Println(err)
 			return err
 		}
 
-		for i := range response.SubProblems {
-			response.SubProblems[i].ID = gonanoid.Must(7)
-		}
-
-		return c.JSON(200, response)
+		return c.JSON(201, response)
 	})
 
 	app.POST("/analyze", func(c echo.Context) error {
@@ -183,4 +190,26 @@ You must consider the following statement and points when evaluating the code.
 	if err := app.Start(":8080"); err != nil {
 		panic(err)
 	}
+}
+
+type ChatGPTClient struct {
+	cli      *openai.Client
+	messages []openai.ChatCompletionMessage
+}
+
+func (c *ChatGPTClient) CompleteChatWithContext(ctx context.Context, messages []openai.ChatCompletionMessage) (string, error) {
+	c.messages = append(c.messages, messages...)
+
+	response, err := c.cli.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+		Model:       openai.GPT3Dot5Turbo0301,
+		Temperature: 1,
+		Messages:    c.messages,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	c.messages = append(c.messages, response.Choices[0].Message)
+
+	return response.Choices[0].Message.Content, nil
 }
