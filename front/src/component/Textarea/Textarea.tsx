@@ -1,5 +1,6 @@
 import { analyze } from "src/api/analyze.ts";
 import { useState } from "react";
+import { postProblem } from "../../api/problem";
 
 export default function TextArea() {
     const [textareaValue, setText] = useState("입력하세요");
@@ -9,7 +10,8 @@ export default function TextArea() {
     const onClickAPI = (e) => {
         e.preventDefault();
         console.log(textareaValue);
-        analyze(textareaValue);
+        // analyze(textareaValue);
+        postProblem("Go", 90);
     };
     return (
         <form>
