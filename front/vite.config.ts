@@ -4,16 +4,19 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      jsc: {
-        parser: {
-          syntax: "ecmascript",
-          jsx: true,
-        },
-      },
-    }),
-    tsconfigPaths(),
-  ],
-  /* Https://github.com/vitejs/vite/issues/1037 */
+    plugins: [
+        react({
+            jsc: {
+                parser: {
+                    syntax: "ecmascript",
+                    jsx: true,
+                },
+            },
+        }),
+        tsconfigPaths(),
+    ],
+    build: {
+        sourcemap: true,
+    },
+    /* Https://github.com/vitejs/vite/issues/1037 */
 });
