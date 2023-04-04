@@ -7,13 +7,14 @@ import (
 	"log"
 	"os"
 
+	"log"
+	"os"
+	"strings"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/sashabaranov/go-openai"
-	"log"
-	"os"
-	"strings"
 )
 
 type Body struct {
