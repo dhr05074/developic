@@ -24,10 +24,14 @@ type ProblemRequestBody struct {
 }
 
 type ProblemResponseBody struct {
-	Statement    string   `json:"statement"`
-	Functions    []string `json:"functions"`
-	Requirements []string `json:"requirements"`
-	TestCases    []string `json:"test_cases"`
+	Statement   string    `json:"statement"`
+	Description string    `json:"description"`
+	Examples    []Example `json:"examples"`
+}
+
+type Example struct {
+	Input  string `json:"input"`
+	Output string `json:"output"`
 }
 
 type Problem struct {
@@ -59,22 +63,20 @@ func main() {
 		}
 
 		sample := ProblemResponseBody{
-			Statement: "Implement a search functionality in Go for the e-commerce platform. The function should take a search query string and return a list of products that match the query criteria. The search should take into account various attributes such as name, description, price, and category.",
-			Functions: []string{"func searchProducts(query string, products []Product) ([]Product, error)"},
-			Requirements: []string{
-				"The search should be case-insensitive.",
-				"The search should match partial words as well as whole words.",
-				"The search should prioritize exact matches over partial matches.",
-				"The search should allow for filtering by category.",
-				"The search results should be sorted by relevance, with exact matches appearing first.",
-			},
-			TestCases: []string{
-				"When given a search query \"shoe\", the function should return a list of products that have \"shoe\" in their name or description, sorted by relevance.",
-				"When given a search query \"Nike running shoes\", the function should return a list of products that have \"Nike\" and \"running\" and \"shoes\" in their name or description, sorted by relevance.",
-				"When given a search query \"dress\" and a category filter of \"women's clothing\", the function should return a list of women's dresses that have \"dress\" in their name or description, sorted by relevance.",
+			Statement:   "Powers of Two",
+			Description: "Have the function `PowersofTwo(num)` take the num parameter being passed which will be an integer and return the string true if it's a power of two. If it's not return the string false. For example if the input is 16 then your program should return the string true but if the input is 22 then the output should be the string false.",
+			Examples: []Example{
+				{
+					Input:  "4",
+					Output: "true",
+				},
+				{
+					Input:  "124",
+					Output: "false",
+				},
 			},
 		}
-		sampleJSON, _ := json.Marshal(sample)
+		sampleJSON, _ := json.MarshalIndent(sample, "", "  ")
 
 		messages := []openai.ChatCompletionMessage{
 			{
@@ -91,11 +93,15 @@ func main() {
 		messages = []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: fmt.Sprintf("Using the previous scenario, select one functionality and make a coding test to implement it in %s. It should evaluate the technical skills, problem solving and analytical skills of the developer. Don’t give the sample code, and hints. Give a problem statement, a function signature, five requirements and three test cases. The difficulty is %d out of 100. You must give the result as a JSON format like following example.", body.Language, body.Difficulty),
+				Content: fmt.Sprintf("Using the previous scenario, select one functionality and make a coding test to implement it in %s. It should evaluate the technical skills, problem solving and analytical skills of the developer. The difficulty is %d out of 100.", body.Language, body.Difficulty),
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: "Example should be like this:",
+				Content: "Convert the result to JSON like this:",
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "Don't use the markdown syntax. You can just use the JSON syntax. Don't include your words.",
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
@@ -107,6 +113,8 @@ func main() {
 		if err != nil {
 			return err
 		}
+
+		log.Println(msg)
 
 		var response ProblemResponseBody
 		if err := json.Unmarshal([]byte(msg), &response); err != nil {
@@ -202,7 +210,7 @@ func (c *ChatGPTClient) CompleteChatWithContext(ctx context.Context, messages []
 
 	response, err := c.cli.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model:       openai.GPT3Dot5Turbo0301,
-		Temperature: 1,
+		Temperature: 1.2,
 		Messages:    c.messages,
 	})
 	if err != nil {
