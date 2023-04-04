@@ -7,10 +7,25 @@ const instance = axios.create({
 });
 const headers = { "Content-Type": `application/json` };
 type languageType = "Go" | "JavaScript" | "TypeScript";
+
+type postProblemReturn = {
+    functions: string[];
+    requirements: string[];
+    statement: string;
+    test_cases: string[];
+};
+/**
+ * @param {languageType} language
+ * @param {number}difficulty
+ * @returns {postProblemReturn}
+ */
 export const postProblem = async (language: languageType, difficulty: number) => {
     try {
         const res = await instance.post("/problem", { language, difficulty }, { headers });
-        console.log("🚀 ~ file: problem.ts:12 ~ res:", res);
+        const data = res.data as postProblemReturn;
+        console.log("🚀 ~ file: problem.ts:12 ~ res:", data);
+
+        return data;
     } catch (err) {
         apiErrorHandler(err);
     }
