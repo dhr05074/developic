@@ -79,7 +79,7 @@ func main() {
 		messages := []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: fmt.Sprintf("Make a real world scenario briefly for a developer. The complexity should be %d out of 100. Exclude the AI technology.", body.Difficulty),
+				Content: fmt.Sprintf("Make a real world scenario briefly for a developer. The complexity should be %d out of 100. Complexity is a measure of how complex a problem situation is. The higher it is, the more complicated the situation. Exclude the AI technology.", body.Difficulty),
 			},
 		}
 

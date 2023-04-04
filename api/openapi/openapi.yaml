@@ -81,9 +81,8 @@ components:
             description: "Problem"
             type: object
             required:
-                - id
-                - language
-                - factors
+                - statement
+                -
             properties:
                 id:
                     type: string
@@ -120,7 +119,7 @@ components:
                         type: string
                         example: "Maintainable code"
                 points:
-                    type: integer
+                    type: number
                     description: "Points of the code"
                     example: 100
     responses:
