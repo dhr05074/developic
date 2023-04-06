@@ -7,6 +7,11 @@ import TextArea from "./component/Textarea/Textarea";
 import Select from "./component/Select/Select";
 import { postProblem } from "./api/problem";
 
+// react-simple-code-editor
+import { useCodeMirror } from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import CodeEditor from "./component/CodeEditor/CodeEditor";
+
 function App() {
     const languages = [
         "Go",
@@ -62,6 +67,9 @@ function App() {
             <h4 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white"></h4>
             <section className="bg-white dark:bg-gray-900">
                 <TextArea />
+            </section>
+            <section>
+                <CodeEditor />
             </section>
             {/* <Footer /> */}
         </div>
