@@ -6,132 +6,127 @@ info:
 servers:
     - url: "https://api.codeconnect.io"
 paths:
-    /problem:
+    /problems:
         post:
-            summary: "Create a new problem"
+            summary: "문제 생성을 요청합니다."
             operationId: "createProblem"
             requestBody:
-                description: "Problem to create"
                 required: true
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/Problem"
+                            properties:
+                                language:
+                                    $ref: "#/components/schemas/ProblemLanguage"
+                                difficulty:
+                                    $ref: "#/components/schemas/ProblemDifficulty"
+                            required:
+                                - language
+                                - difficulty
             responses:
-                "201":
+                "202":
                     $ref: "#/components/responses/CreateProblemResponse"
                 "400":
-                    description: "Invalid problem"
+                    $ref: "#/components/responses/BadRequest"
+                "429":
+                    $ref: "#/components/responses/TooManyRequests"
                 "500":
-                    description: "Internal server error"
-    /analyze:
-        post:
-            summary: "Analyze code"
-            operationId: "analyzeCode"
-            requestBody:
-                description: "Code to analyze"
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/AnalyzeCodeRequest"
+                    $ref: "#/components/responses/InternalServerError"
+    /problems/{problem_id}:
+        get:
+            summary: "문제를 조회합니다."
+            operationId: "getProblem"
+            parameters:
+                - name: "problem_id"
+                  in: "path"
+                  description: "문제 ID"
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/ProblemID"
             responses:
                 "200":
-                    $ref: "#/components/responses/AnalyzeCodeResponse"
+                    $ref: "#/components/responses/GetProblemResponse"
                 "400":
-                    description: "Invalid code"
+                    $ref: "#/components/responses/BadRequest"
+                "429":
+                    $ref: "#/components/responses/TooManyRequests"
                 "500":
-                    description: "Internal server error"
+                    $ref: "#/components/responses/InternalServerError"
 components:
     schemas:
-        CreateProblemRequest:
-            description: "Problem to create"
-            type: object
-            required:
-                - language
-                - factors
-            properties:
-                language:
-                    type: string
-                    description: "Language of the problem"
-                    example: "python"
-                factors:
-                    type: array
-                    description: "Factors of the problem"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-        AnalyzeCodeRequest:
-            description: "Code to analyze"
-            type: object
-            required:
-                - code
-                - statement
-                - points
-            properties:
-                code:
-                    type: string
-                    description: "Code to analyze"
-                    example: "def foo():\n    return 1"
-                problem_id:
-                    type: string
-                    description: "ID of the problem"
-                    example: "1234567890"
+        ProblemID:
+            type: string
+            description: "문제의 ID 입니다."
+            example: "1234567890"
+        ProblemLanguage:
+            type: string
+            description: "문제 풀이시 사용할 언어입니다."
+            enum:
+                - python
+                - java
+                - javascript
+                - c
+                - cpp
+                - go
+            x-enum-varnames:
+                - Python
+                - Java
+                - JavaScript
+                - C
+                - CPP
+                - Go
+        ProblemDifficulty:
+            type: number
+            description: "문제의 난이도입니다. 1 ~ 100 사이의 정수입니다."
+            example: 50
         Problem:
-            description: "Problem"
+            description: "문제 데이터입니다."
             type: object
             required:
-                - statement
-                -
+                - id
+                - language
+                - content
             properties:
                 id:
                     type: string
-                    description: "ID of the problem"
+                    description: "문제의 ID 입니다."
                     example: "1234567890"
                 language:
                     type: string
-                    description: "Language of the problem"
+                    description: "문제 풀이시 사용할 언어입니다."
                     example: "python"
-                factors:
-                    type: array
-                    description: "Factors of the problem"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-        AnalyzeResult:
-            description: "Result of the analysis"
-            type: object
-            required:
-                - strengths
-                - weaknesses
-                - points
-            properties:
-                strengths:
-                    type: array
-                    description: "Strengths of the code"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-                weaknesses:
-                    type: array
-                    description: "Weaknesses of the code"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-                points:
-                    type: number
-                    description: "Points of the code"
-                    example: 100
+                content:
+                    type: string
+                    description: "문제 내용입니다. Markdown 형식으로 작성되어 있습니다."
+                    example: "## 문제\n\n문제 내용입니다."
     responses:
+        BadRequest:
+            description: "요청 형식이 올바르지 않습니다."
+            content:
+                application/json:
+                    schema:
+                        properties:
+                            message:
+                                type: string
+                                description: "오류 메시지"
+                                example: "`id` field is required"
+        TooManyRequests:
+            description: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+        InternalServerError:
+            description: "서버 내부 오류입니다."
         CreateProblemResponse:
-            description: "Problem created"
+            description: "문제 생성 요청이 성공적으로 접수되었습니다. 문제 생성 완료 후 지금 반환받은 문제 ID로 문제를 조회할 수 있습니다."
+            content:
+                application/json:
+                    schema:
+                        properties:
+                            id:
+                                type: string
+                                description: "ID of the problem"
+                                example: "1234567890"
+        GetProblemResponse:
+            description: "문제 조회에 성공했습니다."
             content:
                 application/json:
                     schema:
                         $ref: "#/components/schemas/Problem"
-        AnalyzeCodeResponse:
-            description: "Code analyzed"
-            content:
-                application/json:
-                    schema:
-                        $ref: "#/components/schemas/AnalyzeResult"

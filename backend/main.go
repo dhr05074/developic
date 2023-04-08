@@ -30,14 +30,8 @@ type ProblemResponseBody struct {
 }
 
 type Example struct {
-	Input  string `json:"input"`
-	Output string `json:"output"`
-}
-
-type Problem struct {
-	ID         string   `json:"id"`
-	Statement  string   `json:"statement"`
-	Conditions []string `json:"conditions"`
+	Input  any `json:"input"`
+	Output any `json:"output"`
 }
 
 func main() {
@@ -83,25 +77,17 @@ func main() {
 				Role:    openai.ChatMessageRoleUser,
 				Content: fmt.Sprintf("Make a real world scenario briefly for a developer. The complexity should be %d out of 100. Complexity is a measure of how complex a problem situation is. The higher it is, the more complicated the situation. Exclude the AI technology.", body.Difficulty),
 			},
-		}
-
-		_, err := gptClient.CompleteChatWithContext(c.Request().Context(), messages)
-		if err != nil {
-			return err
-		}
-
-		messages = []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: fmt.Sprintf("Using the previous scenario, select one functionality and make a coding test to implement it in %s. It should evaluate the technical skills, problem solving and analytical skills of the developer. The difficulty is %d out of 100.", body.Language, body.Difficulty),
-			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: "Convert the result to JSON like this:",
+				Content: fmt.Sprintf("Using the previous scenario, select one functionality and make only one coding test to implement it in %s. It should evaluate the technical skills, problem solving and analytical skills of the developer. The difficulty is %d out of 100. You should give at least two examples.", body.Language, body.Difficulty),
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
 				Content: "Don't use the markdown syntax. You can just use the JSON syntax. Don't include your words.",
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "Convert the result to JSON like this:",
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
@@ -113,6 +99,15 @@ func main() {
 		if err != nil {
 			return err
 		}
+
+		//messages = []openai.ChatCompletionMessage{
+		//
+		//}
+		//
+		//msg, err := gptClient.CompleteChatWithContext(c.Request().Context(), messages)
+		//if err != nil {
+		//	return err
+		//}
 
 		log.Println(msg)
 
@@ -210,7 +205,7 @@ func (c *ChatGPTClient) CompleteChatWithContext(ctx context.Context, messages []
 
 	response, err := c.cli.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model:       openai.GPT3Dot5Turbo0301,
-		Temperature: 1.2,
+		Temperature: 1,
 		Messages:    c.messages,
 	})
 	if err != nil {
