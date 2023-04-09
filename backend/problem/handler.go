@@ -87,8 +87,8 @@ func (h *Handler) Create(ctx context.Context, req CreateProblemRequest) (*Create
 			}
 		}()
 
-		var problem *ent.Problem
-		problem, err = tx.Problem.Create().SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(ctx)
+		var p *ent.Problem
+		p, err = tx.Problem.Create().SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(ctx)
 		if err != nil {
 			l.Errorw("error while creating problem", "error", err)
 			return
@@ -100,7 +100,7 @@ func (h *Handler) Create(ctx context.Context, req CreateProblemRequest) (*Create
 			l.Errorw("error while completing prompt", "error", err)
 		}
 
-		err = tx.Problem.UpdateOne(problem).SetStatement(answer).Exec(ctx)
+		err = tx.Problem.UpdateOne(p).SetStatement(answer).Exec(ctx)
 		if err != nil {
 			l.Errorw("error while updating problem", "error", err)
 			return

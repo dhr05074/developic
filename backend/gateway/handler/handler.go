@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/sashabaranov/go-openai"
 )
 
 type ServerHandler struct {
-	openaiClient   *openai.Client
 	problemHandler *problem.Handler
+}
+
+func NewServerHandler(problemHandler *problem.Handler) *ServerHandler {
+	return &ServerHandler{problemHandler: problemHandler}
 }
 
 func (s ServerHandler) CreateProblem(ctx echo.Context) error {
