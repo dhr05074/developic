@@ -11,3 +11,9 @@ export CHATGPT_API_KEY=...
 ```bash
 cd backend/gateway/cmd && go run main.go
 ```
+
+`localhost:3000` 으로 접속하면 API 이용 가능
+```bash
+curl --request GET -sL \
+     --url 'http://localhost:3000/problems/234'
+```
