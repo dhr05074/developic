@@ -11,6 +11,7 @@ import { postProblem } from "./api/problem";
 import { useCodeMirror } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import CodeEditor from "./component/CodeEditor/CodeEditor";
+import NavBar from "./component/NavBar/NavBar";
 
 function App() {
     const languages = [
@@ -54,7 +55,15 @@ function App() {
 
     return (
         <div className="App">
-            <section id="header" className="flex flex-row justify-between">
+            <section id="header">
+                <NavBar />
+            </section>
+            <section id="body" className="flex flex-row">
+                <article id="problem" className=""></article>
+                <article id="code"></article>
+                <article id="runner"></article>
+            </section>
+            {/* <section className="flex flex-row justify-between">
                 <Select value={{ menu: languages, callback: getMenuValue }} />
                 <button
                     onClick={onClickAPI}
@@ -70,7 +79,7 @@ function App() {
             </section>
             <section>
                 <CodeEditor />
-            </section>
+            </section> */}
             {/* <Footer /> */}
         </div>
     );

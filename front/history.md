@@ -30,3 +30,9 @@
 -   v0.0.0:6
 -   codeMirror 테마 적용
 -   v0.0.0:7
+
+### 4/10
+
+-   design pattern 적용
+-   navBar 적용
+-   v0.0.0:8
