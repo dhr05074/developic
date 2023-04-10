@@ -33,7 +33,7 @@ func main() {
 		}
 	}()
 
-	hdl := problem.NewProblemHandler(openAIClient, entClient)
+	hdl := problem.NewHandler(openAIClient, entClient)
 	srvHandler := handler.NewServerHandler(hdl)
 
 	app := echo.New()

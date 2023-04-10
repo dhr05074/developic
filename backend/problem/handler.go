@@ -40,7 +40,7 @@ var (
 	NotFound = errors.New("problem not found")
 )
 
-func NewProblemHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
+func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
 	return &Handler{gptClient: gptClient, entClient: entClient}
 }
 
