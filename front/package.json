@@ -38,7 +38,7 @@
         "babel-plugin-styled-components": "^2.0.7",
         "cssnano": "^6.0.0",
         "cssnano-preset-advanced": "^6.0.0",
-        "eslint": "^8.37.0",
+        "eslint": "^8.38.0",
         "eslint-config-airbnb": "^19.0.4",
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-import": "^2.27.5",
@@ -53,5 +53,10 @@
         "vite": "^4.2.0",
         "vite-tsconfig-paths": "^4.0.7"
     },
-    "packageManager": "yarn@3.5.0"
+    "packageManager": "yarn@3.5.0",
+    "dependenciesMeta": {
+        "eslint@8.38.0": {
+            "unplugged": true
+        }
+    }
 }
