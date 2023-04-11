@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ariga.io/entcache"
 	"code-connect/gateway"
 	"code-connect/gateway/handler"
 	"code-connect/pkg/ai"
@@ -33,6 +34,10 @@ func main() {
 		}
 	}()
 
+	if err := entClient.Schema.Create(entcache.Skip(context.Background())); err != nil {
+		l.Fatalw("failed creating schema resources", "err", err)
+	}
+
 	hdl := problem.NewHandler(openAIClient, entClient)
 	srvHandler := handler.NewServerHandler(hdl)
 
@@ -54,6 +59,7 @@ func main() {
 	swagger.Servers = nil
 
 	app.Use(middleware.CORS())
+	app.Use(middleware.Logger())
 	app.Use(openAPIRequestValidator(swagger))
 
 	l.Infow("starting server", "port", 3000)

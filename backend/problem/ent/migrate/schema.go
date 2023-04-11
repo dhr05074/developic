@@ -14,10 +14,10 @@ var (
 		{Name: "uuid", Type: field.TypeString},
 		{Name: "difficulty", Type: field.TypeInt},
 		{Name: "language", Type: field.TypeString},
-		{Name: "statement", Type: field.TypeString, Size: 2147483647},
-		{Name: "examples", Type: field.TypeString, Size: 2147483647},
-		{Name: "constraints", Type: field.TypeString, Size: 2147483647},
-		{Name: "evaluation_criteria", Type: field.TypeString, Size: 2147483647},
+		{Name: "statement", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "examples", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "constraints", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "evaluation_criteria", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.

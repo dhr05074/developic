@@ -319,6 +319,16 @@ func StatementHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldStatement, v))
 }
 
+// StatementIsNil applies the IsNil predicate on the "statement" field.
+func StatementIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldStatement))
+}
+
+// StatementNotNil applies the NotNil predicate on the "statement" field.
+func StatementNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldStatement))
+}
+
 // StatementEqualFold applies the EqualFold predicate on the "statement" field.
 func StatementEqualFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEqualFold(FieldStatement, v))
@@ -382,6 +392,16 @@ func ExamplesHasPrefix(v string) predicate.Problem {
 // ExamplesHasSuffix applies the HasSuffix predicate on the "examples" field.
 func ExamplesHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldExamples, v))
+}
+
+// ExamplesIsNil applies the IsNil predicate on the "examples" field.
+func ExamplesIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldExamples))
+}
+
+// ExamplesNotNil applies the NotNil predicate on the "examples" field.
+func ExamplesNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldExamples))
 }
 
 // ExamplesEqualFold applies the EqualFold predicate on the "examples" field.
@@ -449,6 +469,16 @@ func ConstraintsHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldConstraints, v))
 }
 
+// ConstraintsIsNil applies the IsNil predicate on the "constraints" field.
+func ConstraintsIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldConstraints))
+}
+
+// ConstraintsNotNil applies the NotNil predicate on the "constraints" field.
+func ConstraintsNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldConstraints))
+}
+
 // ConstraintsEqualFold applies the EqualFold predicate on the "constraints" field.
 func ConstraintsEqualFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEqualFold(FieldConstraints, v))
@@ -512,6 +542,16 @@ func EvaluationCriteriaHasPrefix(v string) predicate.Problem {
 // EvaluationCriteriaHasSuffix applies the HasSuffix predicate on the "evaluation_criteria" field.
 func EvaluationCriteriaHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldEvaluationCriteria, v))
+}
+
+// EvaluationCriteriaIsNil applies the IsNil predicate on the "evaluation_criteria" field.
+func EvaluationCriteriaIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldEvaluationCriteria))
+}
+
+// EvaluationCriteriaNotNil applies the NotNil predicate on the "evaluation_criteria" field.
+func EvaluationCriteriaNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldEvaluationCriteria))
 }
 
 // EvaluationCriteriaEqualFold applies the EqualFold predicate on the "evaluation_criteria" field.

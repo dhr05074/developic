@@ -20,6 +20,7 @@ FROM scratch
 
 # Copy the executable from the previous stage
 COPY --from=build /app/main /main
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Set the entrypoint to the executable
 ENTRYPOINT ["/main"]

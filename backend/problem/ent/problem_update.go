@@ -58,9 +58,37 @@ func (pu *ProblemUpdate) SetStatement(s string) *ProblemUpdate {
 	return pu
 }
 
+// SetNillableStatement sets the "statement" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableStatement(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetStatement(*s)
+	}
+	return pu
+}
+
+// ClearStatement clears the value of the "statement" field.
+func (pu *ProblemUpdate) ClearStatement() *ProblemUpdate {
+	pu.mutation.ClearStatement()
+	return pu
+}
+
 // SetExamples sets the "examples" field.
 func (pu *ProblemUpdate) SetExamples(s string) *ProblemUpdate {
 	pu.mutation.SetExamples(s)
+	return pu
+}
+
+// SetNillableExamples sets the "examples" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableExamples(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetExamples(*s)
+	}
+	return pu
+}
+
+// ClearExamples clears the value of the "examples" field.
+func (pu *ProblemUpdate) ClearExamples() *ProblemUpdate {
+	pu.mutation.ClearExamples()
 	return pu
 }
 
@@ -70,9 +98,37 @@ func (pu *ProblemUpdate) SetConstraints(s string) *ProblemUpdate {
 	return pu
 }
 
+// SetNillableConstraints sets the "constraints" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableConstraints(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetConstraints(*s)
+	}
+	return pu
+}
+
+// ClearConstraints clears the value of the "constraints" field.
+func (pu *ProblemUpdate) ClearConstraints() *ProblemUpdate {
+	pu.mutation.ClearConstraints()
+	return pu
+}
+
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
 func (pu *ProblemUpdate) SetEvaluationCriteria(s string) *ProblemUpdate {
 	pu.mutation.SetEvaluationCriteria(s)
+	return pu
+}
+
+// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableEvaluationCriteria(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetEvaluationCriteria(*s)
+	}
+	return pu
+}
+
+// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
+func (pu *ProblemUpdate) ClearEvaluationCriteria() *ProblemUpdate {
+	pu.mutation.ClearEvaluationCriteria()
 	return pu
 }
 
@@ -132,14 +188,26 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Statement(); ok {
 		_spec.SetField(problem.FieldStatement, field.TypeString, value)
 	}
+	if pu.mutation.StatementCleared() {
+		_spec.ClearField(problem.FieldStatement, field.TypeString)
+	}
 	if value, ok := pu.mutation.Examples(); ok {
 		_spec.SetField(problem.FieldExamples, field.TypeString, value)
+	}
+	if pu.mutation.ExamplesCleared() {
+		_spec.ClearField(problem.FieldExamples, field.TypeString)
 	}
 	if value, ok := pu.mutation.Constraints(); ok {
 		_spec.SetField(problem.FieldConstraints, field.TypeString, value)
 	}
+	if pu.mutation.ConstraintsCleared() {
+		_spec.ClearField(problem.FieldConstraints, field.TypeString)
+	}
 	if value, ok := pu.mutation.EvaluationCriteria(); ok {
 		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeString, value)
+	}
+	if pu.mutation.EvaluationCriteriaCleared() {
+		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -192,9 +260,37 @@ func (puo *ProblemUpdateOne) SetStatement(s string) *ProblemUpdateOne {
 	return puo
 }
 
+// SetNillableStatement sets the "statement" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableStatement(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetStatement(*s)
+	}
+	return puo
+}
+
+// ClearStatement clears the value of the "statement" field.
+func (puo *ProblemUpdateOne) ClearStatement() *ProblemUpdateOne {
+	puo.mutation.ClearStatement()
+	return puo
+}
+
 // SetExamples sets the "examples" field.
 func (puo *ProblemUpdateOne) SetExamples(s string) *ProblemUpdateOne {
 	puo.mutation.SetExamples(s)
+	return puo
+}
+
+// SetNillableExamples sets the "examples" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableExamples(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetExamples(*s)
+	}
+	return puo
+}
+
+// ClearExamples clears the value of the "examples" field.
+func (puo *ProblemUpdateOne) ClearExamples() *ProblemUpdateOne {
+	puo.mutation.ClearExamples()
 	return puo
 }
 
@@ -204,9 +300,37 @@ func (puo *ProblemUpdateOne) SetConstraints(s string) *ProblemUpdateOne {
 	return puo
 }
 
+// SetNillableConstraints sets the "constraints" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableConstraints(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetConstraints(*s)
+	}
+	return puo
+}
+
+// ClearConstraints clears the value of the "constraints" field.
+func (puo *ProblemUpdateOne) ClearConstraints() *ProblemUpdateOne {
+	puo.mutation.ClearConstraints()
+	return puo
+}
+
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
 func (puo *ProblemUpdateOne) SetEvaluationCriteria(s string) *ProblemUpdateOne {
 	puo.mutation.SetEvaluationCriteria(s)
+	return puo
+}
+
+// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableEvaluationCriteria(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetEvaluationCriteria(*s)
+	}
+	return puo
+}
+
+// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
+func (puo *ProblemUpdateOne) ClearEvaluationCriteria() *ProblemUpdateOne {
+	puo.mutation.ClearEvaluationCriteria()
 	return puo
 }
 
@@ -296,14 +420,26 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if value, ok := puo.mutation.Statement(); ok {
 		_spec.SetField(problem.FieldStatement, field.TypeString, value)
 	}
+	if puo.mutation.StatementCleared() {
+		_spec.ClearField(problem.FieldStatement, field.TypeString)
+	}
 	if value, ok := puo.mutation.Examples(); ok {
 		_spec.SetField(problem.FieldExamples, field.TypeString, value)
+	}
+	if puo.mutation.ExamplesCleared() {
+		_spec.ClearField(problem.FieldExamples, field.TypeString)
 	}
 	if value, ok := puo.mutation.Constraints(); ok {
 		_spec.SetField(problem.FieldConstraints, field.TypeString, value)
 	}
+	if puo.mutation.ConstraintsCleared() {
+		_spec.ClearField(problem.FieldConstraints, field.TypeString)
+	}
 	if value, ok := puo.mutation.EvaluationCriteria(); ok {
 		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeString, value)
+	}
+	if puo.mutation.EvaluationCriteriaCleared() {
+		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeString)
 	}
 	_node = &Problem{config: puo.config}
 	_spec.Assign = _node.assignValues

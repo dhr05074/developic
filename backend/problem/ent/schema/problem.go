@@ -17,10 +17,10 @@ func (Problem) Fields() []ent.Field {
 		field.String("uuid"),
 		field.Int("difficulty"),
 		field.String("language"),
-		field.Text("statement"),
-		field.Text("examples"),
-		field.Text("constraints"),
-		field.Text("evaluation_criteria"),
+		field.Text("statement").Optional(),
+		field.Text("examples").Optional(),
+		field.Text("constraints").Optional(),
+		field.Text("evaluation_criteria").Optional(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }

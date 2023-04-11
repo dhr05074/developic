@@ -1,0 +1,17 @@
+version: "3"
+services:
+    app:
+        build:
+            context: .
+            dockerfile: dev.dockerfile
+        volumes:
+            - ./:/app
+        ports:
+            - "3000:3000"
+    mariadb:
+        image: mariadb
+        environment:
+            MARIADB_ROOT_PASSWORD: teamgrit8266
+            MARIADB_DATABASE: aiign
+        ports:
+            - "3306:3306"

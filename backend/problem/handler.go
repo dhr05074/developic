@@ -6,6 +6,7 @@ import (
 	"code-connect/problem/ent"
 	"code-connect/problem/ent/problem"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -37,7 +38,12 @@ type Handler struct {
 }
 
 var (
-	NotFound = errors.New("problem not found")
+	NotFound      = errors.New("problem not found")
+	DatabaseError = errors.New("database error")
+)
+
+const (
+	CodeAlphabets = "0123456789abcdefghijklmnopqrstuvwxyz"
 )
 
 func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
@@ -50,7 +56,7 @@ func (h *Handler) Get(ctx context.Context, req GetProblemRequest) (*GetProblemRe
 		if ent.IsNotFound(err) {
 			return nil, NotFound
 		}
-		return nil, err
+		return nil, DatabaseError
 	}
 
 	return &GetProblemResponse{
@@ -60,52 +66,37 @@ func (h *Handler) Get(ctx context.Context, req GetProblemRequest) (*GetProblemRe
 }
 
 func (h *Handler) Create(ctx context.Context, req CreateProblemRequest) (*CreateProblemResponse, error) {
-	prompts := []string{
-		fmt.Sprintf("Create a coding test in %s to evaluate if candidate is a developer who can write data structures efficiently. The difficulty level is %d out of 100. The higher the difficulty level, the harder the question. Test should include problem statement, example usage, constraints, evaluation criteria only. Test should not give any hints or suggestions. Test should not include heading. Give the output as Markdown format.", req.Language, req.Difficulty),
+	id := gonanoid.MustGenerate(CodeAlphabets, 10)
+
+	p, err := h.entClient.Problem.Create().SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(ctx)
+	if err != nil {
+		l.Errorw("error while creating problem", "error", err)
+		return nil, DatabaseError
 	}
 
-	id := gonanoid.MustGenerate("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10)
+	prompts := []string{
+		fmt.Sprintf("Create a coding test in %s to evaluate if candidate is a developer who can use data structures efficiently. The difficulty level is %d out of 100. The higher the difficulty level, the harder the question. Test should include problem statement, example usage, constraints, evaluation criteria only. Test should not give any hints or suggestions. Test should not include heading. If there is a difficult concept in the question, add a brief explanation. Give the output as Markdown format.", req.Language, req.Difficulty),
+	}
 
-	go func(id string, difficulty int, language string, prompts []string) {
-		var (
-			tx  *ent.Tx
-			err error
-		)
+	go func(p *ent.Problem, prompts []string) {
+		newCtx := context.TODO()
 
-		tx, err = h.entClient.Tx(context.TODO())
-		if err != nil {
-			l.Errorw("error while creating transaction", "error", err)
-			return
-		}
-		defer func() {
-			if err == nil {
-				return
-			}
-
-			if err := tx.Rollback(); err != nil {
-				l.Errorw("error while closing transaction", "error", err)
-			}
-		}()
-
-		var p *ent.Problem
-		p, err = tx.Problem.Create().SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(ctx)
-		if err != nil {
-			l.Errorw("error while creating problem", "error", err)
-			return
-		}
-
-		var answer string
-		answer, err = h.gptClient.CompleteWithContext(ctx, prompts)
+		l.Info("generating problem statement...")
+		answer, err := h.gptClient.CompleteWithContext(newCtx, prompts)
 		if err != nil {
 			l.Errorw("error while completing prompt", "error", err)
+			return
 		}
+		l.Info("problem statement generated")
 
-		err = tx.Problem.UpdateOne(p).SetStatement(answer).Exec(ctx)
+		// encode answer to base64 to avoid issues with special characters
+		encodedAnswer := base64.StdEncoding.EncodeToString([]byte(answer))
+		err = h.entClient.Problem.UpdateOne(p).SetStatement(encodedAnswer).Exec(newCtx)
 		if err != nil {
 			l.Errorw("error while updating problem", "error", err)
 			return
 		}
-	}(id, req.Difficulty, req.Language, prompts)
+	}(p, prompts)
 
 	return &CreateProblemResponse{
 		ID: id,

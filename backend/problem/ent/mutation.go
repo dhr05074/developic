@@ -305,9 +305,22 @@ func (m *ProblemMutation) OldStatement(ctx context.Context) (v string, err error
 	return oldValue.Statement, nil
 }
 
+// ClearStatement clears the value of the "statement" field.
+func (m *ProblemMutation) ClearStatement() {
+	m.statement = nil
+	m.clearedFields[problem.FieldStatement] = struct{}{}
+}
+
+// StatementCleared returns if the "statement" field was cleared in this mutation.
+func (m *ProblemMutation) StatementCleared() bool {
+	_, ok := m.clearedFields[problem.FieldStatement]
+	return ok
+}
+
 // ResetStatement resets all changes to the "statement" field.
 func (m *ProblemMutation) ResetStatement() {
 	m.statement = nil
+	delete(m.clearedFields, problem.FieldStatement)
 }
 
 // SetExamples sets the "examples" field.
@@ -341,9 +354,22 @@ func (m *ProblemMutation) OldExamples(ctx context.Context) (v string, err error)
 	return oldValue.Examples, nil
 }
 
+// ClearExamples clears the value of the "examples" field.
+func (m *ProblemMutation) ClearExamples() {
+	m.examples = nil
+	m.clearedFields[problem.FieldExamples] = struct{}{}
+}
+
+// ExamplesCleared returns if the "examples" field was cleared in this mutation.
+func (m *ProblemMutation) ExamplesCleared() bool {
+	_, ok := m.clearedFields[problem.FieldExamples]
+	return ok
+}
+
 // ResetExamples resets all changes to the "examples" field.
 func (m *ProblemMutation) ResetExamples() {
 	m.examples = nil
+	delete(m.clearedFields, problem.FieldExamples)
 }
 
 // SetConstraints sets the "constraints" field.
@@ -377,9 +403,22 @@ func (m *ProblemMutation) OldConstraints(ctx context.Context) (v string, err err
 	return oldValue.Constraints, nil
 }
 
+// ClearConstraints clears the value of the "constraints" field.
+func (m *ProblemMutation) ClearConstraints() {
+	m.constraints = nil
+	m.clearedFields[problem.FieldConstraints] = struct{}{}
+}
+
+// ConstraintsCleared returns if the "constraints" field was cleared in this mutation.
+func (m *ProblemMutation) ConstraintsCleared() bool {
+	_, ok := m.clearedFields[problem.FieldConstraints]
+	return ok
+}
+
 // ResetConstraints resets all changes to the "constraints" field.
 func (m *ProblemMutation) ResetConstraints() {
 	m.constraints = nil
+	delete(m.clearedFields, problem.FieldConstraints)
 }
 
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
@@ -413,9 +452,22 @@ func (m *ProblemMutation) OldEvaluationCriteria(ctx context.Context) (v string, 
 	return oldValue.EvaluationCriteria, nil
 }
 
+// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
+func (m *ProblemMutation) ClearEvaluationCriteria() {
+	m.evaluation_criteria = nil
+	m.clearedFields[problem.FieldEvaluationCriteria] = struct{}{}
+}
+
+// EvaluationCriteriaCleared returns if the "evaluation_criteria" field was cleared in this mutation.
+func (m *ProblemMutation) EvaluationCriteriaCleared() bool {
+	_, ok := m.clearedFields[problem.FieldEvaluationCriteria]
+	return ok
+}
+
 // ResetEvaluationCriteria resets all changes to the "evaluation_criteria" field.
 func (m *ProblemMutation) ResetEvaluationCriteria() {
 	m.evaluation_criteria = nil
+	delete(m.clearedFields, problem.FieldEvaluationCriteria)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -671,7 +723,20 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProblemMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(problem.FieldStatement) {
+		fields = append(fields, problem.FieldStatement)
+	}
+	if m.FieldCleared(problem.FieldExamples) {
+		fields = append(fields, problem.FieldExamples)
+	}
+	if m.FieldCleared(problem.FieldConstraints) {
+		fields = append(fields, problem.FieldConstraints)
+	}
+	if m.FieldCleared(problem.FieldEvaluationCriteria) {
+		fields = append(fields, problem.FieldEvaluationCriteria)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -684,6 +749,20 @@ func (m *ProblemMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProblemMutation) ClearField(name string) error {
+	switch name {
+	case problem.FieldStatement:
+		m.ClearStatement()
+		return nil
+	case problem.FieldExamples:
+		m.ClearExamples()
+		return nil
+	case problem.FieldConstraints:
+		m.ClearConstraints()
+		return nil
+	case problem.FieldEvaluationCriteria:
+		m.ClearEvaluationCriteria()
+		return nil
+	}
 	return fmt.Errorf("unknown Problem nullable field %s", name)
 }
 

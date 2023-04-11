@@ -7,9 +7,9 @@ require (
 	entgo.io/ent v0.11.10
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/getkin/kin-openapi v0.115.0
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/matoous/go-nanoid/v2 v2.0.0
-	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/sashabaranov/go-openai v1.6.1
 	go.uber.org/zap v1.24.0
 )

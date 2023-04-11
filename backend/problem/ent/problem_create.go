@@ -44,9 +44,25 @@ func (pc *ProblemCreate) SetStatement(s string) *ProblemCreate {
 	return pc
 }
 
+// SetNillableStatement sets the "statement" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableStatement(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetStatement(*s)
+	}
+	return pc
+}
+
 // SetExamples sets the "examples" field.
 func (pc *ProblemCreate) SetExamples(s string) *ProblemCreate {
 	pc.mutation.SetExamples(s)
+	return pc
+}
+
+// SetNillableExamples sets the "examples" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableExamples(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetExamples(*s)
+	}
 	return pc
 }
 
@@ -56,9 +72,25 @@ func (pc *ProblemCreate) SetConstraints(s string) *ProblemCreate {
 	return pc
 }
 
+// SetNillableConstraints sets the "constraints" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableConstraints(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetConstraints(*s)
+	}
+	return pc
+}
+
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
 func (pc *ProblemCreate) SetEvaluationCriteria(s string) *ProblemCreate {
 	pc.mutation.SetEvaluationCriteria(s)
+	return pc
+}
+
+// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableEvaluationCriteria(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetEvaluationCriteria(*s)
+	}
 	return pc
 }
 
@@ -127,18 +159,6 @@ func (pc *ProblemCreate) check() error {
 	}
 	if _, ok := pc.mutation.Language(); !ok {
 		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Problem.language"`)}
-	}
-	if _, ok := pc.mutation.Statement(); !ok {
-		return &ValidationError{Name: "statement", err: errors.New(`ent: missing required field "Problem.statement"`)}
-	}
-	if _, ok := pc.mutation.Examples(); !ok {
-		return &ValidationError{Name: "examples", err: errors.New(`ent: missing required field "Problem.examples"`)}
-	}
-	if _, ok := pc.mutation.Constraints(); !ok {
-		return &ValidationError{Name: "constraints", err: errors.New(`ent: missing required field "Problem.constraints"`)}
-	}
-	if _, ok := pc.mutation.EvaluationCriteria(); !ok {
-		return &ValidationError{Name: "evaluation_criteria", err: errors.New(`ent: missing required field "Problem.evaluation_criteria"`)}
 	}
 	if _, ok := pc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Problem.created_at"`)}
