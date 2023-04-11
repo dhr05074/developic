@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, MouseEvent } from "react";
 import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import viteLogo from "../../../../../../vite.svg";
 import "./App.css";
 import Footer from "./component/Footer/Footer";
 import TextArea from "./component/Textarea/Textarea";
@@ -12,7 +12,7 @@ import { useCodeMirror } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import CodeEditor from "./component/CodeEditor/CodeEditor";
 import NavBar from "./component/NavBar/NavBar";
-import ResizableComponent from "./component/Resizerble/Resizerble";
+import Resizable from "react-resizable-layout";
 
 function App() {
     const languages = [
@@ -35,11 +35,6 @@ function App() {
         "Swift",
     ];
     let currentLang = "";
-    // const [textareaValue, setText] = useState("입력하세요");
-    // const [] = useState("");
-    // const onTextChange = (e) => {
-    //     setText(e.target.value);
-    // };
     const onClickAPI = (e) => {
         e.preventDefault();
 
@@ -55,22 +50,64 @@ function App() {
     };
     const style = {
         problem: {
-            width: "26rem",
+            width: "20rem",
         },
     };
+    const bodyRef = useRef<HTMLDivElement>(null);
+    //resizer
+    const [runnerWidth, setRunnerWidth] = useState<number>(300);
+    const runnerRef = useRef<HTMLDivElement>(null);
+    const [isResizing, setIsResizing] = useState<boolean>(false);
+
+    const handleMouseMove = (event: MouseEvent) => {
+        if (isResizing && runnerRef.current) {
+            const diff = bodyRef.current.clientWidth - event.clientX + 10;
+            setRunnerWidth(diff);
+        }
+    };
+
+    // add a mousedown event listener to the sidebar to start resizing
+    function handleMouseDown() {
+        setIsResizing(true);
+        // document.addEventListener("mousemove", handleMouseMove);
+    }
+
+    // remove the mousemove event listener when the user releases the mouse button
+    function handleMouseUp() {
+        console.log("🚀 ~ file: App.tsx:77 ~ handleMouseUp ~ handleMouseUp:");
+        setIsResizing(false);
+        // document.removeEventListener("mousemove", handleMouseMove);
+    }
 
     return (
         <div className="App w-screen h-screen">
             <section id="header">
                 <NavBar />
             </section>
-            <section id="body" className="flex flex-row w-full h-full">
-                <article id="problem" style={{ width: style.problem.width }} className=" bg-Navy-800"></article>
+            <section
+                id="body"
+                ref={bodyRef}
+                className="flex w-full h-full"
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+            >
+                <article id="problem" style={{ width: style.problem.width }} className=" bg-Navy-800" />
                 {/* 고정 */}
-                <article id="code" className="w-[60%] bg-Navy-900"></article>
-                {/* 움직임 */}
-                <article id="runner" className="w-[40%] h-full">
-                    <ResizableComponent />
+                <article className="flex flex-row w-full">
+                    <div id="code" className="bg-Navy-900 flex flex-auto w-1/2"></div>
+                    <div
+                        id="runner"
+                        ref={runnerRef}
+                        style={{ width: runnerWidth }}
+                        className="h-full flex flex-none bg-Navy-900 "
+                    >
+                        <div
+                            id="resizeBar"
+                            onMouseDown={handleMouseDown}
+                            className={"h-full w-4 bg-Navy-800 cursor-col-resize"}
+                        ></div>
+                        {runnerWidth}
+                    </div>
                 </article>
                 {/* 움직임 */}
             </section>

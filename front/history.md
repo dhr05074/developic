@@ -41,3 +41,5 @@
 
 -   resizerble 제작 중
 -   v0.0.0:8
+-   resizerble 프로토타입 제작 완료
+-   v0.0.0:9

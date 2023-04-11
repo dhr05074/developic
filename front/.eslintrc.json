@@ -1,8 +1,9 @@
 {
     "env": {
         "browser": true,
-        "es2021": true,
-        "jest": true
+        "node": true,
+        "jest": true,
+        "es6": true
     },
     "extends": [
         "airbnb",
@@ -18,18 +19,27 @@
         "prettier"
         // prettier 관련 규칙 모음
     ],
-    "overrides": [],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
-        "project": ["./tsconfig.json"]
+        "project": ["./tsconfig.json"],
+        "ecmaFeatures": {
+            "jsx": true
+        }
     },
-    "plugins": ["react", "@typescript-eslint"],
+    "plugins": ["react", "@typescript-eslint", "react-hooks","import"],
     "rules": {
-        "prettier/prettier": "error"
+        "prettier/prettier": "error",
+        "import/no-unresolved": "error"
     },
     "settings": {
-        "import/external-module-folders": [".yarn"]
+        "import/external-module-folders": [".yarn"],
+        "import/parsers": {
+            "@typescript-eslint/parser": [
+                ".ts",
+                ".tsx"
+            ]
+        }
     }
 }

@@ -6,17 +6,11 @@ export default {
             Pretendard: ["Pretendard"],
         },
         colors: {
-            green: {
-                500: "#B9FF47",
-            },
-            yellow: {
-                500: "#FFEF51",
-            },
-            red: {
-                500: "#FF0D64",
-            },
-            blue: {
-                500: "#3AA0FF",
+            coco: {
+                green_500: "#B9FF47",
+                yellow_500: "#FFEF51",
+                red_500: "#FF0D64",
+                blue_500: "3AA0FF",
             },
             Navy: {
                 50: "#E6E5EC",
