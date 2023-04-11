@@ -36,3 +36,8 @@
 -   design pattern 적용
 -   navBar 적용
 -   v0.0.0:8
+
+### 4/11
+
+-   resizerble 제작 중
+-   v0.0.0:8

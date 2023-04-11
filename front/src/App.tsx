@@ -12,6 +12,7 @@ import { useCodeMirror } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import CodeEditor from "./component/CodeEditor/CodeEditor";
 import NavBar from "./component/NavBar/NavBar";
+import ResizableComponent from "./component/Resizerble/Resizerble";
 
 function App() {
     const languages = [
@@ -52,16 +53,26 @@ function App() {
         console.log("🚀 ~ file: App.tsx:41 ~ getMenuValue ~ value:", value);
         currentLang = value;
     };
+    const style = {
+        problem: {
+            width: "26rem",
+        },
+    };
 
     return (
-        <div className="App">
+        <div className="App w-screen h-screen">
             <section id="header">
                 <NavBar />
             </section>
-            <section id="body" className="flex flex-row">
-                <article id="problem" className=""></article>
-                <article id="code"></article>
-                <article id="runner"></article>
+            <section id="body" className="flex flex-row w-full h-full">
+                <article id="problem" style={{ width: style.problem.width }} className=" bg-Navy-800"></article>
+                {/* 고정 */}
+                <article id="code" className="w-[60%] bg-Navy-900"></article>
+                {/* 움직임 */}
+                <article id="runner" className="w-[40%] h-full">
+                    <ResizableComponent />
+                </article>
+                {/* 움직임 */}
             </section>
             {/* <section className="flex flex-row justify-between">
                 <Select value={{ menu: languages, callback: getMenuValue }} />

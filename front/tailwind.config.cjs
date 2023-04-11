@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ["./src/**/*.{js,jsx,ts,tsx}"],
+    purge: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
         fontFamily: {
             Pretendard: ["Pretendard"],
@@ -27,11 +27,11 @@ export default {
                 500: "#6B668E",
                 600: "#534C7B",
                 700: "#3A3369",
-                800: "#221956",
-                900: "#090043",
+                800: "#353346",
+                900: "#1F1C32",
             },
         },
         extend: {},
     },
-    plugins: [require("flowbite/plugin")],
+    plugins: [require("flowbite/plugin"), require("tailwindcss"), require("autoprefixer")],
 };
