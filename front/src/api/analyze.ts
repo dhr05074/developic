@@ -2,7 +2,9 @@ import axios from "axios";
 import { apiErrorHandler } from "./errorhandler";
 
 const instance = axios.create({
-    baseURL: "http://localhost:8080",
+    // baseURL: "http://localhost:8080",
+    baseURL: "15.165.21.53:3000",
+
     // timeout: 1000,
     // headers: {'X-Custom-Header': 'foobar'}
 });

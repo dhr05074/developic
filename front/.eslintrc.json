@@ -31,7 +31,19 @@
     "plugins": ["react", "@typescript-eslint", "react-hooks","import"],
     "rules": {
         "prettier/prettier": "error",
-        "import/no-unresolved": "error"
+        "import/no-unresolved": "error",
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
+        ],
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-filename-extension": [1, { "extensions": [".tsx", ".jsx"] }]
     },
     "settings": {
         "import/external-module-folders": [".yarn"],
