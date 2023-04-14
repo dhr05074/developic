@@ -79,16 +79,6 @@ func Examples(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldExamples, v))
 }
 
-// Constraints applies equality check predicate on the "constraints" field. It's identical to ConstraintsEQ.
-func Constraints(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldConstraints, v))
-}
-
-// EvaluationCriteria applies equality check predicate on the "evaluation_criteria" field. It's identical to EvaluationCriteriaEQ.
-func EvaluationCriteria(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldEvaluationCriteria, v))
-}
-
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCreatedAt, v))
@@ -414,61 +404,6 @@ func ExamplesContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldExamples, v))
 }
 
-// ConstraintsEQ applies the EQ predicate on the "constraints" field.
-func ConstraintsEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldConstraints, v))
-}
-
-// ConstraintsNEQ applies the NEQ predicate on the "constraints" field.
-func ConstraintsNEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldConstraints, v))
-}
-
-// ConstraintsIn applies the In predicate on the "constraints" field.
-func ConstraintsIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldConstraints, vs...))
-}
-
-// ConstraintsNotIn applies the NotIn predicate on the "constraints" field.
-func ConstraintsNotIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldConstraints, vs...))
-}
-
-// ConstraintsGT applies the GT predicate on the "constraints" field.
-func ConstraintsGT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldConstraints, v))
-}
-
-// ConstraintsGTE applies the GTE predicate on the "constraints" field.
-func ConstraintsGTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldConstraints, v))
-}
-
-// ConstraintsLT applies the LT predicate on the "constraints" field.
-func ConstraintsLT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldConstraints, v))
-}
-
-// ConstraintsLTE applies the LTE predicate on the "constraints" field.
-func ConstraintsLTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldConstraints, v))
-}
-
-// ConstraintsContains applies the Contains predicate on the "constraints" field.
-func ConstraintsContains(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContains(FieldConstraints, v))
-}
-
-// ConstraintsHasPrefix applies the HasPrefix predicate on the "constraints" field.
-func ConstraintsHasPrefix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasPrefix(FieldConstraints, v))
-}
-
-// ConstraintsHasSuffix applies the HasSuffix predicate on the "constraints" field.
-func ConstraintsHasSuffix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasSuffix(FieldConstraints, v))
-}
-
 // ConstraintsIsNil applies the IsNil predicate on the "constraints" field.
 func ConstraintsIsNil() predicate.Problem {
 	return predicate.Problem(sql.FieldIsNull(FieldConstraints))
@@ -479,71 +414,6 @@ func ConstraintsNotNil() predicate.Problem {
 	return predicate.Problem(sql.FieldNotNull(FieldConstraints))
 }
 
-// ConstraintsEqualFold applies the EqualFold predicate on the "constraints" field.
-func ConstraintsEqualFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEqualFold(FieldConstraints, v))
-}
-
-// ConstraintsContainsFold applies the ContainsFold predicate on the "constraints" field.
-func ConstraintsContainsFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContainsFold(FieldConstraints, v))
-}
-
-// EvaluationCriteriaEQ applies the EQ predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaNEQ applies the NEQ predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaNEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaIn applies the In predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldEvaluationCriteria, vs...))
-}
-
-// EvaluationCriteriaNotIn applies the NotIn predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaNotIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldEvaluationCriteria, vs...))
-}
-
-// EvaluationCriteriaGT applies the GT predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaGT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaGTE applies the GTE predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaGTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaLT applies the LT predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaLT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaLTE applies the LTE predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaLTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaContains applies the Contains predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaContains(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContains(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaHasPrefix applies the HasPrefix predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaHasPrefix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasPrefix(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaHasSuffix applies the HasSuffix predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaHasSuffix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasSuffix(FieldEvaluationCriteria, v))
-}
-
 // EvaluationCriteriaIsNil applies the IsNil predicate on the "evaluation_criteria" field.
 func EvaluationCriteriaIsNil() predicate.Problem {
 	return predicate.Problem(sql.FieldIsNull(FieldEvaluationCriteria))
@@ -552,16 +422,6 @@ func EvaluationCriteriaIsNil() predicate.Problem {
 // EvaluationCriteriaNotNil applies the NotNil predicate on the "evaluation_criteria" field.
 func EvaluationCriteriaNotNil() predicate.Problem {
 	return predicate.Problem(sql.FieldNotNull(FieldEvaluationCriteria))
-}
-
-// EvaluationCriteriaEqualFold applies the EqualFold predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaEqualFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEqualFold(FieldEvaluationCriteria, v))
-}
-
-// EvaluationCriteriaContainsFold applies the ContainsFold predicate on the "evaluation_criteria" field.
-func EvaluationCriteriaContainsFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContainsFold(FieldEvaluationCriteria, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

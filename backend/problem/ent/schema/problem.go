@@ -19,8 +19,8 @@ func (Problem) Fields() []ent.Field {
 		field.String("language"),
 		field.Text("statement").Optional(),
 		field.Text("examples").Optional(),
-		field.Text("constraints").Optional(),
-		field.Text("evaluation_criteria").Optional(),
+		field.Strings("constraints").Optional(),
+		field.Strings("evaluation_criteria").Optional(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }

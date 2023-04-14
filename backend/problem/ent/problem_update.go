@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -93,16 +94,14 @@ func (pu *ProblemUpdate) ClearExamples() *ProblemUpdate {
 }
 
 // SetConstraints sets the "constraints" field.
-func (pu *ProblemUpdate) SetConstraints(s string) *ProblemUpdate {
+func (pu *ProblemUpdate) SetConstraints(s []string) *ProblemUpdate {
 	pu.mutation.SetConstraints(s)
 	return pu
 }
 
-// SetNillableConstraints sets the "constraints" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableConstraints(s *string) *ProblemUpdate {
-	if s != nil {
-		pu.SetConstraints(*s)
-	}
+// AppendConstraints appends s to the "constraints" field.
+func (pu *ProblemUpdate) AppendConstraints(s []string) *ProblemUpdate {
+	pu.mutation.AppendConstraints(s)
 	return pu
 }
 
@@ -113,16 +112,14 @@ func (pu *ProblemUpdate) ClearConstraints() *ProblemUpdate {
 }
 
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (pu *ProblemUpdate) SetEvaluationCriteria(s string) *ProblemUpdate {
+func (pu *ProblemUpdate) SetEvaluationCriteria(s []string) *ProblemUpdate {
 	pu.mutation.SetEvaluationCriteria(s)
 	return pu
 }
 
-// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableEvaluationCriteria(s *string) *ProblemUpdate {
-	if s != nil {
-		pu.SetEvaluationCriteria(*s)
-	}
+// AppendEvaluationCriteria appends s to the "evaluation_criteria" field.
+func (pu *ProblemUpdate) AppendEvaluationCriteria(s []string) *ProblemUpdate {
+	pu.mutation.AppendEvaluationCriteria(s)
 	return pu
 }
 
@@ -198,16 +195,26 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(problem.FieldExamples, field.TypeString)
 	}
 	if value, ok := pu.mutation.Constraints(); ok {
-		_spec.SetField(problem.FieldConstraints, field.TypeString, value)
+		_spec.SetField(problem.FieldConstraints, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedConstraints(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, problem.FieldConstraints, value)
+		})
 	}
 	if pu.mutation.ConstraintsCleared() {
-		_spec.ClearField(problem.FieldConstraints, field.TypeString)
+		_spec.ClearField(problem.FieldConstraints, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.EvaluationCriteria(); ok {
-		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeString, value)
+		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedEvaluationCriteria(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, problem.FieldEvaluationCriteria, value)
+		})
 	}
 	if pu.mutation.EvaluationCriteriaCleared() {
-		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeString)
+		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeJSON)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -295,16 +302,14 @@ func (puo *ProblemUpdateOne) ClearExamples() *ProblemUpdateOne {
 }
 
 // SetConstraints sets the "constraints" field.
-func (puo *ProblemUpdateOne) SetConstraints(s string) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetConstraints(s []string) *ProblemUpdateOne {
 	puo.mutation.SetConstraints(s)
 	return puo
 }
 
-// SetNillableConstraints sets the "constraints" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableConstraints(s *string) *ProblemUpdateOne {
-	if s != nil {
-		puo.SetConstraints(*s)
-	}
+// AppendConstraints appends s to the "constraints" field.
+func (puo *ProblemUpdateOne) AppendConstraints(s []string) *ProblemUpdateOne {
+	puo.mutation.AppendConstraints(s)
 	return puo
 }
 
@@ -315,16 +320,14 @@ func (puo *ProblemUpdateOne) ClearConstraints() *ProblemUpdateOne {
 }
 
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (puo *ProblemUpdateOne) SetEvaluationCriteria(s string) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetEvaluationCriteria(s []string) *ProblemUpdateOne {
 	puo.mutation.SetEvaluationCriteria(s)
 	return puo
 }
 
-// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableEvaluationCriteria(s *string) *ProblemUpdateOne {
-	if s != nil {
-		puo.SetEvaluationCriteria(*s)
-	}
+// AppendEvaluationCriteria appends s to the "evaluation_criteria" field.
+func (puo *ProblemUpdateOne) AppendEvaluationCriteria(s []string) *ProblemUpdateOne {
+	puo.mutation.AppendEvaluationCriteria(s)
 	return puo
 }
 
@@ -430,16 +433,26 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 		_spec.ClearField(problem.FieldExamples, field.TypeString)
 	}
 	if value, ok := puo.mutation.Constraints(); ok {
-		_spec.SetField(problem.FieldConstraints, field.TypeString, value)
+		_spec.SetField(problem.FieldConstraints, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedConstraints(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, problem.FieldConstraints, value)
+		})
 	}
 	if puo.mutation.ConstraintsCleared() {
-		_spec.ClearField(problem.FieldConstraints, field.TypeString)
+		_spec.ClearField(problem.FieldConstraints, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.EvaluationCriteria(); ok {
-		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeString, value)
+		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedEvaluationCriteria(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, problem.FieldEvaluationCriteria, value)
+		})
 	}
 	if puo.mutation.EvaluationCriteriaCleared() {
-		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeString)
+		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeJSON)
 	}
 	_node = &Problem{config: puo.config}
 	_spec.Assign = _node.assignValues

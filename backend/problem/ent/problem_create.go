@@ -67,30 +67,14 @@ func (pc *ProblemCreate) SetNillableExamples(s *string) *ProblemCreate {
 }
 
 // SetConstraints sets the "constraints" field.
-func (pc *ProblemCreate) SetConstraints(s string) *ProblemCreate {
+func (pc *ProblemCreate) SetConstraints(s []string) *ProblemCreate {
 	pc.mutation.SetConstraints(s)
 	return pc
 }
 
-// SetNillableConstraints sets the "constraints" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableConstraints(s *string) *ProblemCreate {
-	if s != nil {
-		pc.SetConstraints(*s)
-	}
-	return pc
-}
-
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (pc *ProblemCreate) SetEvaluationCriteria(s string) *ProblemCreate {
+func (pc *ProblemCreate) SetEvaluationCriteria(s []string) *ProblemCreate {
 	pc.mutation.SetEvaluationCriteria(s)
-	return pc
-}
-
-// SetNillableEvaluationCriteria sets the "evaluation_criteria" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableEvaluationCriteria(s *string) *ProblemCreate {
-	if s != nil {
-		pc.SetEvaluationCriteria(*s)
-	}
 	return pc
 }
 
@@ -210,11 +194,11 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.Examples = value
 	}
 	if value, ok := pc.mutation.Constraints(); ok {
-		_spec.SetField(problem.FieldConstraints, field.TypeString, value)
+		_spec.SetField(problem.FieldConstraints, field.TypeJSON, value)
 		_node.Constraints = value
 	}
 	if value, ok := pc.mutation.EvaluationCriteria(); ok {
-		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeString, value)
+		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeJSON, value)
 		_node.EvaluationCriteria = value
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {

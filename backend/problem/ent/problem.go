@@ -4,6 +4,7 @@ package ent
 
 import (
 	"code-connect/problem/ent/problem"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -27,9 +28,9 @@ type Problem struct {
 	// Examples holds the value of the "examples" field.
 	Examples string `json:"examples,omitempty"`
 	// Constraints holds the value of the "constraints" field.
-	Constraints string `json:"constraints,omitempty"`
+	Constraints []string `json:"constraints,omitempty"`
 	// EvaluationCriteria holds the value of the "evaluation_criteria" field.
-	EvaluationCriteria string `json:"evaluation_criteria,omitempty"`
+	EvaluationCriteria []string `json:"evaluation_criteria,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
@@ -39,9 +40,11 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case problem.FieldConstraints, problem.FieldEvaluationCriteria:
+			values[i] = new([]byte)
 		case problem.FieldID, problem.FieldDifficulty:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldLanguage, problem.FieldStatement, problem.FieldExamples, problem.FieldConstraints, problem.FieldEvaluationCriteria:
+		case problem.FieldUUID, problem.FieldLanguage, problem.FieldStatement, problem.FieldExamples:
 			values[i] = new(sql.NullString)
 		case problem.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -97,16 +100,20 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				pr.Examples = value.String
 			}
 		case problem.FieldConstraints:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field constraints", values[i])
-			} else if value.Valid {
-				pr.Constraints = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Constraints); err != nil {
+					return fmt.Errorf("unmarshal field constraints: %w", err)
+				}
 			}
 		case problem.FieldEvaluationCriteria:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field evaluation_criteria", values[i])
-			} else if value.Valid {
-				pr.EvaluationCriteria = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.EvaluationCriteria); err != nil {
+					return fmt.Errorf("unmarshal field evaluation_criteria: %w", err)
+				}
 			}
 		case problem.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -158,10 +165,10 @@ func (pr *Problem) String() string {
 	builder.WriteString(pr.Examples)
 	builder.WriteString(", ")
 	builder.WriteString("constraints=")
-	builder.WriteString(pr.Constraints)
+	builder.WriteString(fmt.Sprintf("%v", pr.Constraints))
 	builder.WriteString(", ")
 	builder.WriteString("evaluation_criteria=")
-	builder.WriteString(pr.EvaluationCriteria)
+	builder.WriteString(fmt.Sprintf("%v", pr.EvaluationCriteria))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(pr.CreatedAt.Format(time.ANSIC))

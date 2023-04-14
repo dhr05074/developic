@@ -8,6 +8,8 @@ services:
             - ./:/app
         ports:
             - "3000:3000"
+        environment:
+            CHATGPT_API_KEY: ${CHATGPT_API_KEY}
     mariadb:
         image: mariadb
         environment:

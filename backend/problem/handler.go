@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	gonanoid "github.com/matoous/go-nanoid/v2"
+	nanoid "github.com/matoous/go-nanoid/v2"
 )
 
 var l = log.NewZapSugaredLogger()
@@ -43,7 +43,7 @@ var (
 )
 
 const (
-	CodeAlphabets = "0123456789abcdefghijklmnopqrstuvwxyz"
+	CodeAlphabets = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
 func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
@@ -51,11 +51,22 @@ func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
 }
 
 func (h *Handler) Get(ctx context.Context, req GetProblemRequest) (*GetProblemResponse, error) {
-	p, err := h.entClient.Problem.Query().Where(problem.UUID(req.ID)).Only(ctx)
+	tx, err := h.entClient.Tx(ctx)
+	if err != nil {
+		l.Errorw("error while creating transaction", "error", err)
+		return nil, DatabaseError
+	}
+
+	p, err := tx.Problem.Query().Where(problem.UUID(req.ID)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, NotFound
 		}
+		return nil, DatabaseError
+	}
+
+	if err := tx.Commit(); err != nil {
+		l.Errorw("error while committing transaction", "error", err)
 		return nil, DatabaseError
 	}
 
@@ -65,20 +76,16 @@ func (h *Handler) Get(ctx context.Context, req GetProblemRequest) (*GetProblemRe
 	}, nil
 }
 
-func (h *Handler) Create(ctx context.Context, req CreateProblemRequest) (*CreateProblemResponse, error) {
-	id := gonanoid.MustGenerate(CodeAlphabets, 10)
-
-	p, err := h.entClient.Problem.Create().SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(ctx)
-	if err != nil {
-		l.Errorw("error while creating problem", "error", err)
-		return nil, DatabaseError
-	}
+func (h *Handler) Create(_ context.Context, req CreateProblemRequest) (*CreateProblemResponse, error) {
+	id := nanoid.MustGenerate(CodeAlphabets, 10)
 
 	prompts := []string{
-		fmt.Sprintf("Create a coding test in %s to evaluate if candidate is a developer who can use data structures efficiently. The difficulty level is %d out of 100. The higher the difficulty level, the harder the question. Test should include problem statement, example usage, constraints, evaluation criteria only. Test should not give any hints or suggestions. Test should not include heading. If there is a difficult concept in the question, add a brief explanation. Give the output as Markdown format.", req.Language, req.Difficulty),
+		fmt.Sprintf("Create a coding test in %s to evaluate if candidate is a developer who can use data structures efficiently.", req.Language),
+		fmt.Sprintf("The difficulty level is %d out of 100. The higher the difficulty level, the harder the problem.", req.Difficulty),
+		fmt.Sprintf("Test should include problem statement, example usage, constraints, evaluation criteria only. Test should not give any hints or suggestions. Test should not include heading. If there is a difficult concept in the question, add a brief explanation. Give the output as Markdown format."),
 	}
 
-	go func(p *ent.Problem, prompts []string) {
+	go func(prompts []string) {
 		newCtx := context.TODO()
 
 		l.Info("generating problem statement...")
@@ -91,12 +98,33 @@ func (h *Handler) Create(ctx context.Context, req CreateProblemRequest) (*Create
 
 		// encode answer to base64 to avoid issues with special characters
 		encodedAnswer := base64.StdEncoding.EncodeToString([]byte(answer))
-		err = h.entClient.Problem.UpdateOne(p).SetStatement(encodedAnswer).Exec(newCtx)
+
+		tx, err := h.entClient.Tx(newCtx)
 		if err != nil {
-			l.Errorw("error while updating problem", "error", err)
+			l.Errorw("error while creating transaction", "error", err)
 			return
 		}
-	}(p, prompts)
+
+		defer func() {
+			if err == nil {
+				return
+			}
+			if err := tx.Rollback(); err != nil {
+				l.Errorw("error while rolling back transaction", "error", err)
+			}
+		}()
+
+		_, err = tx.Problem.Create().SetStatement(encodedAnswer).SetUUID(id).SetDifficulty(req.Difficulty).SetLanguage(req.Language).Save(newCtx)
+		if err != nil {
+			l.Errorw("error while creating problem", "error", err)
+			return
+		}
+
+		if err = tx.Commit(); err != nil {
+			l.Errorw("error while committing transaction", "error", err)
+			return
+		}
+	}(prompts)
 
 	return &CreateProblemResponse{
 		ID: id,

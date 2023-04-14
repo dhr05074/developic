@@ -30,22 +30,24 @@ const (
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *int
-	uuid                *string
-	difficulty          *int
-	adddifficulty       *int
-	language            *string
-	statement           *string
-	examples            *string
-	constraints         *string
-	evaluation_criteria *string
-	created_at          *time.Time
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*Problem, error)
-	predicates          []predicate.Problem
+	op                        Op
+	typ                       string
+	id                        *int
+	uuid                      *string
+	difficulty                *int
+	adddifficulty             *int
+	language                  *string
+	statement                 *string
+	examples                  *string
+	constraints               *[]string
+	appendconstraints         []string
+	evaluation_criteria       *[]string
+	appendevaluation_criteria []string
+	created_at                *time.Time
+	clearedFields             map[string]struct{}
+	done                      bool
+	oldValue                  func(context.Context) (*Problem, error)
+	predicates                []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -373,12 +375,13 @@ func (m *ProblemMutation) ResetExamples() {
 }
 
 // SetConstraints sets the "constraints" field.
-func (m *ProblemMutation) SetConstraints(s string) {
+func (m *ProblemMutation) SetConstraints(s []string) {
 	m.constraints = &s
+	m.appendconstraints = nil
 }
 
 // Constraints returns the value of the "constraints" field in the mutation.
-func (m *ProblemMutation) Constraints() (r string, exists bool) {
+func (m *ProblemMutation) Constraints() (r []string, exists bool) {
 	v := m.constraints
 	if v == nil {
 		return
@@ -389,7 +392,7 @@ func (m *ProblemMutation) Constraints() (r string, exists bool) {
 // OldConstraints returns the old "constraints" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldConstraints(ctx context.Context) (v string, err error) {
+func (m *ProblemMutation) OldConstraints(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldConstraints is only allowed on UpdateOne operations")
 	}
@@ -403,9 +406,23 @@ func (m *ProblemMutation) OldConstraints(ctx context.Context) (v string, err err
 	return oldValue.Constraints, nil
 }
 
+// AppendConstraints adds s to the "constraints" field.
+func (m *ProblemMutation) AppendConstraints(s []string) {
+	m.appendconstraints = append(m.appendconstraints, s...)
+}
+
+// AppendedConstraints returns the list of values that were appended to the "constraints" field in this mutation.
+func (m *ProblemMutation) AppendedConstraints() ([]string, bool) {
+	if len(m.appendconstraints) == 0 {
+		return nil, false
+	}
+	return m.appendconstraints, true
+}
+
 // ClearConstraints clears the value of the "constraints" field.
 func (m *ProblemMutation) ClearConstraints() {
 	m.constraints = nil
+	m.appendconstraints = nil
 	m.clearedFields[problem.FieldConstraints] = struct{}{}
 }
 
@@ -418,16 +435,18 @@ func (m *ProblemMutation) ConstraintsCleared() bool {
 // ResetConstraints resets all changes to the "constraints" field.
 func (m *ProblemMutation) ResetConstraints() {
 	m.constraints = nil
+	m.appendconstraints = nil
 	delete(m.clearedFields, problem.FieldConstraints)
 }
 
 // SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (m *ProblemMutation) SetEvaluationCriteria(s string) {
+func (m *ProblemMutation) SetEvaluationCriteria(s []string) {
 	m.evaluation_criteria = &s
+	m.appendevaluation_criteria = nil
 }
 
 // EvaluationCriteria returns the value of the "evaluation_criteria" field in the mutation.
-func (m *ProblemMutation) EvaluationCriteria() (r string, exists bool) {
+func (m *ProblemMutation) EvaluationCriteria() (r []string, exists bool) {
 	v := m.evaluation_criteria
 	if v == nil {
 		return
@@ -438,7 +457,7 @@ func (m *ProblemMutation) EvaluationCriteria() (r string, exists bool) {
 // OldEvaluationCriteria returns the old "evaluation_criteria" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldEvaluationCriteria(ctx context.Context) (v string, err error) {
+func (m *ProblemMutation) OldEvaluationCriteria(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEvaluationCriteria is only allowed on UpdateOne operations")
 	}
@@ -452,9 +471,23 @@ func (m *ProblemMutation) OldEvaluationCriteria(ctx context.Context) (v string, 
 	return oldValue.EvaluationCriteria, nil
 }
 
+// AppendEvaluationCriteria adds s to the "evaluation_criteria" field.
+func (m *ProblemMutation) AppendEvaluationCriteria(s []string) {
+	m.appendevaluation_criteria = append(m.appendevaluation_criteria, s...)
+}
+
+// AppendedEvaluationCriteria returns the list of values that were appended to the "evaluation_criteria" field in this mutation.
+func (m *ProblemMutation) AppendedEvaluationCriteria() ([]string, bool) {
+	if len(m.appendevaluation_criteria) == 0 {
+		return nil, false
+	}
+	return m.appendevaluation_criteria, true
+}
+
 // ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
 func (m *ProblemMutation) ClearEvaluationCriteria() {
 	m.evaluation_criteria = nil
+	m.appendevaluation_criteria = nil
 	m.clearedFields[problem.FieldEvaluationCriteria] = struct{}{}
 }
 
@@ -467,6 +500,7 @@ func (m *ProblemMutation) EvaluationCriteriaCleared() bool {
 // ResetEvaluationCriteria resets all changes to the "evaluation_criteria" field.
 func (m *ProblemMutation) ResetEvaluationCriteria() {
 	m.evaluation_criteria = nil
+	m.appendevaluation_criteria = nil
 	delete(m.clearedFields, problem.FieldEvaluationCriteria)
 }
 
@@ -659,14 +693,14 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		m.SetExamples(v)
 		return nil
 	case problem.FieldConstraints:
-		v, ok := value.(string)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetConstraints(v)
 		return nil
 	case problem.FieldEvaluationCriteria:
-		v, ok := value.(string)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

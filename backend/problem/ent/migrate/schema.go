@@ -16,8 +16,8 @@ var (
 		{Name: "language", Type: field.TypeString},
 		{Name: "statement", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "examples", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "constraints", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "evaluation_criteria", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "constraints", Type: field.TypeJSON, Nullable: true},
+		{Name: "evaluation_criteria", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
