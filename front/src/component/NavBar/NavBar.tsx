@@ -1,6 +1,6 @@
-import { getProblem, postProblem } from "@src/api/problem";
 import { Spinner } from "flowbite-react";
 import { useState } from "react";
+import { getProblem, postProblem } from "@/api/problem";
 
 type PropsType = {
     currentLang: LanguageType;
@@ -40,8 +40,8 @@ export default function NavBar(props: PropsType) {
         }
     };
     return (
-        <nav className="bg-Navy-900">
-            <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <nav className="bg-Navy-900 h-full">
+            <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto h-full">
                 {/* logo */}
                 <a href="#" className="flex flex-row items-start gap-4">
                     <div className="bg-coco-green_500 h-6 w-6" />

@@ -1,7 +1,7 @@
 import { useState, useRef, MouseEvent, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 // import viteLogo from "../../../../../../vite.svg";
-import "./App.css";
+import "./styles/App.css";
 
 // import Footer from "./component/Footer/Footer";
 import TextArea from "./component/Textarea/Textarea";
@@ -12,10 +12,7 @@ import Select from "./component/Select/Select";
 // import { javascript } from "@codemirror/lang-javascript";
 // import CodeEditor from "./component/CodeEditor/CodeEditor";
 import NavBar from "./component/NavBar/NavBar";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { materialDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import Problem from "./component/Resizable/Problem";
 
 function App() {
     const languages: string[] = [
@@ -47,7 +44,7 @@ function App() {
 
     const style = {
         problem: {
-            width: "24rem",
+            width: "600px",
         },
     };
     const bodyRef = useRef<HTMLDivElement>(null);
@@ -80,46 +77,19 @@ function App() {
     };
 
     return (
-        <div className="App w-screen h-screen">
+        <div id="App" className="App w-screen h-screen">
             <section id="header">
                 <NavBar currentLang={currentLang} getProblem={getProblem} />
             </section>
             <section
                 id="body"
                 ref={bodyRef}
-                className="flex w-full h-full"
+                className="flex w-full"
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
             >
-                <article
-                    id="problem"
-                    style={{ width: style.problem.width }}
-                    className=" bg-Navy-800 markdown text-left"
-                >
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                            code({ inline, className, children, ...props }) {
-                                const match = /lyaranguage-(\w+)/.exec(className || "");
-                                return !inline && match ? (
-                                    <SyntaxHighlighter
-                                        style={materialDark}
-                                        language={currentLang}
-                                        PreTag="div"
-                                        {...props}
-                                    >
-                                        {String(children).replace(/\n$/, "")}
-                                    </SyntaxHighlighter>
-                                ) : (
-                                    <code className={className} {...props}>
-                                        {children}
-                                    </code>
-                                );
-                            },
-                        }}
-                    >
-                        {useProblem}
-                    </ReactMarkdown>
+                <article id="problem" style={{ width: style.problem.width }} className=" text-left overflow-auto">
+                    <Problem markdown={useProblem} />
                 </article>
                 {/* 고정 */}
                 <article className="flex flex-row w-full">

@@ -27,5 +27,5 @@ export default {
         },
         extend: {},
     },
-    plugins: [require("flowbite/plugin"), require("tailwindcss"), require("autoprefixer")],
+    plugins: [require("flowbite/plugin"),require('@tailwindcss/typography'), require("tailwindcss"), require("autoprefixer")],
 };
