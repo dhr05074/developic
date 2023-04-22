@@ -26,9 +26,24 @@ var (
 		Columns:    ProblemsColumns,
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 	}
+	// ScenariosColumns holds the columns for the "scenarios" table.
+	ScenariosColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeString},
+		{Name: "title", Type: field.TypeString},
+		{Name: "content", Type: field.TypeString, Size: 2147483647},
+		{Name: "request_id", Type: field.TypeString},
+	}
+	// ScenariosTable holds the schema information for the "scenarios" table.
+	ScenariosTable = &schema.Table{
+		Name:       "scenarios",
+		Columns:    ScenariosColumns,
+		PrimaryKey: []*schema.Column{ScenariosColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProblemsTable,
+		ScenariosTable,
 	}
 )
 

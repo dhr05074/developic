@@ -6,7 +6,9 @@ package gateway
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -49,6 +51,24 @@ type ProblemID = string
 // ProblemLanguage 문제 풀이시 사용할 언어입니다.
 type ProblemLanguage string
 
+// RequestID ID of the scenario request
+type RequestID = string
+
+// Scenario defines model for Scenario.
+type Scenario struct {
+	// Content Scenario content
+	Content string `json:"content"`
+
+	// Id ID of the scenario
+	Id ScenarioID `json:"id"`
+
+	// Title Scenario title
+	Title string `json:"title"`
+}
+
+// ScenarioID ID of the scenario
+type ScenarioID = string
+
 // BadRequest defines model for BadRequest.
 type BadRequest struct {
 	// Message 오류 메시지
@@ -73,8 +93,20 @@ type CreateProblemJSONBody struct {
 	Language ProblemLanguage `json:"language"`
 }
 
+// CreateScenarioJSONBody defines parameters for CreateScenario.
+type CreateScenarioJSONBody struct {
+	// Preferences Preferential conditions for developers that companies want
+	Preferences string `json:"preferences"`
+
+	// Qualifications Qualifications for developers that companies want
+	Qualifications string `json:"qualifications"`
+}
+
 // CreateProblemJSONRequestBody defines body for CreateProblem for application/json ContentType.
 type CreateProblemJSONRequestBody CreateProblemJSONBody
+
+// CreateScenarioJSONRequestBody defines body for CreateScenario for application/json ContentType.
+type CreateScenarioJSONRequestBody CreateScenarioJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -84,6 +116,12 @@ type ServerInterface interface {
 	// 문제를 조회합니다.
 	// (GET /problems/{problem_id})
 	GetProblem(ctx echo.Context, problemId ProblemID) error
+	// Create a scenario request.
+	// (POST /scenarios)
+	CreateScenario(ctx echo.Context) error
+	// Get scenarios corresponding to the request ID.
+	// (GET /scenarios/{request_id})
+	GetScenariosByRequestID(ctx echo.Context, requestId RequestID) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -113,6 +151,31 @@ func (w *ServerInterfaceWrapper) GetProblem(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetProblem(ctx, problemId)
+	return err
+}
+
+// CreateScenario converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateScenario(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.CreateScenario(ctx)
+	return err
+}
+
+// GetScenariosByRequestID converts echo context to params.
+func (w *ServerInterfaceWrapper) GetScenariosByRequestID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "request_id" -------------
+	var requestId RequestID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "request_id", runtime.ParamLocationPath, ctx.Param("request_id"), &requestId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter request_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetScenariosByRequestID(ctx, requestId)
 	return err
 }
 
@@ -146,31 +209,346 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.POST(baseURL+"/problems", wrapper.CreateProblem)
 	router.GET(baseURL+"/problems/:problem_id", wrapper.GetProblem)
+	router.POST(baseURL+"/scenarios", wrapper.CreateScenario)
+	router.GET(baseURL+"/scenarios/:request_id", wrapper.GetScenariosByRequestID)
 
+}
+
+type BadRequestJSONResponse struct {
+	// Message 오류 메시지
+	Message *string `json:"message,omitempty"`
+}
+
+type CreateProblemResponseJSONResponse struct {
+	// Id ID of the problem
+	Id *string `json:"id,omitempty"`
+}
+
+type GetProblemResponseJSONResponse Problem
+
+type InternalServerErrorResponse struct {
+}
+
+type TooManyRequestsResponse struct {
+}
+
+type CreateProblemRequestObject struct {
+	Body *CreateProblemJSONRequestBody
+}
+
+type CreateProblemResponseObject interface {
+	VisitCreateProblemResponse(w http.ResponseWriter) error
+}
+
+type CreateProblem202JSONResponse struct {
+	CreateProblemResponseJSONResponse
+}
+
+func (response CreateProblem202JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateProblem400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response CreateProblem400JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateProblem429Response = TooManyRequestsResponse
+
+func (response CreateProblem429Response) VisitCreateProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(429)
+	return nil
+}
+
+type CreateProblem500Response = InternalServerErrorResponse
+
+func (response CreateProblem500Response) VisitCreateProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetProblemRequestObject struct {
+	ProblemId ProblemID `json:"problem_id"`
+}
+
+type GetProblemResponseObject interface {
+	VisitGetProblemResponse(w http.ResponseWriter) error
+}
+
+type GetProblem200JSONResponse struct{ GetProblemResponseJSONResponse }
+
+func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProblem400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetProblem400JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetProblem429Response = TooManyRequestsResponse
+
+func (response GetProblem429Response) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(429)
+	return nil
+}
+
+type GetProblem500Response = InternalServerErrorResponse
+
+func (response GetProblem500Response) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type CreateScenarioRequestObject struct {
+	Body *CreateScenarioJSONRequestBody
+}
+
+type CreateScenarioResponseObject interface {
+	VisitCreateScenarioResponse(w http.ResponseWriter) error
+}
+
+type CreateScenario202JSONResponse struct {
+	// RequestId ID of the scenario request
+	RequestId RequestID `json:"request_id"`
+}
+
+func (response CreateScenario202JSONResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateScenario400JSONResponse struct {
+	// Message Error message
+	Message string `json:"message"`
+}
+
+func (response CreateScenario400JSONResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateScenariodefaultResponse struct {
+	StatusCode int
+}
+
+func (response CreateScenariodefaultResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
+	w.WriteHeader(response.StatusCode)
+	return nil
+}
+
+type GetScenariosByRequestIDRequestObject struct {
+	RequestId RequestID `json:"request_id"`
+}
+
+type GetScenariosByRequestIDResponseObject interface {
+	VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error
+}
+
+type GetScenariosByRequestID200JSONResponse struct {
+	Scenarios []Scenario `json:"scenarios"`
+}
+
+func (response GetScenariosByRequestID200JSONResponse) VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetScenariosByRequestIDdefaultResponse struct {
+	StatusCode int
+}
+
+func (response GetScenariosByRequestIDdefaultResponse) VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error {
+	w.WriteHeader(response.StatusCode)
+	return nil
+}
+
+// StrictServerInterface represents all server handlers.
+type StrictServerInterface interface {
+	// 문제 생성을 요청합니다.
+	// (POST /problems)
+	CreateProblem(ctx context.Context, request CreateProblemRequestObject) (CreateProblemResponseObject, error)
+	// 문제를 조회합니다.
+	// (GET /problems/{problem_id})
+	GetProblem(ctx context.Context, request GetProblemRequestObject) (GetProblemResponseObject, error)
+	// Create a scenario request.
+	// (POST /scenarios)
+	CreateScenario(ctx context.Context, request CreateScenarioRequestObject) (CreateScenarioResponseObject, error)
+	// Get scenarios corresponding to the request ID.
+	// (GET /scenarios/{request_id})
+	GetScenariosByRequestID(ctx context.Context, request GetScenariosByRequestIDRequestObject) (GetScenariosByRequestIDResponseObject, error)
+}
+
+type StrictHandlerFunc func(ctx echo.Context, args interface{}) (interface{}, error)
+
+type StrictMiddlewareFunc func(f StrictHandlerFunc, operationID string) StrictHandlerFunc
+
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares}
+}
+
+type strictHandler struct {
+	ssi         StrictServerInterface
+	middlewares []StrictMiddlewareFunc
+}
+
+// CreateProblem operation middleware
+func (sh *strictHandler) CreateProblem(ctx echo.Context) error {
+	var request CreateProblemRequestObject
+
+	var body CreateProblemJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateProblem(ctx.Request().Context(), request.(CreateProblemRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateProblem")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(CreateProblemResponseObject); ok {
+		return validResponse.VisitCreateProblemResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetProblem operation middleware
+func (sh *strictHandler) GetProblem(ctx echo.Context, problemId ProblemID) error {
+	var request GetProblemRequestObject
+
+	request.ProblemId = problemId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetProblem(ctx.Request().Context(), request.(GetProblemRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetProblem")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetProblemResponseObject); ok {
+		return validResponse.VisitGetProblemResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// CreateScenario operation middleware
+func (sh *strictHandler) CreateScenario(ctx echo.Context) error {
+	var request CreateScenarioRequestObject
+
+	var body CreateScenarioJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateScenario(ctx.Request().Context(), request.(CreateScenarioRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateScenario")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(CreateScenarioResponseObject); ok {
+		return validResponse.VisitCreateScenarioResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetScenariosByRequestID operation middleware
+func (sh *strictHandler) GetScenariosByRequestID(ctx echo.Context, requestId RequestID) error {
+	var request GetScenariosByRequestIDRequestObject
+
+	request.RequestId = requestId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetScenariosByRequestID(ctx.Request().Context(), request.(GetScenariosByRequestIDRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetScenariosByRequestID")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetScenariosByRequestIDResponseObject); ok {
+		return validResponse.VisitGetScenariosByRequestIDResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RW327bNhd/FYL5LlXbSZtvq+/WeCg8rEDQ7q4NVsaiY2UWqVJ0ViPw4GUaYNTd2g5x",
-	"qqZ24KIJggAZ4HTqkIs8UXn8DgMlxVZspfWQ7WIGDJESz9/f7/CcTVzitsMZZdLF+U0sqOtw5tJwc4uY",
-	"d+mjGnWl3pU4k5SFS+I4VatEpMVZdt3lTL9zSxVqE71yBHeokFakxKauS9aoXprULQnL0WI4j8HfVwc+",
-	"Ukfb0O7CYRMbmD4mtlOlOI8fWuZDVLZo1USWiwR9VLMENbGBZd3R310pLLaGG/pnTCre3YZ3v6Oh34F2",
-	"D3oBAv9YDbbVQQCHTQSdJ/DkvWq3VHs/gxsGXhKUSLos+GqV2nfj+K8QsGVOx1osIF5GskKRE9m5EOz8",
-	"wvUbi///7PObudkCVMen0O8i+KkH3gmKwg3j9E4+/PEe+j9C90y96SLov4CWr5778LI1jhlNiL/y1Nun",
-	"aPjaQ3DY/HDaQmrgD1/5avAaes3zw8WCVhht1MEZgjeD4e7TYaePoOUj2GtdzOltKq+S0P8JWsZ5PJcd",
-	"kzMbfXWzsV78kbyEvsHL53FChjsT3hWZpIKR6j0qNqj4UgguUujpddU7D6mtQP3ZRBFZYe/nhJpvOL9D",
-	"WD0uETdFxQgZ5bXUcYDU4a8JHGCvD+1umHnV3tdLaHfVM2/YCeDtGXinsLudwTrMOHZt4Tz8KWNx8OqX",
-	"AfSCoTdI+GpMMDSBQ7qOrQB2j8YK0B0ivjP59+y8pmJ67b0A70TTayeYoECS3XNzMW8esAfsEgvTvDdS",
-	"6ygSh56PigV0QXy2ajJwlbC1Wup9FLs2/K0JvSBEY+sYdo9Cju+cwk5wiT2nLiucpVSugUf3Vv6+Didh",
-	"3RiBsDIS5KvrtCS1kzHIBatctkq1qqx/LBNqqwu9QD3zEoDNox/QfC4XhtAL9Cnod6Dlp4ewmBv5wGr2",
-	"KhUJH4qFfwOFWPnX/xQYrGbrHI+gWCcbJH5EWnXC9d9xsIHXeCLrsVMGfnxNq7m2QQQjti6U+3j5XN9X",
-	"kT79uHeub0n/l5exgW9zvBJeRxYr8+lYlrhJlzhjtCTRF8tFnQ9LhklKfMEG3qDCjSRymflMTueJO5QR",
-	"x8J5fD2Ty+hUOkRWwiLOxp0k3Dg86tG6ysNLtWhq9cnOhiM6Ulfe4mb9Cv3NvMDKGa7qBI0nCnAG4RFF",
-	"JuspUUoJjyIcxuekqNHwRWKsWcgtXGZ8dC6bPhU0DHwjl/u0dGJy0iILNz8tMtlNGgZenMVUWjMLe0bN",
-	"tomoT44L0PPiiWHYORo1s4Yx5lN2M159a5kNbX+NpnBr3OFDUgpiU0mFrppLSrlYwLpA9IVJZAUbWFeZ",
-	"3o2M4UngjL83EhQLuNFYmQJ7hhymjCv/YaST81kCYn0ylIxAqokqzuOKlI6bz2aJY2VK3KSl6DbKWBw3",
-	"Vhp/BQAA//+cA0dOHgwAAA==",
+	"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",
+	"AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

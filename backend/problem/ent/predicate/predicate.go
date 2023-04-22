@@ -8,3 +8,6 @@ import (
 
 // Problem is the predicate function for problem builders.
 type Problem func(*sql.Selector)
+
+// Scenario is the predicate function for scenario builders.
+type Scenario func(*sql.Selector)

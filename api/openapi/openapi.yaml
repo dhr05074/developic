@@ -6,6 +6,94 @@ info:
 servers:
     - url: "https://api.codeconnect.io"
 paths:
+    /scenarios:
+        post:
+            summary: "Create a scenario request."
+            operationId: "createScenario"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            properties:
+                                qualifications:
+                                    type: string
+                                    description: "Qualifications for developers that companies want"
+                                preferences:
+                                    type: string
+                                    description: "Preferential conditions for developers that companies want"
+                            required:
+                                - qualifications
+                                - preferences
+            responses:
+                "202":
+                    description: "Scenario request is accepted. You can get the scenario ID from the response."
+                    content:
+                        application/json:
+                            schema:
+                                required:
+                                    - request_id
+                                properties:
+                                    request_id:
+                                        $ref: "#/components/schemas/RequestID"
+                "400":
+                    description: "Required content is missing, or the wrong data type has been sent."
+                    content:
+                        application/json:
+                            schema:
+                                required:
+                                    - message
+                                properties:
+                                    message:
+                                        type: string
+                                        description: "Error message"
+                                        example: "`id` field is required"
+                default:
+                    description: "Unexpected error"
+    /scenarios/{request_id}:
+        get:
+            summary: "Get scenarios corresponding to the request ID."
+            operationId: "getScenariosByRequestID"
+            parameters:
+                - name: "request_id"
+                  in: "path"
+                  description: "ID of the scenario request"
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/RequestID"
+            responses:
+                "200":
+                    description: "Scenarios corresponding to the request ID have been successfully retrieved."
+                    content:
+                        application/json:
+                            schema:
+                                required:
+                                    - scenarios
+                                properties:
+                                    scenarios:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Scenario"
+                default:
+                    description: "Unexpected error"
+#    /scenarios/{scenario_id}:
+#        get:
+#            summary: "Get a scenario."
+#            operationId: "getScenario"
+#            parameters:
+#                - name: "scenario_id"
+#                  in: "path"
+#                  description: "ID of the scenario"
+#                  required: true
+#                  schema:
+#                      $ref: "#/components/schemas/ScenarioID"
+#            responses:
+#                "200":
+#                    description: "Scenario is successfully retrieved."
+#                    content:
+#                        application/json:
+#                            schema:
+#                                $ref: "#/components/schemas/Scenario"
     /problems:
         post:
             summary: "문제 생성을 요청합니다."
@@ -99,6 +187,31 @@ components:
                     type: string
                     description: "문제 내용입니다. Markdown 형식으로 작성되어 있습니다."
                     example: "## 문제\n\n문제 내용입니다."
+        Scenario:
+            type: object
+            required:
+                - id
+                - title
+                - content
+            properties:
+                id:
+                    $ref: "#/components/schemas/ScenarioID"
+                title:
+                    type: string
+                    description: "Scenario title"
+                    example: "Scenario title"
+                content:
+                    type: string
+                    description: "Scenario content"
+                    example: "Scenario content"
+        ScenarioID:
+            type: string
+            description: "ID of the scenario"
+            example: "1234567890"
+        RequestID:
+            type: string
+            description: "ID of the scenario request"
+            example: "1234567890"
     responses:
         BadRequest:
             description: "요청 형식이 올바르지 않습니다."

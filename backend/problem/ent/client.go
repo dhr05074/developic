@@ -11,6 +11,7 @@ import (
 	"code-connect/problem/ent/migrate"
 
 	"code-connect/problem/ent/problem"
+	"code-connect/problem/ent/scenario"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -24,6 +25,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
+	// Scenario is the client for interacting with the Scenario builders.
+	Scenario *ScenarioClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -38,6 +41,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Problem = NewProblemClient(c.config)
+	c.Scenario = NewScenarioClient(c.config)
 }
 
 type (
@@ -118,9 +122,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Problem: NewProblemClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Problem:  NewProblemClient(cfg),
+		Scenario: NewScenarioClient(cfg),
 	}, nil
 }
 
@@ -138,9 +143,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Problem: NewProblemClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Problem:  NewProblemClient(cfg),
+		Scenario: NewScenarioClient(cfg),
 	}, nil
 }
 
@@ -170,12 +176,14 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Problem.Use(hooks...)
+	c.Scenario.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Problem.Intercept(interceptors...)
+	c.Scenario.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -183,6 +191,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *ProblemMutation:
 		return c.Problem.mutate(ctx, m)
+	case *ScenarioMutation:
+		return c.Scenario.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -306,12 +316,130 @@ func (c *ProblemClient) mutate(ctx context.Context, m *ProblemMutation) (Value, 
 	}
 }
 
+// ScenarioClient is a client for the Scenario schema.
+type ScenarioClient struct {
+	config
+}
+
+// NewScenarioClient returns a client for the Scenario from the given config.
+func NewScenarioClient(c config) *ScenarioClient {
+	return &ScenarioClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `scenario.Hooks(f(g(h())))`.
+func (c *ScenarioClient) Use(hooks ...Hook) {
+	c.hooks.Scenario = append(c.hooks.Scenario, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `scenario.Intercept(f(g(h())))`.
+func (c *ScenarioClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Scenario = append(c.inters.Scenario, interceptors...)
+}
+
+// Create returns a builder for creating a Scenario entity.
+func (c *ScenarioClient) Create() *ScenarioCreate {
+	mutation := newScenarioMutation(c.config, OpCreate)
+	return &ScenarioCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Scenario entities.
+func (c *ScenarioClient) CreateBulk(builders ...*ScenarioCreate) *ScenarioCreateBulk {
+	return &ScenarioCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Scenario.
+func (c *ScenarioClient) Update() *ScenarioUpdate {
+	mutation := newScenarioMutation(c.config, OpUpdate)
+	return &ScenarioUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ScenarioClient) UpdateOne(s *Scenario) *ScenarioUpdateOne {
+	mutation := newScenarioMutation(c.config, OpUpdateOne, withScenario(s))
+	return &ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ScenarioClient) UpdateOneID(id int) *ScenarioUpdateOne {
+	mutation := newScenarioMutation(c.config, OpUpdateOne, withScenarioID(id))
+	return &ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Scenario.
+func (c *ScenarioClient) Delete() *ScenarioDelete {
+	mutation := newScenarioMutation(c.config, OpDelete)
+	return &ScenarioDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ScenarioClient) DeleteOne(s *Scenario) *ScenarioDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ScenarioClient) DeleteOneID(id int) *ScenarioDeleteOne {
+	builder := c.Delete().Where(scenario.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ScenarioDeleteOne{builder}
+}
+
+// Query returns a query builder for Scenario.
+func (c *ScenarioClient) Query() *ScenarioQuery {
+	return &ScenarioQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeScenario},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Scenario entity by its id.
+func (c *ScenarioClient) Get(ctx context.Context, id int) (*Scenario, error) {
+	return c.Query().Where(scenario.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ScenarioClient) GetX(ctx context.Context, id int) *Scenario {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ScenarioClient) Hooks() []Hook {
+	return c.hooks.Scenario
+}
+
+// Interceptors returns the client interceptors.
+func (c *ScenarioClient) Interceptors() []Interceptor {
+	return c.inters.Scenario
+}
+
+func (c *ScenarioClient) mutate(ctx context.Context, m *ScenarioMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ScenarioCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ScenarioUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ScenarioUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ScenarioDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Scenario mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Problem []ent.Hook
+		Problem, Scenario []ent.Hook
 	}
 	inters struct {
-		Problem []ent.Interceptor
+		Problem, Scenario []ent.Interceptor
 	}
 )

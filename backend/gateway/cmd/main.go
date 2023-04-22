@@ -38,8 +38,9 @@ func main() {
 		l.Fatalw("failed creating schema resources", "err", err)
 	}
 
-	hdl := problem.NewHandler(openAIClient, entClient)
-	srvHandler := handler.NewServerHandler(hdl)
+	problemHandler := problem.NewHandler(openAIClient, entClient)
+	strictHandler := handler.NewStrictHandler(openAIClient, problemHandler)
+	srvHandler := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 
 	app := echo.New()
 	defer func() {
