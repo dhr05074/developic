@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -34,98 +33,49 @@ func (pu *ProblemUpdate) SetUUID(s string) *ProblemUpdate {
 	return pu
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (pu *ProblemUpdate) SetDifficulty(i int) *ProblemUpdate {
-	pu.mutation.ResetDifficulty()
-	pu.mutation.SetDifficulty(i)
+// SetTitle sets the "title" field.
+func (pu *ProblemUpdate) SetTitle(s string) *ProblemUpdate {
+	pu.mutation.SetTitle(s)
 	return pu
 }
 
-// AddDifficulty adds i to the "difficulty" field.
-func (pu *ProblemUpdate) AddDifficulty(i int) *ProblemUpdate {
-	pu.mutation.AddDifficulty(i)
-	return pu
-}
-
-// SetLanguage sets the "language" field.
-func (pu *ProblemUpdate) SetLanguage(s string) *ProblemUpdate {
-	pu.mutation.SetLanguage(s)
-	return pu
-}
-
-// SetStatement sets the "statement" field.
-func (pu *ProblemUpdate) SetStatement(s string) *ProblemUpdate {
-	pu.mutation.SetStatement(s)
-	return pu
-}
-
-// SetNillableStatement sets the "statement" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableStatement(s *string) *ProblemUpdate {
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableTitle(s *string) *ProblemUpdate {
 	if s != nil {
-		pu.SetStatement(*s)
+		pu.SetTitle(*s)
 	}
 	return pu
 }
 
-// ClearStatement clears the value of the "statement" field.
-func (pu *ProblemUpdate) ClearStatement() *ProblemUpdate {
-	pu.mutation.ClearStatement()
+// ClearTitle clears the value of the "title" field.
+func (pu *ProblemUpdate) ClearTitle() *ProblemUpdate {
+	pu.mutation.ClearTitle()
 	return pu
 }
 
-// SetExamples sets the "examples" field.
-func (pu *ProblemUpdate) SetExamples(s string) *ProblemUpdate {
-	pu.mutation.SetExamples(s)
+// SetContent sets the "content" field.
+func (pu *ProblemUpdate) SetContent(s string) *ProblemUpdate {
+	pu.mutation.SetContent(s)
 	return pu
 }
 
-// SetNillableExamples sets the "examples" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableExamples(s *string) *ProblemUpdate {
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableContent(s *string) *ProblemUpdate {
 	if s != nil {
-		pu.SetExamples(*s)
+		pu.SetContent(*s)
 	}
 	return pu
 }
 
-// ClearExamples clears the value of the "examples" field.
-func (pu *ProblemUpdate) ClearExamples() *ProblemUpdate {
-	pu.mutation.ClearExamples()
+// ClearContent clears the value of the "content" field.
+func (pu *ProblemUpdate) ClearContent() *ProblemUpdate {
+	pu.mutation.ClearContent()
 	return pu
 }
 
-// SetConstraints sets the "constraints" field.
-func (pu *ProblemUpdate) SetConstraints(s []string) *ProblemUpdate {
-	pu.mutation.SetConstraints(s)
-	return pu
-}
-
-// AppendConstraints appends s to the "constraints" field.
-func (pu *ProblemUpdate) AppendConstraints(s []string) *ProblemUpdate {
-	pu.mutation.AppendConstraints(s)
-	return pu
-}
-
-// ClearConstraints clears the value of the "constraints" field.
-func (pu *ProblemUpdate) ClearConstraints() *ProblemUpdate {
-	pu.mutation.ClearConstraints()
-	return pu
-}
-
-// SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (pu *ProblemUpdate) SetEvaluationCriteria(s []string) *ProblemUpdate {
-	pu.mutation.SetEvaluationCriteria(s)
-	return pu
-}
-
-// AppendEvaluationCriteria appends s to the "evaluation_criteria" field.
-func (pu *ProblemUpdate) AppendEvaluationCriteria(s []string) *ProblemUpdate {
-	pu.mutation.AppendEvaluationCriteria(s)
-	return pu
-}
-
-// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
-func (pu *ProblemUpdate) ClearEvaluationCriteria() *ProblemUpdate {
-	pu.mutation.ClearEvaluationCriteria()
+// SetRequestID sets the "request_id" field.
+func (pu *ProblemUpdate) SetRequestID(s string) *ProblemUpdate {
+	pu.mutation.SetRequestID(s)
 	return pu
 }
 
@@ -173,48 +123,20 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.UUID(); ok {
 		_spec.SetField(problem.FieldUUID, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Difficulty(); ok {
-		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)
+	if value, ok := pu.mutation.Title(); ok {
+		_spec.SetField(problem.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.AddedDifficulty(); ok {
-		_spec.AddField(problem.FieldDifficulty, field.TypeInt, value)
+	if pu.mutation.TitleCleared() {
+		_spec.ClearField(problem.FieldTitle, field.TypeString)
 	}
-	if value, ok := pu.mutation.Language(); ok {
-		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
+	if value, ok := pu.mutation.Content(); ok {
+		_spec.SetField(problem.FieldContent, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Statement(); ok {
-		_spec.SetField(problem.FieldStatement, field.TypeString, value)
+	if pu.mutation.ContentCleared() {
+		_spec.ClearField(problem.FieldContent, field.TypeString)
 	}
-	if pu.mutation.StatementCleared() {
-		_spec.ClearField(problem.FieldStatement, field.TypeString)
-	}
-	if value, ok := pu.mutation.Examples(); ok {
-		_spec.SetField(problem.FieldExamples, field.TypeString, value)
-	}
-	if pu.mutation.ExamplesCleared() {
-		_spec.ClearField(problem.FieldExamples, field.TypeString)
-	}
-	if value, ok := pu.mutation.Constraints(); ok {
-		_spec.SetField(problem.FieldConstraints, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedConstraints(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, problem.FieldConstraints, value)
-		})
-	}
-	if pu.mutation.ConstraintsCleared() {
-		_spec.ClearField(problem.FieldConstraints, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.EvaluationCriteria(); ok {
-		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedEvaluationCriteria(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, problem.FieldEvaluationCriteria, value)
-		})
-	}
-	if pu.mutation.EvaluationCriteriaCleared() {
-		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeJSON)
+	if value, ok := pu.mutation.RequestID(); ok {
+		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -242,98 +164,49 @@ func (puo *ProblemUpdateOne) SetUUID(s string) *ProblemUpdateOne {
 	return puo
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (puo *ProblemUpdateOne) SetDifficulty(i int) *ProblemUpdateOne {
-	puo.mutation.ResetDifficulty()
-	puo.mutation.SetDifficulty(i)
+// SetTitle sets the "title" field.
+func (puo *ProblemUpdateOne) SetTitle(s string) *ProblemUpdateOne {
+	puo.mutation.SetTitle(s)
 	return puo
 }
 
-// AddDifficulty adds i to the "difficulty" field.
-func (puo *ProblemUpdateOne) AddDifficulty(i int) *ProblemUpdateOne {
-	puo.mutation.AddDifficulty(i)
-	return puo
-}
-
-// SetLanguage sets the "language" field.
-func (puo *ProblemUpdateOne) SetLanguage(s string) *ProblemUpdateOne {
-	puo.mutation.SetLanguage(s)
-	return puo
-}
-
-// SetStatement sets the "statement" field.
-func (puo *ProblemUpdateOne) SetStatement(s string) *ProblemUpdateOne {
-	puo.mutation.SetStatement(s)
-	return puo
-}
-
-// SetNillableStatement sets the "statement" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableStatement(s *string) *ProblemUpdateOne {
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableTitle(s *string) *ProblemUpdateOne {
 	if s != nil {
-		puo.SetStatement(*s)
+		puo.SetTitle(*s)
 	}
 	return puo
 }
 
-// ClearStatement clears the value of the "statement" field.
-func (puo *ProblemUpdateOne) ClearStatement() *ProblemUpdateOne {
-	puo.mutation.ClearStatement()
+// ClearTitle clears the value of the "title" field.
+func (puo *ProblemUpdateOne) ClearTitle() *ProblemUpdateOne {
+	puo.mutation.ClearTitle()
 	return puo
 }
 
-// SetExamples sets the "examples" field.
-func (puo *ProblemUpdateOne) SetExamples(s string) *ProblemUpdateOne {
-	puo.mutation.SetExamples(s)
+// SetContent sets the "content" field.
+func (puo *ProblemUpdateOne) SetContent(s string) *ProblemUpdateOne {
+	puo.mutation.SetContent(s)
 	return puo
 }
 
-// SetNillableExamples sets the "examples" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableExamples(s *string) *ProblemUpdateOne {
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableContent(s *string) *ProblemUpdateOne {
 	if s != nil {
-		puo.SetExamples(*s)
+		puo.SetContent(*s)
 	}
 	return puo
 }
 
-// ClearExamples clears the value of the "examples" field.
-func (puo *ProblemUpdateOne) ClearExamples() *ProblemUpdateOne {
-	puo.mutation.ClearExamples()
+// ClearContent clears the value of the "content" field.
+func (puo *ProblemUpdateOne) ClearContent() *ProblemUpdateOne {
+	puo.mutation.ClearContent()
 	return puo
 }
 
-// SetConstraints sets the "constraints" field.
-func (puo *ProblemUpdateOne) SetConstraints(s []string) *ProblemUpdateOne {
-	puo.mutation.SetConstraints(s)
-	return puo
-}
-
-// AppendConstraints appends s to the "constraints" field.
-func (puo *ProblemUpdateOne) AppendConstraints(s []string) *ProblemUpdateOne {
-	puo.mutation.AppendConstraints(s)
-	return puo
-}
-
-// ClearConstraints clears the value of the "constraints" field.
-func (puo *ProblemUpdateOne) ClearConstraints() *ProblemUpdateOne {
-	puo.mutation.ClearConstraints()
-	return puo
-}
-
-// SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (puo *ProblemUpdateOne) SetEvaluationCriteria(s []string) *ProblemUpdateOne {
-	puo.mutation.SetEvaluationCriteria(s)
-	return puo
-}
-
-// AppendEvaluationCriteria appends s to the "evaluation_criteria" field.
-func (puo *ProblemUpdateOne) AppendEvaluationCriteria(s []string) *ProblemUpdateOne {
-	puo.mutation.AppendEvaluationCriteria(s)
-	return puo
-}
-
-// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
-func (puo *ProblemUpdateOne) ClearEvaluationCriteria() *ProblemUpdateOne {
-	puo.mutation.ClearEvaluationCriteria()
+// SetRequestID sets the "request_id" field.
+func (puo *ProblemUpdateOne) SetRequestID(s string) *ProblemUpdateOne {
+	puo.mutation.SetRequestID(s)
 	return puo
 }
 
@@ -411,48 +284,20 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if value, ok := puo.mutation.UUID(); ok {
 		_spec.SetField(problem.FieldUUID, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Difficulty(); ok {
-		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)
+	if value, ok := puo.mutation.Title(); ok {
+		_spec.SetField(problem.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.AddedDifficulty(); ok {
-		_spec.AddField(problem.FieldDifficulty, field.TypeInt, value)
+	if puo.mutation.TitleCleared() {
+		_spec.ClearField(problem.FieldTitle, field.TypeString)
 	}
-	if value, ok := puo.mutation.Language(); ok {
-		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
+	if value, ok := puo.mutation.Content(); ok {
+		_spec.SetField(problem.FieldContent, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Statement(); ok {
-		_spec.SetField(problem.FieldStatement, field.TypeString, value)
+	if puo.mutation.ContentCleared() {
+		_spec.ClearField(problem.FieldContent, field.TypeString)
 	}
-	if puo.mutation.StatementCleared() {
-		_spec.ClearField(problem.FieldStatement, field.TypeString)
-	}
-	if value, ok := puo.mutation.Examples(); ok {
-		_spec.SetField(problem.FieldExamples, field.TypeString, value)
-	}
-	if puo.mutation.ExamplesCleared() {
-		_spec.ClearField(problem.FieldExamples, field.TypeString)
-	}
-	if value, ok := puo.mutation.Constraints(); ok {
-		_spec.SetField(problem.FieldConstraints, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedConstraints(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, problem.FieldConstraints, value)
-		})
-	}
-	if puo.mutation.ConstraintsCleared() {
-		_spec.ClearField(problem.FieldConstraints, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.EvaluationCriteria(); ok {
-		_spec.SetField(problem.FieldEvaluationCriteria, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedEvaluationCriteria(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, problem.FieldEvaluationCriteria, value)
-		})
-	}
-	if puo.mutation.EvaluationCriteriaCleared() {
-		_spec.ClearField(problem.FieldEvaluationCriteria, field.TypeJSON)
+	if value, ok := puo.mutation.RequestID(); ok {
+		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
 	}
 	_node = &Problem{config: puo.config}
 	_spec.Assign = _node.assignValues

@@ -6,28 +6,38 @@ info:
 servers:
     - url: "https://api.codeconnect.io"
 paths:
-    /scenarios:
+    /problems:
         post:
-            summary: "Create a scenario request."
-            operationId: "createScenario"
+            summary: "Create a problem."
+            operationId: "createProblem"
+            description: |
+                Create a question by inputting work, required skills, preferences, and experience.
             requestBody:
                 required: true
                 content:
                     application/json:
                         schema:
-                            properties:
-                                qualifications:
-                                    type: string
-                                    description: "Qualifications for developers that companies want"
-                                preferences:
-                                    type: string
-                                    description: "Preferential conditions for developers that companies want"
+                            type: object
                             required:
-                                - qualifications
-                                - preferences
+                                - requirements
+                                - time_limit
+                            properties:
+                                requirements:
+                                    type: string
+                                    description: "Requirements for the problem."
+                                    example: "Create a website that allows users to upload images."
+                                time_limit:
+                                    type: string
+                                    description: |
+                                        Time limit for the problem.
+                                        You can specify the time limit in the following format.
+                                        - `1h` : 1 hour
+                                        - `1d` : 1 day
+                                        - `1w` : 1 week
+                                    example: "1d"
             responses:
                 "202":
-                    description: "Scenario request is accepted. You can get the scenario ID from the response."
+                    description: "Problem creation request is accepted. You can get the problem ID from the response."
                     content:
                         application/json:
                             schema:
@@ -35,7 +45,7 @@ paths:
                                     - request_id
                                 properties:
                                     request_id:
-                                        $ref: "#/components/schemas/RequestID"
+                                        $ref: "#/components/schemas/request_id"
                 "400":
                     description: "Required content is missing, or the wrong data type has been sent."
                     content:
@@ -50,196 +60,56 @@ paths:
                                         example: "`id` field is required"
                 default:
                     description: "Unexpected error"
-    /scenarios/{request_id}:
+    /problems/{request_id}:
+        parameters:
+            - name: request_id
+              in: path
+              required: true
+              description: "ID of the problem creation request"
+              schema:
+                $ref: "#/components/schemas/request_id"
         get:
-            summary: "Get scenarios corresponding to the request ID."
-            operationId: "getScenariosByRequestID"
-            parameters:
-                - name: "request_id"
-                  in: "path"
-                  description: "ID of the scenario request"
-                  required: true
-                  schema:
-                      $ref: "#/components/schemas/RequestID"
+            summary: "Get a problem."
+            operationId: "getProblem"
+            description: |
+                Search the created problem using the request code issued when creating the problem.
             responses:
                 "200":
-                    description: "Scenarios corresponding to the request ID have been successfully retrieved."
+                    description: "Problem is found."
                     content:
                         application/json:
                             schema:
+                                type: object
                                 required:
-                                    - scenarios
+                                    - problem
                                 properties:
-                                    scenarios:
-                                        type: array
-                                        items:
-                                            $ref: "#/components/schemas/Scenario"
-                default:
-                    description: "Unexpected error"
-#    /scenarios/{scenario_id}:
-#        get:
-#            summary: "Get a scenario."
-#            operationId: "getScenario"
-#            parameters:
-#                - name: "scenario_id"
-#                  in: "path"
-#                  description: "ID of the scenario"
-#                  required: true
-#                  schema:
-#                      $ref: "#/components/schemas/ScenarioID"
-#            responses:
-#                "200":
-#                    description: "Scenario is successfully retrieved."
-#                    content:
-#                        application/json:
-#                            schema:
-#                                $ref: "#/components/schemas/Scenario"
-    /problems:
-        post:
-            summary: "문제 생성을 요청합니다."
-            operationId: "createProblem"
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                language:
-                                    $ref: "#/components/schemas/ProblemLanguage"
-                                difficulty:
-                                    $ref: "#/components/schemas/ProblemDifficulty"
-                            required:
-                                - language
-                                - difficulty
-            responses:
-                "202":
-                    $ref: "#/components/responses/CreateProblemResponse"
-                "400":
-                    $ref: "#/components/responses/BadRequest"
-                "429":
-                    $ref: "#/components/responses/TooManyRequests"
-                "500":
-                    $ref: "#/components/responses/InternalServerError"
-    /problems/{problem_id}:
-        get:
-            summary: "문제를 조회합니다."
-            operationId: "getProblem"
-            parameters:
-                - name: "problem_id"
-                  in: "path"
-                  description: "문제 ID"
-                  required: true
-                  schema:
-                      $ref: "#/components/schemas/ProblemID"
-            responses:
-                "200":
-                    $ref: "#/components/responses/GetProblemResponse"
-                "400":
-                    $ref: "#/components/responses/BadRequest"
-                "429":
-                    $ref: "#/components/responses/TooManyRequests"
-                "500":
-                    $ref: "#/components/responses/InternalServerError"
+                                    problem:
+                                        $ref: "#/components/schemas/problem"
 components:
     schemas:
-        ProblemID:
+        request_id:
             type: string
-            description: "문제의 ID 입니다."
-            example: "1234567890"
-        ProblemLanguage:
+            description: This ID is given upon request. This ID allows the requested resource to be returned.
+            example: 7a283d
+        problem_id:
             type: string
-            description: "문제 풀이시 사용할 언어입니다."
-            enum:
-                - python
-                - java
-                - javascript
-                - c
-                - cpp
-                - go
-            x-enum-varnames:
-                - Python
-                - Java
-                - JavaScript
-                - C
-                - CPP
-                - Go
-        ProblemDifficulty:
-            type: number
-            description: "문제의 난이도입니다. 1 ~ 100 사이의 정수입니다."
-            example: 50
-        Problem:
-            description: "문제 데이터입니다."
+            description: ID of the problem.
+            example: 7a283d
+        problem:
             type: object
-            required:
-                - id
-                - language
-                - content
+            description: This is the problem that is returned.
             properties:
-                id:
-                    type: string
-                    description: "문제의 ID 입니다."
-                    example: "1234567890"
-                language:
-                    type: string
-                    description: "문제 풀이시 사용할 언어입니다."
-                    example: "python"
-                content:
-                    type: string
-                    description: "문제 내용입니다. Markdown 형식으로 작성되어 있습니다."
-                    example: "## 문제\n\n문제 내용입니다."
-        Scenario:
-            type: object
-            required:
-                - id
-                - title
-                - content
-            properties:
-                id:
-                    $ref: "#/components/schemas/ScenarioID"
+                problem_id:
+                    $ref: "#/components/schemas/problem_id"
                 title:
                     type: string
-                    description: "Scenario title"
-                    example: "Scenario title"
+                    description: Title of the problem.
+                    example: "Create a website"
                 content:
                     type: string
-                    description: "Scenario content"
-                    example: "Scenario content"
-        ScenarioID:
-            type: string
-            description: "ID of the scenario"
-            example: "1234567890"
-        RequestID:
-            type: string
-            description: "ID of the scenario request"
-            example: "1234567890"
-    responses:
-        BadRequest:
-            description: "요청 형식이 올바르지 않습니다."
-            content:
-                application/json:
-                    schema:
-                        properties:
-                            message:
-                                type: string
-                                description: "오류 메시지"
-                                example: "`id` field is required"
-        TooManyRequests:
-            description: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
-        InternalServerError:
-            description: "서버 내부 오류입니다."
-        CreateProblemResponse:
-            description: "문제 생성 요청이 성공적으로 접수되었습니다. 문제 생성 완료 후 지금 반환받은 문제 ID로 문제를 조회할 수 있습니다."
-            content:
-                application/json:
-                    schema:
-                        properties:
-                            id:
-                                type: string
-                                description: "ID of the problem"
-                                example: "1234567890"
-        GetProblemResponse:
-            description: "문제 조회에 성공했습니다."
-            content:
-                application/json:
-                    schema:
-                        $ref: "#/components/schemas/Problem"
+                    description: Content of the problem.
+                    example: "Create a website that allows users to upload images."
+            required:
+                - problem_id
+                - title
+                - content

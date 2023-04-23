@@ -20,108 +20,48 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Defines values for ProblemLanguage.
-const (
-	C          ProblemLanguage = "c"
-	Cpp        ProblemLanguage = "cpp"
-	Go         ProblemLanguage = "go"
-	Java       ProblemLanguage = "java"
-	Javascript ProblemLanguage = "javascript"
-	Python     ProblemLanguage = "python"
-)
-
-// Problem 문제 데이터입니다.
+// Problem This is the problem that is returned.
 type Problem struct {
-	// Content 문제 내용입니다. Markdown 형식으로 작성되어 있습니다.
+	// Content Content of the problem.
 	Content string `json:"content"`
 
-	// Id 문제의 ID 입니다.
-	Id string `json:"id"`
+	// ProblemId ID of the problem.
+	ProblemId ProblemId `json:"problem_id"`
 
-	// Language 문제 풀이시 사용할 언어입니다.
-	Language string `json:"language"`
-}
-
-// ProblemDifficulty 문제의 난이도입니다. 1 ~ 100 사이의 정수입니다.
-type ProblemDifficulty = float32
-
-// ProblemID 문제의 ID 입니다.
-type ProblemID = string
-
-// ProblemLanguage 문제 풀이시 사용할 언어입니다.
-type ProblemLanguage string
-
-// RequestID ID of the scenario request
-type RequestID = string
-
-// Scenario defines model for Scenario.
-type Scenario struct {
-	// Content Scenario content
-	Content string `json:"content"`
-
-	// Id ID of the scenario
-	Id ScenarioID `json:"id"`
-
-	// Title Scenario title
+	// Title Title of the problem.
 	Title string `json:"title"`
 }
 
-// ScenarioID ID of the scenario
-type ScenarioID = string
+// ProblemId ID of the problem.
+type ProblemId = string
 
-// BadRequest defines model for BadRequest.
-type BadRequest struct {
-	// Message 오류 메시지
-	Message *string `json:"message,omitempty"`
-}
-
-// CreateProblemResponse defines model for CreateProblemResponse.
-type CreateProblemResponse struct {
-	// Id ID of the problem
-	Id *string `json:"id,omitempty"`
-}
-
-// GetProblemResponse 문제 데이터입니다.
-type GetProblemResponse = Problem
+// RequestId This ID is given upon request. This ID allows the requested resource to be returned.
+type RequestId = string
 
 // CreateProblemJSONBody defines parameters for CreateProblem.
 type CreateProblemJSONBody struct {
-	// Difficulty 문제의 난이도입니다. 1 ~ 100 사이의 정수입니다.
-	Difficulty ProblemDifficulty `json:"difficulty"`
+	// Requirements Requirements for the problem.
+	Requirements string `json:"requirements"`
 
-	// Language 문제 풀이시 사용할 언어입니다.
-	Language ProblemLanguage `json:"language"`
-}
-
-// CreateScenarioJSONBody defines parameters for CreateScenario.
-type CreateScenarioJSONBody struct {
-	// Preferences Preferential conditions for developers that companies want
-	Preferences string `json:"preferences"`
-
-	// Qualifications Qualifications for developers that companies want
-	Qualifications string `json:"qualifications"`
+	// TimeLimit Time limit for the problem.
+	// You can specify the time limit in the following format.
+	// - `1h` : 1 hour
+	// - `1d` : 1 day
+	// - `1w` : 1 week
+	TimeLimit string `json:"time_limit"`
 }
 
 // CreateProblemJSONRequestBody defines body for CreateProblem for application/json ContentType.
 type CreateProblemJSONRequestBody CreateProblemJSONBody
 
-// CreateScenarioJSONRequestBody defines body for CreateScenario for application/json ContentType.
-type CreateScenarioJSONRequestBody CreateScenarioJSONBody
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// 문제 생성을 요청합니다.
+	// Create a problem.
 	// (POST /problems)
 	CreateProblem(ctx echo.Context) error
-	// 문제를 조회합니다.
-	// (GET /problems/{problem_id})
-	GetProblem(ctx echo.Context, problemId ProblemID) error
-	// Create a scenario request.
-	// (POST /scenarios)
-	CreateScenario(ctx echo.Context) error
-	// Get scenarios corresponding to the request ID.
-	// (GET /scenarios/{request_id})
-	GetScenariosByRequestID(ctx echo.Context, requestId RequestID) error
+	// Get a problem.
+	// (GET /problems/{request_id})
+	GetProblem(ctx echo.Context, requestId RequestId) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -141,33 +81,8 @@ func (w *ServerInterfaceWrapper) CreateProblem(ctx echo.Context) error {
 // GetProblem converts echo context to params.
 func (w *ServerInterfaceWrapper) GetProblem(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "problem_id" -------------
-	var problemId ProblemID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "problem_id", runtime.ParamLocationPath, ctx.Param("problem_id"), &problemId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter problem_id: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetProblem(ctx, problemId)
-	return err
-}
-
-// CreateScenario converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateScenario(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.CreateScenario(ctx)
-	return err
-}
-
-// GetScenariosByRequestID converts echo context to params.
-func (w *ServerInterfaceWrapper) GetScenariosByRequestID(ctx echo.Context) error {
-	var err error
 	// ------------- Path parameter "request_id" -------------
-	var requestId RequestID
+	var requestId RequestId
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "request_id", runtime.ParamLocationPath, ctx.Param("request_id"), &requestId)
 	if err != nil {
@@ -175,7 +90,7 @@ func (w *ServerInterfaceWrapper) GetScenariosByRequestID(ctx echo.Context) error
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetScenariosByRequestID(ctx, requestId)
+	err = w.Handler.GetProblem(ctx, requestId)
 	return err
 }
 
@@ -208,28 +123,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.POST(baseURL+"/problems", wrapper.CreateProblem)
-	router.GET(baseURL+"/problems/:problem_id", wrapper.GetProblem)
-	router.POST(baseURL+"/scenarios", wrapper.CreateScenario)
-	router.GET(baseURL+"/scenarios/:request_id", wrapper.GetScenariosByRequestID)
+	router.GET(baseURL+"/problems/:request_id", wrapper.GetProblem)
 
-}
-
-type BadRequestJSONResponse struct {
-	// Message 오류 메시지
-	Message *string `json:"message,omitempty"`
-}
-
-type CreateProblemResponseJSONResponse struct {
-	// Id ID of the problem
-	Id *string `json:"id,omitempty"`
-}
-
-type GetProblemResponseJSONResponse Problem
-
-type InternalServerErrorResponse struct {
-}
-
-type TooManyRequestsResponse struct {
 }
 
 type CreateProblemRequestObject struct {
@@ -241,7 +136,8 @@ type CreateProblemResponseObject interface {
 }
 
 type CreateProblem202JSONResponse struct {
-	CreateProblemResponseJSONResponse
+	// RequestId This ID is given upon request. This ID allows the requested resource to be returned.
+	RequestId RequestId `json:"request_id"`
 }
 
 func (response CreateProblem202JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
@@ -251,7 +147,10 @@ func (response CreateProblem202JSONResponse) VisitCreateProblemResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type CreateProblem400JSONResponse struct{ BadRequestJSONResponse }
+type CreateProblem400JSONResponse struct {
+	// Message Error message
+	Message string `json:"message"`
+}
 
 func (response CreateProblem400JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -260,29 +159,27 @@ func (response CreateProblem400JSONResponse) VisitCreateProblemResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type CreateProblem429Response = TooManyRequestsResponse
-
-func (response CreateProblem429Response) VisitCreateProblemResponse(w http.ResponseWriter) error {
-	w.WriteHeader(429)
-	return nil
+type CreateProblemdefaultResponse struct {
+	StatusCode int
 }
 
-type CreateProblem500Response = InternalServerErrorResponse
-
-func (response CreateProblem500Response) VisitCreateProblemResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
+func (response CreateProblemdefaultResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(response.StatusCode)
 	return nil
 }
 
 type GetProblemRequestObject struct {
-	ProblemId ProblemID `json:"problem_id"`
+	RequestId RequestId `json:"request_id"`
 }
 
 type GetProblemResponseObject interface {
 	VisitGetProblemResponse(w http.ResponseWriter) error
 }
 
-type GetProblem200JSONResponse struct{ GetProblemResponseJSONResponse }
+type GetProblem200JSONResponse struct {
+	// Problem This is the problem that is returned.
+	Problem Problem `json:"problem"`
+}
 
 func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -291,112 +188,14 @@ func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetProblem400JSONResponse struct{ BadRequestJSONResponse }
-
-func (response GetProblem400JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetProblem429Response = TooManyRequestsResponse
-
-func (response GetProblem429Response) VisitGetProblemResponse(w http.ResponseWriter) error {
-	w.WriteHeader(429)
-	return nil
-}
-
-type GetProblem500Response = InternalServerErrorResponse
-
-func (response GetProblem500Response) VisitGetProblemResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type CreateScenarioRequestObject struct {
-	Body *CreateScenarioJSONRequestBody
-}
-
-type CreateScenarioResponseObject interface {
-	VisitCreateScenarioResponse(w http.ResponseWriter) error
-}
-
-type CreateScenario202JSONResponse struct {
-	// RequestId ID of the scenario request
-	RequestId RequestID `json:"request_id"`
-}
-
-func (response CreateScenario202JSONResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(202)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateScenario400JSONResponse struct {
-	// Message Error message
-	Message string `json:"message"`
-}
-
-func (response CreateScenario400JSONResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateScenariodefaultResponse struct {
-	StatusCode int
-}
-
-func (response CreateScenariodefaultResponse) VisitCreateScenarioResponse(w http.ResponseWriter) error {
-	w.WriteHeader(response.StatusCode)
-	return nil
-}
-
-type GetScenariosByRequestIDRequestObject struct {
-	RequestId RequestID `json:"request_id"`
-}
-
-type GetScenariosByRequestIDResponseObject interface {
-	VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error
-}
-
-type GetScenariosByRequestID200JSONResponse struct {
-	Scenarios []Scenario `json:"scenarios"`
-}
-
-func (response GetScenariosByRequestID200JSONResponse) VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetScenariosByRequestIDdefaultResponse struct {
-	StatusCode int
-}
-
-func (response GetScenariosByRequestIDdefaultResponse) VisitGetScenariosByRequestIDResponse(w http.ResponseWriter) error {
-	w.WriteHeader(response.StatusCode)
-	return nil
-}
-
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// 문제 생성을 요청합니다.
+	// Create a problem.
 	// (POST /problems)
 	CreateProblem(ctx context.Context, request CreateProblemRequestObject) (CreateProblemResponseObject, error)
-	// 문제를 조회합니다.
-	// (GET /problems/{problem_id})
+	// Get a problem.
+	// (GET /problems/{request_id})
 	GetProblem(ctx context.Context, request GetProblemRequestObject) (GetProblemResponseObject, error)
-	// Create a scenario request.
-	// (POST /scenarios)
-	CreateScenario(ctx context.Context, request CreateScenarioRequestObject) (CreateScenarioResponseObject, error)
-	// Get scenarios corresponding to the request ID.
-	// (GET /scenarios/{request_id})
-	GetScenariosByRequestID(ctx context.Context, request GetScenariosByRequestIDRequestObject) (GetScenariosByRequestIDResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx echo.Context, args interface{}) (interface{}, error)
@@ -442,10 +241,10 @@ func (sh *strictHandler) CreateProblem(ctx echo.Context) error {
 }
 
 // GetProblem operation middleware
-func (sh *strictHandler) GetProblem(ctx echo.Context, problemId ProblemID) error {
+func (sh *strictHandler) GetProblem(ctx echo.Context, requestId RequestId) error {
 	var request GetProblemRequestObject
 
-	request.ProblemId = problemId
+	request.RequestId = requestId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.GetProblem(ctx.Request().Context(), request.(GetProblemRequestObject))
@@ -466,89 +265,24 @@ func (sh *strictHandler) GetProblem(ctx echo.Context, problemId ProblemID) error
 	return nil
 }
 
-// CreateScenario operation middleware
-func (sh *strictHandler) CreateScenario(ctx echo.Context) error {
-	var request CreateScenarioRequestObject
-
-	var body CreateScenarioJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateScenario(ctx.Request().Context(), request.(CreateScenarioRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateScenario")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(CreateScenarioResponseObject); ok {
-		return validResponse.VisitCreateScenarioResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GetScenariosByRequestID operation middleware
-func (sh *strictHandler) GetScenariosByRequestID(ctx echo.Context, requestId RequestID) error {
-	var request GetScenariosByRequestIDRequestObject
-
-	request.RequestId = requestId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GetScenariosByRequestID(ctx.Request().Context(), request.(GetScenariosByRequestIDRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetScenariosByRequestID")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GetScenariosByRequestIDResponseObject); ok {
-		return validResponse.VisitGetScenariosByRequestIDResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"AAA=",
+	"H4sIAAAAAAAC/7RWUW/bNhD+Kwduj5rspAM26G1rhsJvRbc9DE3Q0ORJYiORHHmKawT+78NRki3Fap0h",
+	"6JvF4x2/u+++Oz8J5VrvLFqKongSUdXYyvTTB7dtsOWfGqMKxpNxVhTir9pEMBGoRhguAdWS+CwgdcGi",
+	"zkXGATwGMpjCKWcJLZ2He9sbwJXTiBwAv8jWN8h3AkpCkLDDbTSE/XuyadwuQhcxRCAHnW+c1GBaWWHk",
+	"ALT37B0pGFuJQzbm9MloxvFjwFIU4ofVqQaroQCryc1DJsgQ4zirBB//L+DnoA6ZCPhvZwJqUXycIhyf",
+	"zY61uzt6u+1nVHSe0hzf5uab4H6R17++0Ut1YkQYaTFoon9zw2xX5hEtdN5ZGDxyGM0DOfz4YEMNAaPr",
+	"gkJma4uzbrkMi0tlbOmWWkjjW2ctKoLf3m+OlZtZRCYeMcTeY51f5WvO1Hm00htRiDf5Ol9z20qqU8eO",
+	"PdCrwcWl3h3pTQkaZ2G7B2N9R2RsBTsXHjIY6YX4YJomZuADlhjQKowZSKsBv3gMhg/yWysSqCA53EYf",
+	"H3k/yPFIzu9O758JS3rfGJU8V58jIxwVPQh6oscBVTsqf57Yh4kVShe+vzTJtPipMa2hJZ21CMl2huXW",
+	"/uM6UNJC9KhMuU9WOjkYm05Kx4iYlNKFVlJ+a3+C+6v6Hgq4gtp1oT/Q/YGW+/5713/vEB8SNafEr/RF",
+	"Mc9qPEvxXMlzXwodpoPonY09Y9fr61fyfZL0t0bf5OZSQoPpLiGe8zT0KCjuCXOaCjwrpFLoCXUOI2EV",
+	"0myHbG6gDK4dRkafeM6t8fN6/YrEW4xRVgvT+48QXIDRPKX23uh7KA02ut9pQwEu0T2GWirNh3EIDFlw",
+	"4NbEaGyVwdDTu+BsBVqSBH4Iahlhi2ghoqVUCY2l7JoFhfxteYYonrHIaSVssWtbGfZTkR4lzPbjgFs9",
+	"nYg9cPAKF974E2VQdUKaCEZ9pK7jPKazHpTTCCbGDjXsarRDTwy3Tuo9m3bvkKajbtb/r2mDyd+ZF+z9",
+	"r+3lrwh3WQaGR2dndf6MjXdIMyp45wTZImGIovh4cYuf6UvwYhRFWl0iE1a2DHAi1uejJZuU6cWj4C5l",
+	"geFxhNmFRhSiJvKxWK2kNzmzrvp1mxsnDneH/wIAAP//8WyYemEKAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -10,6 +10,8 @@ services:
             - "3000:3000"
         environment:
             CHATGPT_API_KEY: ${CHATGPT_API_KEY}
+            DEEPL_API_KEY: ${DEEPL_API_KEY}
+            DEEPL_API_HOST: ${DEEPL_API_HOST}
     mariadb:
         image: mariadb
         environment:

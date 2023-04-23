@@ -12,13 +12,9 @@ var (
 	ProblemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeString},
-		{Name: "difficulty", Type: field.TypeInt},
-		{Name: "language", Type: field.TypeString},
-		{Name: "statement", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "examples", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "constraints", Type: field.TypeJSON, Nullable: true},
-		{Name: "evaluation_criteria", Type: field.TypeJSON, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
+		{Name: "title", Type: field.TypeString, Nullable: true},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "request_id", Type: field.TypeString},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{

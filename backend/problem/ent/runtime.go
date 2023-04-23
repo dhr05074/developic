@@ -2,20 +2,8 @@
 
 package ent
 
-import (
-	"code-connect/problem/ent/problem"
-	"code-connect/problem/ent/schema"
-	"time"
-)
-
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	problemFields := schema.Problem{}.Fields()
-	_ = problemFields
-	// problemDescCreatedAt is the schema descriptor for created_at field.
-	problemDescCreatedAt := problemFields[7].Descriptor()
-	// problem.DefaultCreatedAt holds the default value on creation for the created_at field.
-	problem.DefaultCreatedAt = problemDescCreatedAt.Default.(func() time.Time)
 }

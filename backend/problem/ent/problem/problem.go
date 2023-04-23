@@ -2,10 +2,6 @@
 
 package problem
 
-import (
-	"time"
-)
-
 const (
 	// Label holds the string label denoting the problem type in the database.
 	Label = "problem"
@@ -13,20 +9,12 @@ const (
 	FieldID = "id"
 	// FieldUUID holds the string denoting the uuid field in the database.
 	FieldUUID = "uuid"
-	// FieldDifficulty holds the string denoting the difficulty field in the database.
-	FieldDifficulty = "difficulty"
-	// FieldLanguage holds the string denoting the language field in the database.
-	FieldLanguage = "language"
-	// FieldStatement holds the string denoting the statement field in the database.
-	FieldStatement = "statement"
-	// FieldExamples holds the string denoting the examples field in the database.
-	FieldExamples = "examples"
-	// FieldConstraints holds the string denoting the constraints field in the database.
-	FieldConstraints = "constraints"
-	// FieldEvaluationCriteria holds the string denoting the evaluation_criteria field in the database.
-	FieldEvaluationCriteria = "evaluation_criteria"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
+	// FieldRequestID holds the string denoting the request_id field in the database.
+	FieldRequestID = "request_id"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
 )
@@ -35,13 +23,9 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUUID,
-	FieldDifficulty,
-	FieldLanguage,
-	FieldStatement,
-	FieldExamples,
-	FieldConstraints,
-	FieldEvaluationCriteria,
-	FieldCreatedAt,
+	FieldTitle,
+	FieldContent,
+	FieldRequestID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -53,8 +37,3 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
-
-var (
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
-)

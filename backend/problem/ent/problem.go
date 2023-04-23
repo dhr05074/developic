@@ -4,10 +4,8 @@ package ent
 
 import (
 	"code-connect/problem/ent/problem"
-	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -19,20 +17,12 @@ type Problem struct {
 	ID int `json:"id,omitempty"`
 	// UUID holds the value of the "uuid" field.
 	UUID string `json:"uuid,omitempty"`
-	// Difficulty holds the value of the "difficulty" field.
-	Difficulty int `json:"difficulty,omitempty"`
-	// Language holds the value of the "language" field.
-	Language string `json:"language,omitempty"`
-	// Statement holds the value of the "statement" field.
-	Statement string `json:"statement,omitempty"`
-	// Examples holds the value of the "examples" field.
-	Examples string `json:"examples,omitempty"`
-	// Constraints holds the value of the "constraints" field.
-	Constraints []string `json:"constraints,omitempty"`
-	// EvaluationCriteria holds the value of the "evaluation_criteria" field.
-	EvaluationCriteria []string `json:"evaluation_criteria,omitempty"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
+	// Content holds the value of the "content" field.
+	Content string `json:"content,omitempty"`
+	// RequestID holds the value of the "request_id" field.
+	RequestID string `json:"request_id,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -40,14 +30,10 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldConstraints, problem.FieldEvaluationCriteria:
-			values[i] = new([]byte)
-		case problem.FieldID, problem.FieldDifficulty:
+		case problem.FieldID:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldLanguage, problem.FieldStatement, problem.FieldExamples:
+		case problem.FieldUUID, problem.FieldTitle, problem.FieldContent, problem.FieldRequestID:
 			values[i] = new(sql.NullString)
-		case problem.FieldCreatedAt:
-			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Problem", columns[i])
 		}
@@ -75,51 +61,23 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.UUID = value.String
 			}
-		case problem.FieldDifficulty:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field difficulty", values[i])
-			} else if value.Valid {
-				pr.Difficulty = int(value.Int64)
-			}
-		case problem.FieldLanguage:
+		case problem.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field language", values[i])
+				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				pr.Language = value.String
+				pr.Title = value.String
 			}
-		case problem.FieldStatement:
+		case problem.FieldContent:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field statement", values[i])
+				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
-				pr.Statement = value.String
+				pr.Content = value.String
 			}
-		case problem.FieldExamples:
+		case problem.FieldRequestID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field examples", values[i])
+				return fmt.Errorf("unexpected type %T for field request_id", values[i])
 			} else if value.Valid {
-				pr.Examples = value.String
-			}
-		case problem.FieldConstraints:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field constraints", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pr.Constraints); err != nil {
-					return fmt.Errorf("unmarshal field constraints: %w", err)
-				}
-			}
-		case problem.FieldEvaluationCriteria:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field evaluation_criteria", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pr.EvaluationCriteria); err != nil {
-					return fmt.Errorf("unmarshal field evaluation_criteria: %w", err)
-				}
-			}
-		case problem.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				pr.CreatedAt = value.Time
+				pr.RequestID = value.String
 			}
 		}
 	}
@@ -152,26 +110,14 @@ func (pr *Problem) String() string {
 	builder.WriteString("uuid=")
 	builder.WriteString(pr.UUID)
 	builder.WriteString(", ")
-	builder.WriteString("difficulty=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Difficulty))
+	builder.WriteString("title=")
+	builder.WriteString(pr.Title)
 	builder.WriteString(", ")
-	builder.WriteString("language=")
-	builder.WriteString(pr.Language)
+	builder.WriteString("content=")
+	builder.WriteString(pr.Content)
 	builder.WriteString(", ")
-	builder.WriteString("statement=")
-	builder.WriteString(pr.Statement)
-	builder.WriteString(", ")
-	builder.WriteString("examples=")
-	builder.WriteString(pr.Examples)
-	builder.WriteString(", ")
-	builder.WriteString("constraints=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Constraints))
-	builder.WriteString(", ")
-	builder.WriteString("evaluation_criteria=")
-	builder.WriteString(fmt.Sprintf("%v", pr.EvaluationCriteria))
-	builder.WriteString(", ")
-	builder.WriteString("created_at=")
-	builder.WriteString(pr.CreatedAt.Format(time.ANSIC))
+	builder.WriteString("request_id=")
+	builder.WriteString(pr.RequestID)
 	builder.WriteByte(')')
 	return builder.String()
 }

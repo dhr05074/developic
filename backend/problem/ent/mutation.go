@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -32,24 +31,17 @@ const (
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op                        Op
-	typ                       string
-	id                        *int
-	uuid                      *string
-	difficulty                *int
-	adddifficulty             *int
-	language                  *string
-	statement                 *string
-	examples                  *string
-	constraints               *[]string
-	appendconstraints         []string
-	evaluation_criteria       *[]string
-	appendevaluation_criteria []string
-	created_at                *time.Time
-	clearedFields             map[string]struct{}
-	done                      bool
-	oldValue                  func(context.Context) (*Problem, error)
-	predicates                []predicate.Problem
+	op            Op
+	typ           string
+	id            *int
+	uuid          *string
+	title         *string
+	content       *string
+	request_id    *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Problem, error)
+	predicates    []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -186,360 +178,138 @@ func (m *ProblemMutation) ResetUUID() {
 	m.uuid = nil
 }
 
-// SetDifficulty sets the "difficulty" field.
-func (m *ProblemMutation) SetDifficulty(i int) {
-	m.difficulty = &i
-	m.adddifficulty = nil
+// SetTitle sets the "title" field.
+func (m *ProblemMutation) SetTitle(s string) {
+	m.title = &s
 }
 
-// Difficulty returns the value of the "difficulty" field in the mutation.
-func (m *ProblemMutation) Difficulty() (r int, exists bool) {
-	v := m.difficulty
+// Title returns the value of the "title" field in the mutation.
+func (m *ProblemMutation) Title() (r string, exists bool) {
+	v := m.title
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDifficulty returns the old "difficulty" field's value of the Problem entity.
+// OldTitle returns the old "title" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldDifficulty(ctx context.Context) (v int, err error) {
+func (m *ProblemMutation) OldTitle(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDifficulty is only allowed on UpdateOne operations")
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDifficulty requires an ID field in the mutation")
+		return v, errors.New("OldTitle requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDifficulty: %w", err)
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
 	}
-	return oldValue.Difficulty, nil
+	return oldValue.Title, nil
 }
 
-// AddDifficulty adds i to the "difficulty" field.
-func (m *ProblemMutation) AddDifficulty(i int) {
-	if m.adddifficulty != nil {
-		*m.adddifficulty += i
-	} else {
-		m.adddifficulty = &i
-	}
+// ClearTitle clears the value of the "title" field.
+func (m *ProblemMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[problem.FieldTitle] = struct{}{}
 }
 
-// AddedDifficulty returns the value that was added to the "difficulty" field in this mutation.
-func (m *ProblemMutation) AddedDifficulty() (r int, exists bool) {
-	v := m.adddifficulty
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetDifficulty resets all changes to the "difficulty" field.
-func (m *ProblemMutation) ResetDifficulty() {
-	m.difficulty = nil
-	m.adddifficulty = nil
-}
-
-// SetLanguage sets the "language" field.
-func (m *ProblemMutation) SetLanguage(s string) {
-	m.language = &s
-}
-
-// Language returns the value of the "language" field in the mutation.
-func (m *ProblemMutation) Language() (r string, exists bool) {
-	v := m.language
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLanguage returns the old "language" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldLanguage(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLanguage is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLanguage requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLanguage: %w", err)
-	}
-	return oldValue.Language, nil
-}
-
-// ResetLanguage resets all changes to the "language" field.
-func (m *ProblemMutation) ResetLanguage() {
-	m.language = nil
-}
-
-// SetStatement sets the "statement" field.
-func (m *ProblemMutation) SetStatement(s string) {
-	m.statement = &s
-}
-
-// Statement returns the value of the "statement" field in the mutation.
-func (m *ProblemMutation) Statement() (r string, exists bool) {
-	v := m.statement
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStatement returns the old "statement" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldStatement(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatement is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatement requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatement: %w", err)
-	}
-	return oldValue.Statement, nil
-}
-
-// ClearStatement clears the value of the "statement" field.
-func (m *ProblemMutation) ClearStatement() {
-	m.statement = nil
-	m.clearedFields[problem.FieldStatement] = struct{}{}
-}
-
-// StatementCleared returns if the "statement" field was cleared in this mutation.
-func (m *ProblemMutation) StatementCleared() bool {
-	_, ok := m.clearedFields[problem.FieldStatement]
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *ProblemMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[problem.FieldTitle]
 	return ok
 }
 
-// ResetStatement resets all changes to the "statement" field.
-func (m *ProblemMutation) ResetStatement() {
-	m.statement = nil
-	delete(m.clearedFields, problem.FieldStatement)
+// ResetTitle resets all changes to the "title" field.
+func (m *ProblemMutation) ResetTitle() {
+	m.title = nil
+	delete(m.clearedFields, problem.FieldTitle)
 }
 
-// SetExamples sets the "examples" field.
-func (m *ProblemMutation) SetExamples(s string) {
-	m.examples = &s
+// SetContent sets the "content" field.
+func (m *ProblemMutation) SetContent(s string) {
+	m.content = &s
 }
 
-// Examples returns the value of the "examples" field in the mutation.
-func (m *ProblemMutation) Examples() (r string, exists bool) {
-	v := m.examples
+// Content returns the value of the "content" field in the mutation.
+func (m *ProblemMutation) Content() (r string, exists bool) {
+	v := m.content
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldExamples returns the old "examples" field's value of the Problem entity.
+// OldContent returns the old "content" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldExamples(ctx context.Context) (v string, err error) {
+func (m *ProblemMutation) OldContent(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExamples is only allowed on UpdateOne operations")
+		return v, errors.New("OldContent is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExamples requires an ID field in the mutation")
+		return v, errors.New("OldContent requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExamples: %w", err)
+		return v, fmt.Errorf("querying old value for OldContent: %w", err)
 	}
-	return oldValue.Examples, nil
+	return oldValue.Content, nil
 }
 
-// ClearExamples clears the value of the "examples" field.
-func (m *ProblemMutation) ClearExamples() {
-	m.examples = nil
-	m.clearedFields[problem.FieldExamples] = struct{}{}
+// ClearContent clears the value of the "content" field.
+func (m *ProblemMutation) ClearContent() {
+	m.content = nil
+	m.clearedFields[problem.FieldContent] = struct{}{}
 }
 
-// ExamplesCleared returns if the "examples" field was cleared in this mutation.
-func (m *ProblemMutation) ExamplesCleared() bool {
-	_, ok := m.clearedFields[problem.FieldExamples]
+// ContentCleared returns if the "content" field was cleared in this mutation.
+func (m *ProblemMutation) ContentCleared() bool {
+	_, ok := m.clearedFields[problem.FieldContent]
 	return ok
 }
 
-// ResetExamples resets all changes to the "examples" field.
-func (m *ProblemMutation) ResetExamples() {
-	m.examples = nil
-	delete(m.clearedFields, problem.FieldExamples)
+// ResetContent resets all changes to the "content" field.
+func (m *ProblemMutation) ResetContent() {
+	m.content = nil
+	delete(m.clearedFields, problem.FieldContent)
 }
 
-// SetConstraints sets the "constraints" field.
-func (m *ProblemMutation) SetConstraints(s []string) {
-	m.constraints = &s
-	m.appendconstraints = nil
+// SetRequestID sets the "request_id" field.
+func (m *ProblemMutation) SetRequestID(s string) {
+	m.request_id = &s
 }
 
-// Constraints returns the value of the "constraints" field in the mutation.
-func (m *ProblemMutation) Constraints() (r []string, exists bool) {
-	v := m.constraints
+// RequestID returns the value of the "request_id" field in the mutation.
+func (m *ProblemMutation) RequestID() (r string, exists bool) {
+	v := m.request_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldConstraints returns the old "constraints" field's value of the Problem entity.
+// OldRequestID returns the old "request_id" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldConstraints(ctx context.Context) (v []string, err error) {
+func (m *ProblemMutation) OldRequestID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldConstraints is only allowed on UpdateOne operations")
+		return v, errors.New("OldRequestID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldConstraints requires an ID field in the mutation")
+		return v, errors.New("OldRequestID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldConstraints: %w", err)
+		return v, fmt.Errorf("querying old value for OldRequestID: %w", err)
 	}
-	return oldValue.Constraints, nil
+	return oldValue.RequestID, nil
 }
 
-// AppendConstraints adds s to the "constraints" field.
-func (m *ProblemMutation) AppendConstraints(s []string) {
-	m.appendconstraints = append(m.appendconstraints, s...)
-}
-
-// AppendedConstraints returns the list of values that were appended to the "constraints" field in this mutation.
-func (m *ProblemMutation) AppendedConstraints() ([]string, bool) {
-	if len(m.appendconstraints) == 0 {
-		return nil, false
-	}
-	return m.appendconstraints, true
-}
-
-// ClearConstraints clears the value of the "constraints" field.
-func (m *ProblemMutation) ClearConstraints() {
-	m.constraints = nil
-	m.appendconstraints = nil
-	m.clearedFields[problem.FieldConstraints] = struct{}{}
-}
-
-// ConstraintsCleared returns if the "constraints" field was cleared in this mutation.
-func (m *ProblemMutation) ConstraintsCleared() bool {
-	_, ok := m.clearedFields[problem.FieldConstraints]
-	return ok
-}
-
-// ResetConstraints resets all changes to the "constraints" field.
-func (m *ProblemMutation) ResetConstraints() {
-	m.constraints = nil
-	m.appendconstraints = nil
-	delete(m.clearedFields, problem.FieldConstraints)
-}
-
-// SetEvaluationCriteria sets the "evaluation_criteria" field.
-func (m *ProblemMutation) SetEvaluationCriteria(s []string) {
-	m.evaluation_criteria = &s
-	m.appendevaluation_criteria = nil
-}
-
-// EvaluationCriteria returns the value of the "evaluation_criteria" field in the mutation.
-func (m *ProblemMutation) EvaluationCriteria() (r []string, exists bool) {
-	v := m.evaluation_criteria
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEvaluationCriteria returns the old "evaluation_criteria" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldEvaluationCriteria(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEvaluationCriteria is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEvaluationCriteria requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEvaluationCriteria: %w", err)
-	}
-	return oldValue.EvaluationCriteria, nil
-}
-
-// AppendEvaluationCriteria adds s to the "evaluation_criteria" field.
-func (m *ProblemMutation) AppendEvaluationCriteria(s []string) {
-	m.appendevaluation_criteria = append(m.appendevaluation_criteria, s...)
-}
-
-// AppendedEvaluationCriteria returns the list of values that were appended to the "evaluation_criteria" field in this mutation.
-func (m *ProblemMutation) AppendedEvaluationCriteria() ([]string, bool) {
-	if len(m.appendevaluation_criteria) == 0 {
-		return nil, false
-	}
-	return m.appendevaluation_criteria, true
-}
-
-// ClearEvaluationCriteria clears the value of the "evaluation_criteria" field.
-func (m *ProblemMutation) ClearEvaluationCriteria() {
-	m.evaluation_criteria = nil
-	m.appendevaluation_criteria = nil
-	m.clearedFields[problem.FieldEvaluationCriteria] = struct{}{}
-}
-
-// EvaluationCriteriaCleared returns if the "evaluation_criteria" field was cleared in this mutation.
-func (m *ProblemMutation) EvaluationCriteriaCleared() bool {
-	_, ok := m.clearedFields[problem.FieldEvaluationCriteria]
-	return ok
-}
-
-// ResetEvaluationCriteria resets all changes to the "evaluation_criteria" field.
-func (m *ProblemMutation) ResetEvaluationCriteria() {
-	m.evaluation_criteria = nil
-	m.appendevaluation_criteria = nil
-	delete(m.clearedFields, problem.FieldEvaluationCriteria)
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *ProblemMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *ProblemMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *ProblemMutation) ResetCreatedAt() {
-	m.created_at = nil
+// ResetRequestID resets all changes to the "request_id" field.
+func (m *ProblemMutation) ResetRequestID() {
+	m.request_id = nil
 }
 
 // Where appends a list predicates to the ProblemMutation builder.
@@ -576,30 +346,18 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 4)
 	if m.uuid != nil {
 		fields = append(fields, problem.FieldUUID)
 	}
-	if m.difficulty != nil {
-		fields = append(fields, problem.FieldDifficulty)
+	if m.title != nil {
+		fields = append(fields, problem.FieldTitle)
 	}
-	if m.language != nil {
-		fields = append(fields, problem.FieldLanguage)
+	if m.content != nil {
+		fields = append(fields, problem.FieldContent)
 	}
-	if m.statement != nil {
-		fields = append(fields, problem.FieldStatement)
-	}
-	if m.examples != nil {
-		fields = append(fields, problem.FieldExamples)
-	}
-	if m.constraints != nil {
-		fields = append(fields, problem.FieldConstraints)
-	}
-	if m.evaluation_criteria != nil {
-		fields = append(fields, problem.FieldEvaluationCriteria)
-	}
-	if m.created_at != nil {
-		fields = append(fields, problem.FieldCreatedAt)
+	if m.request_id != nil {
+		fields = append(fields, problem.FieldRequestID)
 	}
 	return fields
 }
@@ -611,20 +369,12 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case problem.FieldUUID:
 		return m.UUID()
-	case problem.FieldDifficulty:
-		return m.Difficulty()
-	case problem.FieldLanguage:
-		return m.Language()
-	case problem.FieldStatement:
-		return m.Statement()
-	case problem.FieldExamples:
-		return m.Examples()
-	case problem.FieldConstraints:
-		return m.Constraints()
-	case problem.FieldEvaluationCriteria:
-		return m.EvaluationCriteria()
-	case problem.FieldCreatedAt:
-		return m.CreatedAt()
+	case problem.FieldTitle:
+		return m.Title()
+	case problem.FieldContent:
+		return m.Content()
+	case problem.FieldRequestID:
+		return m.RequestID()
 	}
 	return nil, false
 }
@@ -636,20 +386,12 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case problem.FieldUUID:
 		return m.OldUUID(ctx)
-	case problem.FieldDifficulty:
-		return m.OldDifficulty(ctx)
-	case problem.FieldLanguage:
-		return m.OldLanguage(ctx)
-	case problem.FieldStatement:
-		return m.OldStatement(ctx)
-	case problem.FieldExamples:
-		return m.OldExamples(ctx)
-	case problem.FieldConstraints:
-		return m.OldConstraints(ctx)
-	case problem.FieldEvaluationCriteria:
-		return m.OldEvaluationCriteria(ctx)
-	case problem.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
+	case problem.FieldTitle:
+		return m.OldTitle(ctx)
+	case problem.FieldContent:
+		return m.OldContent(ctx)
+	case problem.FieldRequestID:
+		return m.OldRequestID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Problem field %s", name)
 }
@@ -666,54 +408,26 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUUID(v)
 		return nil
-	case problem.FieldDifficulty:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDifficulty(v)
-		return nil
-	case problem.FieldLanguage:
+	case problem.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetLanguage(v)
+		m.SetTitle(v)
 		return nil
-	case problem.FieldStatement:
+	case problem.FieldContent:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetStatement(v)
+		m.SetContent(v)
 		return nil
-	case problem.FieldExamples:
+	case problem.FieldRequestID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetExamples(v)
-		return nil
-	case problem.FieldConstraints:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetConstraints(v)
-		return nil
-	case problem.FieldEvaluationCriteria:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEvaluationCriteria(v)
-		return nil
-	case problem.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
+		m.SetRequestID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
@@ -722,21 +436,13 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ProblemMutation) AddedFields() []string {
-	var fields []string
-	if m.adddifficulty != nil {
-		fields = append(fields, problem.FieldDifficulty)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ProblemMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case problem.FieldDifficulty:
-		return m.AddedDifficulty()
-	}
 	return nil, false
 }
 
@@ -745,13 +451,6 @@ func (m *ProblemMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case problem.FieldDifficulty:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddDifficulty(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Problem numeric field %s", name)
 }
@@ -760,17 +459,11 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ProblemMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(problem.FieldStatement) {
-		fields = append(fields, problem.FieldStatement)
+	if m.FieldCleared(problem.FieldTitle) {
+		fields = append(fields, problem.FieldTitle)
 	}
-	if m.FieldCleared(problem.FieldExamples) {
-		fields = append(fields, problem.FieldExamples)
-	}
-	if m.FieldCleared(problem.FieldConstraints) {
-		fields = append(fields, problem.FieldConstraints)
-	}
-	if m.FieldCleared(problem.FieldEvaluationCriteria) {
-		fields = append(fields, problem.FieldEvaluationCriteria)
+	if m.FieldCleared(problem.FieldContent) {
+		fields = append(fields, problem.FieldContent)
 	}
 	return fields
 }
@@ -786,17 +479,11 @@ func (m *ProblemMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ProblemMutation) ClearField(name string) error {
 	switch name {
-	case problem.FieldStatement:
-		m.ClearStatement()
+	case problem.FieldTitle:
+		m.ClearTitle()
 		return nil
-	case problem.FieldExamples:
-		m.ClearExamples()
-		return nil
-	case problem.FieldConstraints:
-		m.ClearConstraints()
-		return nil
-	case problem.FieldEvaluationCriteria:
-		m.ClearEvaluationCriteria()
+	case problem.FieldContent:
+		m.ClearContent()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem nullable field %s", name)
@@ -809,26 +496,14 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldUUID:
 		m.ResetUUID()
 		return nil
-	case problem.FieldDifficulty:
-		m.ResetDifficulty()
+	case problem.FieldTitle:
+		m.ResetTitle()
 		return nil
-	case problem.FieldLanguage:
-		m.ResetLanguage()
+	case problem.FieldContent:
+		m.ResetContent()
 		return nil
-	case problem.FieldStatement:
-		m.ResetStatement()
-		return nil
-	case problem.FieldExamples:
-		m.ResetExamples()
-		return nil
-	case problem.FieldConstraints:
-		m.ResetConstraints()
-		return nil
-	case problem.FieldEvaluationCriteria:
-		m.ResetEvaluationCriteria()
-		return nil
-	case problem.FieldCreatedAt:
-		m.ResetCreatedAt()
+	case problem.FieldRequestID:
+		m.ResetRequestID()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
