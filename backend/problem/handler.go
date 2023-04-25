@@ -64,36 +64,27 @@ func (h *Handler) CreateProblem(ctx context.Context, req gateway.CreateProblemRe
 		newCtx := context.TODO()
 		newGPTClient := h.gptClient.NewClientWithEmptyContext()
 
-		decodedRequirements, err := base64.StdEncoding.DecodeString(req.Body.Requirements)
-		if err != nil {
-			l.Errorw("error while decoding requirements", "error", err)
-			return
-		}
-		l.Infof("decoded requirements: %s\n", decodedRequirements)
-
-		requirements, err := h.translateRequirements(newCtx, string(decodedRequirements), "KO", "EN")
-		if err != nil {
-			l.Errorw("error while translating requirements", "error", err)
-			return
-		}
-		l.Infof("translated requirements: %s\n", requirements)
-
 		prompts := make([]string, 0, 2)
-		prompts = append(prompts, requirements)
-		prompts = append(prompts, "Based on the data above, fill in the blanks below.\n\nTechnical Stack:\nProgramming languages, frameworks, and tools: \nAdditional technologies: \n  Role and Experience Level:\n  Target role: \nDesired experience level: \nKey Skills and Concepts: \nDomain-specific Knowledge: \nReal-world Problem-solving: \nTime Constraints: \nEvaluation Criteria: \nCollaboration and Communication Skills: \n")
+		prompts = append(prompts, fmt.Sprintf("Please generate a code refactoring challenge problem that incorporates the characteristics of dirty code mentioned below. The challenge should be tailored to the following user preferences:"))
+		prompts = append(prompts, fmt.Sprintf("Difficulty score: %d", req.Body.Difficulty))
+		prompts = append(prompts, fmt.Sprintf("Programming language: %s", req.Body.Language))
+
+		characteristics := h.bulletPointList([]string{
+			"Lack of structure and organization",
+			"Inconsistency in naming conventions, indentation, and formatting",
+			"No modularity, with mixed functionalities and concerns",
+			"Code duplication and redundancy",
+			"Poor documentation and missing comments",
+			"Overly complex logic and nested control structures",
+			"Hardcoded values",
+			"Use of global variables and side effects",
+			"Inadequate error handling",
+			"Inefficient algorithms or suboptimal performance"})
+		prompts = append(prompts, "Characteristics of dirty code:")
+		prompts = append(prompts, characteristics)
+		prompts = append(prompts, "Note: The challenge problem should be provided without any specific instructions or answer code. Just give the code snippet and let the user figure out what to do.")
 
 		res, err := newGPTClient.CompleteWithContext(newCtx, prompts)
-		if err != nil {
-			l.Errorw("error while completing prompt", "error", err)
-			return
-		}
-
-		l.Infof("analysis created: %s\n", res)
-
-		prompts = make([]string, 0, 1)
-		prompts = append(prompts, fmt.Sprintf("We request the creation of a custom coding challenge, targeting the role mentioned eariler. The challenge should be in Markdown format, using '##' for headings and '-' for details. Please develop three tasks focusing on key skills, domain-specific knowledge, and real-world problem-solving scenarios, incorporating the specified programming languages, frameworks, and tools. Adhere to the time limit and ensure the tasks align with the evaluation criteria provided by the company."))
-
-		res, err = newGPTClient.CompleteWithContext(newCtx, prompts)
 		if err != nil {
 			l.Errorw("error while completing prompt", "error", err)
 			return
@@ -116,17 +107,6 @@ func (h *Handler) CreateProblem(ctx context.Context, req gateway.CreateProblemRe
 				l.Errorw("error while rolling back transaction", "error", err)
 			}
 		}()
-
-		prompts = make([]string, 0, 1)
-		prompts = append(prompts, "Translate it to Korean")
-
-		res, err = newGPTClient.CompleteWithContext(newCtx, prompts)
-		if err != nil {
-			l.Errorw("error while completing prompt", "error", err)
-			return
-		}
-
-		l.Infof("problem content translated to Korean: %s\n", res)
 
 		content := base64.StdEncoding.EncodeToString([]byte(res))
 		if err != nil {

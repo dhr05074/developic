@@ -19,22 +19,17 @@ paths:
                         schema:
                             type: object
                             required:
-                                - requirements
-                                - time_limit
+                                - difficulty
+                                - language
                             properties:
-                                requirements:
+                                difficulty:
+                                    type: integer
+                                    description: "Difficulty of the problem out of 100."
+                                    example: 20
+                                language:
                                     type: string
-                                    description: "Requirements for the problem."
-                                    example: "Create a website that allows users to upload images."
-                                time_limit:
-                                    type: string
-                                    description: |
-                                        Time limit for the problem.
-                                        You can specify the time limit in the following format.
-                                        - `1h` : 1 hour
-                                        - `1d` : 1 day
-                                        - `1w` : 1 week
-                                    example: "1d"
+                                    description: "Language of the problem."
+                                    example: "python"
             responses:
                 "202":
                     description: "Problem creation request is accepted. You can get the problem ID from the response."

@@ -40,15 +40,11 @@ type RequestId = string
 
 // CreateProblemJSONBody defines parameters for CreateProblem.
 type CreateProblemJSONBody struct {
-	// Requirements Requirements for the problem.
-	Requirements string `json:"requirements"`
+	// Difficulty Difficulty of the problem out of 100.
+	Difficulty int `json:"difficulty"`
 
-	// TimeLimit Time limit for the problem.
-	// You can specify the time limit in the following format.
-	// - `1h` : 1 hour
-	// - `1d` : 1 day
-	// - `1w` : 1 week
-	TimeLimit string `json:"time_limit"`
+	// Language Language of the problem.
+	Language string `json:"language"`
 }
 
 // CreateProblemJSONRequestBody defines body for CreateProblem for application/json ContentType.
@@ -268,21 +264,21 @@ func (sh *strictHandler) GetProblem(ctx echo.Context, requestId RequestId) error
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"AA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
