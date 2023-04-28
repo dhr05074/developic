@@ -80,6 +80,48 @@ paths:
                                 properties:
                                     problem:
                                         $ref: "#/components/schemas/problem"
+    /evaluate:
+        post:
+            summary: "Evaluate a candidate's solution."
+            operationId: "evaluateSolution"
+            description: |
+                Evaluate a candidate's solution by inputting the problem ID and the candidate's solution.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - problem_id
+                                - before
+                                - after
+                            properties:
+                                problem_id:
+                                    $ref: "#/components/schemas/problem_id"
+                                before:
+                                    type: string
+                                    description: "Candidate's solution before the change."
+                                    example: "def add(a, b):\n    return a + b"
+                                after:
+                                    type: string
+                                    description: "Candidate's solution after the change."
+                                    example: "def add(a, b):\n    return a + b + 1"
+            responses:
+                "200":
+                    description: "Evaluation is successful."
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                required:
+                                    - score
+                                properties:
+                                    score:
+                                        type: string
+                                        description: "Score of the solution out of 100."
+                default:
+                    description: "Unexpected error"
 components:
     schemas:
         request_id:

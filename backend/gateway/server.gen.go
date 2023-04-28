@@ -38,6 +38,18 @@ type ProblemId = string
 // RequestId This ID is given upon request. This ID allows the requested resource to be returned.
 type RequestId = string
 
+// EvaluateSolutionJSONBody defines parameters for EvaluateSolution.
+type EvaluateSolutionJSONBody struct {
+	// After Candidate's solution after the change.
+	After string `json:"after"`
+
+	// Before Candidate's solution before the change.
+	Before string `json:"before"`
+
+	// ProblemId ID of the problem.
+	ProblemId ProblemId `json:"problem_id"`
+}
+
 // CreateProblemJSONBody defines parameters for CreateProblem.
 type CreateProblemJSONBody struct {
 	// Difficulty Difficulty of the problem out of 100.
@@ -47,11 +59,17 @@ type CreateProblemJSONBody struct {
 	Language string `json:"language"`
 }
 
+// EvaluateSolutionJSONRequestBody defines body for EvaluateSolution for application/json ContentType.
+type EvaluateSolutionJSONRequestBody EvaluateSolutionJSONBody
+
 // CreateProblemJSONRequestBody defines body for CreateProblem for application/json ContentType.
 type CreateProblemJSONRequestBody CreateProblemJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Evaluate a candidate's solution.
+	// (POST /evaluate)
+	EvaluateSolution(ctx echo.Context) error
 	// Create a problem.
 	// (POST /problems)
 	CreateProblem(ctx echo.Context) error
@@ -63,6 +81,15 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// EvaluateSolution converts echo context to params.
+func (w *ServerInterfaceWrapper) EvaluateSolution(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.EvaluateSolution(ctx)
+	return err
 }
 
 // CreateProblem converts echo context to params.
@@ -118,9 +145,39 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.POST(baseURL+"/evaluate", wrapper.EvaluateSolution)
 	router.POST(baseURL+"/problems", wrapper.CreateProblem)
 	router.GET(baseURL+"/problems/:request_id", wrapper.GetProblem)
 
+}
+
+type EvaluateSolutionRequestObject struct {
+	Body *EvaluateSolutionJSONRequestBody
+}
+
+type EvaluateSolutionResponseObject interface {
+	VisitEvaluateSolutionResponse(w http.ResponseWriter) error
+}
+
+type EvaluateSolution200JSONResponse struct {
+	// Score Score of the solution out of 100.
+	Score string `json:"score"`
+}
+
+func (response EvaluateSolution200JSONResponse) VisitEvaluateSolutionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type EvaluateSolutiondefaultResponse struct {
+	StatusCode int
+}
+
+func (response EvaluateSolutiondefaultResponse) VisitEvaluateSolutionResponse(w http.ResponseWriter) error {
+	w.WriteHeader(response.StatusCode)
+	return nil
 }
 
 type CreateProblemRequestObject struct {
@@ -186,6 +243,9 @@ func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.Respons
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// Evaluate a candidate's solution.
+	// (POST /evaluate)
+	EvaluateSolution(ctx context.Context, request EvaluateSolutionRequestObject) (EvaluateSolutionResponseObject, error)
 	// Create a problem.
 	// (POST /problems)
 	CreateProblem(ctx context.Context, request CreateProblemRequestObject) (CreateProblemResponseObject, error)
@@ -205,6 +265,35 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// EvaluateSolution operation middleware
+func (sh *strictHandler) EvaluateSolution(ctx echo.Context) error {
+	var request EvaluateSolutionRequestObject
+
+	var body EvaluateSolutionJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.EvaluateSolution(ctx.Request().Context(), request.(EvaluateSolutionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "EvaluateSolution")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(EvaluateSolutionResponseObject); ok {
+		return validResponse.VisitEvaluateSolutionResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
 }
 
 // CreateProblem operation middleware
@@ -264,21 +353,23 @@ func (sh *strictHandler) GetProblem(ctx echo.Context, requestId RequestId) error
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/6RWTY/bNhD9KwO2R0FWNgVa+NZmi8BAD0E/DkW6aGhyJDGRSJYcrmMs/N+LoSWtZCu7",
-	"CfZmaMiZN+/NG/pBKNd7Z9FSFNsHEVWLvcw/fXD7Dnv+qTGqYDwZZ8VW/NmaCCYCtQjDIaBWEn8LSClY",
-	"1KUoOIHHQAZzOuUsoaXrdG/OAXD1PCMnwM+y9x3ymYCSECQccB8N4bme7Dp3iJAihgjkIPnOSQ2mlw1G",
-	"TkBHz7cjBWMbcSrGnv41mnF8H7AWW/Hd5pGDzUDAZnbyVAgyxDiumODP3wT8GtSpEAH/SyagFtv3c4Rj",
-	"2WLi7m667fYfUdF1S0t8u9snwf0ob356rdd4YkQYaTVpln93y2o35h4tJO8sDDdKGMODOFx8iKGGgNGl",
-	"oJDV2uNiWp6HxVQZW7u1EdL4xlmLiuDnd7uJuUVEFOIeQzzfqMpXZcWdOo9WeiO24nVZlRWPraQ2T+w4",
-	"A2c3uLg2u6O8uUHjLOyPYKxPRMY2cHDhUwGjvBA/ma6LBfiANQa0CmMB0mrAzx6D4Q/lP1ZkUEFyup2e",
-	"irwb7DiJ84vTxwtjSe87o/LNzcfICEdHD4ae+VGbujYqdXS8but2il3MD7iUjfqqqhaa3VSTWsYSNhiY",
-	"207aJslmxTi/DZEnx9MfqXX2WcfMGpmVvLbK8h6FhPlD9M7GMyU31c0LCF165qndMjt52cwsdJcRL3kb",
-	"hgAUj4R5tB2bUSqFnlCX8LdLoKSFBmkh3u4W6uD6wZPnxksW6oeqekHjPca4qvKvIbgAY3gu7QejP0Bt",
-	"sNPnR2Mg4Dmpx1Rr1Pw+umzoghP3JkZjmwJcyE0fgrMNaEkSuBC0MsIe0UJES5kJjbVM3YrT/7JsUsVL",
-	"DLmtjC2mvpfhOF8E0yRzfNogm4dHYU+cvMGVGn+gDKrNSLPAqCfpEvcxX6agnEYwMSbUcGjRDjMxnBph",
-	"rKyTt0jzXbKY/5eMwez/wlc8rF96+L5g3HUbmAi1S1aXF2q8RVpIwUs9yB4JQxTb988+k1f+Evzy8EqS",
-	"1IpCWNkzwJlZL1dLMaPpq1fBXe4Cw/0IM4VObEVL5ON2s5HelKy6Or9npXHidHf6PwAA//8IRqrawgkA",
-	"AA==",
+	"H4sIAAAAAAAC/6xW32/cNgz+VwhtwDbU8F3SARvubWuKIsAeimV7GNpg1Um0rdaWNFFKegjufx/oX7Hv",
+	"3Fza5O3OosiP/PiRuhPKNd5ZtJHE5k6QqrCR7U8f3LbGhn9qJBWMj8ZZsRF/VYbAEMQKoTeCWMnI3wLG",
+	"FCzqXGTswGOIBlt3ytmINh67e9UdgCumHtkBfpaNr5FtAsqIIOEWt2QidvFkXbtbgkQYCKKD5GsnNZhG",
+	"lkjsIO4836YYjC3FPhty+tdoxvF9wEJsxHer+xqs+gKsJpb7TEQTGcdRJfjzVwE/BrXPRMD/kgmoxebd",
+	"FOEQNhtrdz3edtuPqOJxSnN8lxcPgvtFnv/6Ui/ViREhxUWnLf2XF8x2aW7QQvLOQn8jh+G4J4eD92eo",
+	"ISC5FBQyW1ucdctpWFwqYwu31EIaXzlrUUX47e3lWLnZicjEDQbqbqzzs3zNmTqPVnojNuJlvs7X3LYy",
+	"Vm3HrvBG1knGlnjvaKF3X/cWIEFJq42WEX8gIFcntoDtDoz1KUZjy5leuEBWt5+WLubvrWixBcl/L/Uk",
+	"1lVvI0aafnd6dyAx6X1tVHt59ZEY66DtXtoTZcoiYlgo6lJCrW0Hu5K2xDlzGguQWv8oM9j+tHlvAaDn",
+	"GCS8gC28gLOldtti4QI+EkJn/M0Ynm8sPKTcPqOsL+6xcOe3Y0jYfiDvLHW0nK/XTyCV1GJFr/jzMBTG",
+	"krrUjt+z9To/OaA6x8sJLYqDAxgCSkohUZHqXLSmhUz1gqT+tvjZo+JpgSG40AKg1DQy7E4rLm/NB5ro",
+	"y8odB3OroCOt3rrwKYMhb6BPpq4pAx+wwIBWIWWtgBlrMPxhSbJdkLf9In0uvWpTFEalOu6O07oYzw4m",
+	"/wHHo17O1yOTxkYsMTA7tbRlkuVCA/3Rnzy4WPwuVu2AeriVJolMQn6bVs6fUND5tntI/hPLw2QmR9cL",
+	"YuibABS3hLlfmCwNqRT6iDqHf1zitoYS4+G6KIJr+m3aJd7K6OcnDYkGiRZZfs3Kg+F4Su0Hoz9AYbDW",
+	"3XOvL8ApqgdXS6X5c1BZnwU7bgyRsWUGrts2t8HZErSMEjgQVJJgi2iB0MYnDZRxEIydPJsgq7t7Yvfs",
+	"vMSFGFcog6q6ndT60yN1iYbdPzCunEYwRAk13FZo+56YvxCWxskbjNNZ8my7YvLSf8Tu+9Lie9ROGGRg",
+	"CAqXrM4P2HiDcUYFP8eCbDBiILF5d/KBe6QvwW9GHkkyViITVjYMcCLWw9GSTcr06FFw3WaB4WaAmUIt",
+	"NqKK0dNmtZLe5My66l6iuXFif73/PwAA//8R2q7VfA0AAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

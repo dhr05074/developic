@@ -82,7 +82,7 @@ func (h *Handler) CreateProblem(ctx context.Context, req gateway.CreateProblemRe
 			"Inefficient algorithms or suboptimal performance"})
 		prompts = append(prompts, "Characteristics of dirty code:")
 		prompts = append(prompts, characteristics)
-		prompts = append(prompts, "Note: The challenge problem should be provided without any specific instructions or answer code. Just give the code snippet and let the user figure out what to do.")
+		prompts = append(prompts, "Note: The challenge problem should be provided without any answer code. Just give the code which is include main function and instruction and title of the problem.")
 
 		res, err := newGPTClient.CompleteWithContext(newCtx, prompts)
 		if err != nil {
@@ -169,6 +169,32 @@ func (h *Handler) GetProblem(ctx context.Context, req gateway.GetProblemRequestO
 			ProblemId: problem.UUID,
 			Title:     problem.Title,
 		},
+	}, nil
+}
+
+func (h *Handler) EvaluateSolution(ctx context.Context, req gateway.EvaluateSolutionRequestObject) (*gateway.EvaluateSolution200JSONResponse, error) {
+	before, err := base64.StdEncoding.DecodeString(req.Body.Before)
+	if err != nil {
+		return nil, err
+	}
+
+	after, err := base64.StdEncoding.DecodeString(req.Body.After)
+	if err != nil {
+		return nil, err
+	}
+
+	prompts := make([]string, 0, 2)
+	prompts = append(prompts, fmt.Sprintf("Compare the before and after code and give me a score out of 100 on how well the refactoring went. Just give me the score only."))
+	prompts = append(prompts, fmt.Sprintf("Before:\n%s\nAfter:\n%s", before, after))
+	prompts = append(prompts, "Score:")
+
+	res, err := h.gptClient.NewClientWithEmptyContext().CompleteWithContext(ctx, prompts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gateway.EvaluateSolution200JSONResponse{
+		Score: res,
 	}, nil
 }
 
