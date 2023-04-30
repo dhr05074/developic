@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var l = log.NewZapSugaredLogger().With("pkg", "db")
+var l = log.NewZap().With("pkg", "db")
 
 func NewCachedEntDriver() *entcache.Driver {
 	db, err := sql.Open(dialect.MySQL, "root:teamgrit8266@tcp(mariadb:3306)/aiign?parseTime=true")

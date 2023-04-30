@@ -10,7 +10,7 @@ type OpenAI struct {
 	messages     []openai.ChatCompletionMessage
 }
 
-func (o *OpenAI) NewClientWithEmptyContext() GPTClient {
+func (o *OpenAI) NewContext() GPTClient {
 	return NewOpenAI(o.openaiClient)
 }
 

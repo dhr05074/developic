@@ -19,7 +19,7 @@ import (
 	"os"
 )
 
-var l = log.NewZapSugaredLogger().With("service", "gateway")
+var l = log.NewZap().With("service", "gateway")
 
 func main() {
 	apiKey := os.Getenv("CHATGPT_API_KEY")

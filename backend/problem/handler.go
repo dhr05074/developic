@@ -9,9 +9,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	"os"
 )
 
 const codeAlphabets = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -25,66 +23,65 @@ func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
 	return &Handler{gptClient: gptClient, entClient: entClient}
 }
 
-var l = log.NewZapSugaredLogger()
+var l = log.NewZap()
 
-type TranslateRequest struct {
-	Text   string `json:"text"`
-	Source string `json:"source"`
-	Target string `json:"target"`
+type Prompts struct {
+	prompts []string
 }
 
-type TranslateResponse struct {
-	Text string `json:"text"`
+func (p *Prompts) Add(format string, args ...any) {
+	p.prompts = append(p.prompts, fmt.Sprintf(format, args...))
 }
 
-func (h *Handler) translateRequirements(ctx context.Context, requirements, source, target string) (result string, err error) {
-	client := resty.New().SetBaseURL("https://deepl-translator.p.rapidapi.com").R().SetContext(ctx)
-	client.SetHeader("X-RapidAPI-Key", os.Getenv("DEEPL_API_KEY"))
-	client.SetHeader("X-RapidAPI-Host", os.Getenv("DEEPL_API_HOST"))
+func (p *Prompts) StrArray() []string {
+	return p.prompts
+}
 
-	body := TranslateRequest{
-		Text:   requirements,
-		Source: source,
-		Target: target,
-	}
+func (h *Handler) wrapTransaction(ctx context.Context, cli *ent.Client, fn func(tx *ent.Tx) error) error {
+	var err error
 
-	var resp TranslateResponse
-	_, err = client.SetBody(body).SetResult(&resp).Post("/translate")
+	tx, err := cli.Tx(ctx)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return resp.Text, nil
+	defer func() {
+		if err == nil {
+			return
+		}
+
+		if err := tx.Rollback(); err != nil {
+			l.Errorw("error while rolling back transaction", "error", err)
+		}
+	}()
+
+	if err = fn(tx); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		l.Errorw("error while committing transaction", "error", err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *Handler) CreateProblem(ctx context.Context, req gateway.CreateProblemRequestObject) (*gateway.CreateProblem202JSONResponse, error) {
+	// When searching for problems created later, you can search by Request ID.
 	requestID := h.generateID()
 
 	go func(entClient *ent.Client, requestID string) {
 		newCtx := context.TODO()
-		newGPTClient := h.gptClient.NewClientWithEmptyContext()
+		newGPTClient := h.gptClient.NewContext()
 
-		prompts := make([]string, 0, 2)
-		prompts = append(prompts, fmt.Sprintf("Please generate a code refactoring challenge problem that incorporates the characteristics of dirty code mentioned below. The challenge should be tailored to the following user preferences:"))
-		prompts = append(prompts, fmt.Sprintf("Difficulty score: %d", req.Body.Difficulty))
-		prompts = append(prompts, fmt.Sprintf("Programming language: %s", req.Body.Language))
+		var prompts Prompts
+		prompts.Add("Please create a refactoring problem with a title and scratch code in the specified programming language. The code should have a main function, some additional functions, and exhibit characteristics that require refactoring based on the specified difficulty level. Do not include the problem statement or the refactored solution.")
+		prompts.Add("Difficulty: %d/100", req.Body.Difficulty)
+		prompts.Add("Language: %s", req.Body.Language)
+		prompts.Add("Example Output: \"title\": \"<title>\", \"scratch_code\": \"<scratch_code>\"")
 
-		characteristics := h.bulletPointList([]string{
-			"Lack of structure and organization",
-			"Inconsistency in naming conventions, indentation, and formatting",
-			"No modularity, with mixed functionalities and concerns",
-			"Code duplication and redundancy",
-			"Poor documentation and missing comments",
-			"Overly complex logic and nested control structures",
-			"Hardcoded values",
-			"Use of global variables and side effects",
-			"Inadequate error handling",
-			"Inefficient algorithms or suboptimal performance"})
-		prompts = append(prompts, "Characteristics of dirty code:")
-		prompts = append(prompts, characteristics)
-		prompts = append(prompts, "Note: The challenge problem should be provided without any answer code. Just give the code which is include main function and instruction and title of the problem.")
-
-		res, err := newGPTClient.CompleteWithContext(newCtx, prompts)
+		res, err := newGPTClient.CompleteWithContext(newCtx, prompts.StrArray())
 		if err != nil {
 			l.Errorw("error while completing prompt", "error", err)
 			return
@@ -92,40 +89,20 @@ func (h *Handler) CreateProblem(ctx context.Context, req gateway.CreateProblemRe
 
 		l.Infof("problem created: %s\n", res)
 
-		tx, err := entClient.Tx(newCtx)
-		if err != nil {
-			l.Errorw("error while creating transaction", "error", err)
-			return
-		}
-
-		defer func() {
-			if err == nil {
-				return
-			}
-
-			if err := tx.Rollback(); err != nil {
-				l.Errorw("error while rolling back transaction", "error", err)
-			}
-		}()
-
+		// If the code contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
 		content := base64.StdEncoding.EncodeToString([]byte(res))
 		if err != nil {
 			l.Errorw("error while decoding problem content", "error", err)
 			return
 		}
-
 		problemID := h.generateID()
-		err = tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetContent(content).Exec(newCtx)
-		if err != nil {
+
+		if err := h.wrapTransaction(context.TODO(), entClient, func(tx *ent.Tx) error {
+			return tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetContent(content).Exec(newCtx)
+		}); err != nil {
 			l.Errorw("error while creating problem", "error", err)
 			return
 		}
-
-		if err = tx.Commit(); err != nil {
-			l.Errorw("error while committing transaction", "error", err)
-			return
-		}
-
 	}(h.entClient, requestID)
 
 	return &gateway.CreateProblem202JSONResponse{
@@ -188,7 +165,7 @@ func (h *Handler) EvaluateSolution(ctx context.Context, req gateway.EvaluateSolu
 	prompts = append(prompts, fmt.Sprintf("Before:\n%s\nAfter:\n%s", before, after))
 	prompts = append(prompts, "Score:")
 
-	res, err := h.gptClient.NewClientWithEmptyContext().CompleteWithContext(ctx, prompts)
+	res, err := h.gptClient.NewContext().CompleteWithContext(ctx, prompts)
 	if err != nil {
 		return nil, err
 	}
