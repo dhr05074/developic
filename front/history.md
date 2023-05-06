@@ -54,3 +54,7 @@
 
 - reactMarkDown 적용 완.
 - v0.0.0:11
+
+### 5/6
+- router 적용 중 개같은 eslint 
+- v0.0.0:12
