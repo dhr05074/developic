@@ -17,3 +17,4 @@ type Languages = [
     "Scala",
     "Swift",
 ];
+type DifficultyTypes = ["hard", "normal", "easy"];

@@ -1,24 +1,26 @@
-import React,{ useState, useRef, MouseEvent, useEffect } from "react";
+import React from "react";
 // import viteLogo from "../../../../../../vite.svg";
 import "./styles/App.css";
-
-// import Footer from "./component/Footer/Footer";
-import TextArea from "./component/Textarea/Textarea";
-import Select from "./component/Select/Select";
-
-// react-simple-code-editor
+import "./styles/index.css";
+// react-simple-code-editr
 // import { useCodeMirror } from "@uiw/react-codemirror";
 // import { javascript } from "@codemirror/lang-javascript";
-// import CodeEditor from "./component/CodeEditor/CodeEditor";
-import NavBar from "./component/NavBar/NavBar";
-import Problem from "./component/Resizable/Problem";
-import {ReactJSXElement} from "@emotion/react/types/jsx-namespace";
-import AppRouter from "@/routes/AppRouter";
+// import CodeEditor from './component/CodeEditor/CodeEditor';
+import { Route, Routes } from "react-router-dom";
+// import NavBar from "./component/NavBar/NavBar";
+// import Problem from "./component/Resizable/Problem";
+import CodeEditor from "./routes/CodeEditor";
+import ErrorPage from "./routes/Error";
+import HomePage from "./routes/Home";
+import Select from "./routes/Select";
 
 function App() {
-
     return (
-       <AppRouter />
+        <Routes>
+            <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+            <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+            <Route path="/codeEditor" element={<CodeEditor />} errorElement={<ErrorPage />} />
+        </Routes>
     );
 }
 

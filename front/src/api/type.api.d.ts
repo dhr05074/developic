@@ -3,7 +3,7 @@ type LanguageType =
     | "typescript"
     | "javascript"
     | "python3"
-    | "c"
+    | "c++"
     | "cpp"
     | "c#"
     | "clojure"
