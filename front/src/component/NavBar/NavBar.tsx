@@ -1,5 +1,6 @@
 import { Spinner } from "flowbite-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { getProblem, postProblem } from "@/api/problem";
 
 type PropsType = {
@@ -40,19 +41,19 @@ export default function NavBar(props: PropsType) {
         }
     };
     return (
-        <nav className="bg-Navy-900 h-full">
-            <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto h-full">
+        <nav className="h-full bg-Navy-900">
+            <div className="mx-auto flex h-full max-w-screen-xl flex-wrap items-center justify-between">
                 {/* logo */}
-                <a href="#" className="flex flex-row items-start gap-4">
-                    <div className="bg-coco-green_500 h-6 w-6" />
-                    <span className="self-center text-2xl  font-semibold whitespace-nowrap text-white">
-                        codeconnect
-                    </span>
-                    <button onClick={onClickCreateProblem} className="bg-coco-green_500 flex flex-row gap-2">
+                <div className=" flex flex-row items-center gap-4">
+                    <Link to="/" className="flex flex-row items-center gap-4">
+                        <div className="h-8 w-8 bg-coco-green_500" />
+                        <p className=" whitespace-nowrap  text-2xl font-semibold text-white">codeconnect</p>
+                    </Link>
+                    <button onClick={onClickCreateProblem} className="flex flex-row gap-2 bg-coco-green_500 text-black">
                         <span>문제 제출</span>
                         {isSpinner ? <Spinner color="info" /> : null}
                     </button>
-                </a>
+                </div>
             </div>
         </nav>
     );

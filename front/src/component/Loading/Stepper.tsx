@@ -24,9 +24,14 @@ function Stepper(props: PropsType) {
         idle: "border-gray-300 bg-gray-100 text-gray-900",
         loading: "border-Navy-500 bg-Navy-600 text-white",
         complete: "border-green-300 bg-green-50 text-green-700",
+        inviserble: "opacity-0 invisible",
     };
     return (
-        <div className=" absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800">
+        <div
+            className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 ${
+                props.step === 0 && style.inviserble
+            }`}
+        >
             <ol className="w-72 space-y-4">
                 {Object.entries(props?.list).map(([key, value]) => (
                     <li key={key}>
