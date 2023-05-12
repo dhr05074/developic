@@ -2,6 +2,7 @@ import React from "react";
 // import viteLogo from "../../../../../../vite.svg";
 import "./styles/App.css";
 import "./styles/index.css";
+import "./styles/component.css";
 // react-simple-code-editr
 // import { useCodeMirror } from "@uiw/react-codemirror";
 // import { javascript } from "@codemirror/lang-javascript";

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import React from "react";
 import SelectComponent from "@/component/Select/Select";
 import TextArea from "@/component/Textarea/Textarea";
+import ButtonBasic from "@/component/Button/Basic.Button";
 
 const languages: LanguageType[] = [
     "javascript",
@@ -32,6 +34,10 @@ export default function Select() {
     const setDifficulty = (value: string) => {
         c_difficulty = value;
     };
+    const buttonOption = {
+        pathName: "/codeEditor",
+        search: "?difficulty=${c_difficulty}&language=${currentLang}",
+    };
     return (
         <div>
             <section className="flex h-screen w-screen flex-col items-center justify-center gap-5">
@@ -41,12 +47,7 @@ export default function Select() {
                     <p>난이도 : </p>
                     <SelectComponent value={{ menu: difficulty, callback: setDifficulty }} />
                 </div>
-                <Link
-                    to={{ pathname: "/codeEditor", search: `?difficulty=${c_difficulty}&language=${currentLang}` }}
-                    className="motion_basic inline-flex items-center justify-center rounded-lg bg-coco-green_500 px-5 py-3 text-center text-base font-medium text-black  hover:bg-Navy-700 hover:text-white"
-                >
-                    문제 풀기
-                </Link>
+                <ButtonBasic link={buttonOption} name="문제 풀기" />
             </section>
         </div>
     );

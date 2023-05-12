@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import NavBar from "@/component/NavBar/NavBar";
 import Problem from "@/component/Resizable/Problem";
+import Stepper from "@/component/Loading/Stepper";
 
 const languages: string[] = [
     "go",
@@ -23,28 +24,40 @@ const languages: string[] = [
     "scala",
     "swift",
 ];
-let currentLang = "javascript" as LanguageType;
+const currentLang = "javascript" as LanguageType;
 function CodeEditor() {
     const [searchParams] = useSearchParams();
-    const queryList = [...searchParams]; // [['key1', 'test1'], ['key2', 'test2']]
-    console.log("🚀 ~ file: CodeEditor.tsx:31 ~ CodeEditor ~ queryList:", queryList);
-
-    const getMenuValue = (value: LanguageType) => {
-        console.log("🚀 ~ file: App.tsx:41 ~ getMenuValue ~ value:", value);
-        currentLang = value;
-    };
     const [useProblem, setProblem] = useState<string>("");
+    // resizer
+    const [runnerWidth, setRunnerWidth] = useState<number>(300);
+    const [isResizing, setIsResizing] = useState<boolean>(false);
+    const [step, setStep] = useState<number>(6);
+    const [StepperList, setStepperList] = useState<StepperListTypes>({
+        difficult: {
+            value: "난이도 체크",
+            step: "idle",
+        },
+        language: {
+            value: "언어 체크",
+            step: "idle",
+        },
+        api: {
+            value: "API 불러오는 중",
+            step: "idle",
+        },
+        comp: {
+            value: "문제 출제 완료",
+            step: "idle",
+        },
+    });
+    const runnerRef = useRef<HTMLDivElement>(null);
+    const bodyRef = useRef<HTMLDivElement>(null);
 
     const style = {
         problem: {
             width: "600px",
         },
     };
-    const bodyRef = useRef<HTMLDivElement>(null);
-    // resizer
-    const [runnerWidth, setRunnerWidth] = useState<number>(300);
-    const runnerRef = useRef<HTMLDivElement>(null);
-    const [isResizing, setIsResizing] = useState<boolean>(false);
 
     const handleMouseMove = (event: MouseEvent) => {
         if (isResizing && runnerRef.current) {
@@ -70,8 +83,56 @@ function CodeEditor() {
         // setProblem(problem);
     };
 
+    const stepperStateChanger = () => {
+        if (step === 6) {
+            StepperList.difficult.step = "loading";
+            const changeDefficult = StepperList.difficult;
+            setStepperList((prevState) => {
+                return { ...prevState, difficult: changeDefficult };
+            });
+        } else if (step === 5) {
+            StepperList.difficult.step = "complete";
+            StepperList.language.step = "loading";
+            const changeDefficult = StepperList.difficult;
+            const changeLanguage = StepperList.language;
+            setStepperList((prevState) => {
+                return { ...prevState, difficult: changeDefficult, language: changeLanguage };
+            });
+        } else if (step === 4) {
+            StepperList.language.step = "complete";
+            StepperList.api.step = "loading";
+            const changeLanguage = StepperList.language;
+            const changeApi = StepperList.api;
+            setStepperList((prevState) => {
+                return { ...prevState, language: changeLanguage, api: changeApi };
+            });
+        } else if (step === 3) {
+            StepperList.api.step = "complete";
+            StepperList.comp.step = "loading";
+            const changeApi = StepperList.api;
+            const changeComp = StepperList.comp;
+            setStepperList((prevState) => {
+                return { ...prevState, api: changeApi, comp: changeComp };
+            });
+        } else if (step === 2) {
+            StepperList.comp.step = "complete";
+            const changeComp = StepperList.comp;
+            setStepperList((prevState) => {
+                return { ...prevState, comp: changeComp };
+            });
+        } else if (step === 0) {
+            return false;
+        }
+        setStep(step - 1);
+        return true;
+    };
+
     return (
         <div id="CodeEditor" className="App h-screen w-screen">
+            {step === 0 ? null : <Stepper step={step} list={StepperList} testFunction={stepperStateChanger} />}
+
+            {/* 스테퍼 제거해야함. */}
+
             <section id="header">
                 <NavBar currentLang={currentLang} getProblem={getProblem} />
             </section>
