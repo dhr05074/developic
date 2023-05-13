@@ -17,6 +17,7 @@ func (Problem) Fields() []ent.Field {
 		field.String("title"),
 		field.Text("background"),
 		field.Text("code"),
+		field.Text("test_code").Optional(),
 		field.Int("estimated_time").Default(30),
 		field.String("language"),
 		field.String("request_id"),

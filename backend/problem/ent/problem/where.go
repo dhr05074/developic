@@ -73,6 +73,11 @@ func Code(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCode, v))
 }
 
+// TestCode applies equality check predicate on the "test_code" field. It's identical to TestCodeEQ.
+func TestCode(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldTestCode, v))
+}
+
 // EstimatedTime applies equality check predicate on the "estimated_time" field. It's identical to EstimatedTimeEQ.
 func EstimatedTime(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldEstimatedTime, v))
@@ -346,6 +351,81 @@ func CodeEqualFold(v string) predicate.Problem {
 // CodeContainsFold applies the ContainsFold predicate on the "code" field.
 func CodeContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldCode, v))
+}
+
+// TestCodeEQ applies the EQ predicate on the "test_code" field.
+func TestCodeEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldTestCode, v))
+}
+
+// TestCodeNEQ applies the NEQ predicate on the "test_code" field.
+func TestCodeNEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldTestCode, v))
+}
+
+// TestCodeIn applies the In predicate on the "test_code" field.
+func TestCodeIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldTestCode, vs...))
+}
+
+// TestCodeNotIn applies the NotIn predicate on the "test_code" field.
+func TestCodeNotIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldTestCode, vs...))
+}
+
+// TestCodeGT applies the GT predicate on the "test_code" field.
+func TestCodeGT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldTestCode, v))
+}
+
+// TestCodeGTE applies the GTE predicate on the "test_code" field.
+func TestCodeGTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldTestCode, v))
+}
+
+// TestCodeLT applies the LT predicate on the "test_code" field.
+func TestCodeLT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldTestCode, v))
+}
+
+// TestCodeLTE applies the LTE predicate on the "test_code" field.
+func TestCodeLTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldTestCode, v))
+}
+
+// TestCodeContains applies the Contains predicate on the "test_code" field.
+func TestCodeContains(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContains(FieldTestCode, v))
+}
+
+// TestCodeHasPrefix applies the HasPrefix predicate on the "test_code" field.
+func TestCodeHasPrefix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasPrefix(FieldTestCode, v))
+}
+
+// TestCodeHasSuffix applies the HasSuffix predicate on the "test_code" field.
+func TestCodeHasSuffix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasSuffix(FieldTestCode, v))
+}
+
+// TestCodeIsNil applies the IsNil predicate on the "test_code" field.
+func TestCodeIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldTestCode))
+}
+
+// TestCodeNotNil applies the NotNil predicate on the "test_code" field.
+func TestCodeNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldTestCode))
+}
+
+// TestCodeEqualFold applies the EqualFold predicate on the "test_code" field.
+func TestCodeEqualFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEqualFold(FieldTestCode, v))
+}
+
+// TestCodeContainsFold applies the ContainsFold predicate on the "test_code" field.
+func TestCodeContainsFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContainsFold(FieldTestCode, v))
 }
 
 // EstimatedTimeEQ applies the EQ predicate on the "estimated_time" field.

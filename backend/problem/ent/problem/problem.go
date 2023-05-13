@@ -15,6 +15,8 @@ const (
 	FieldBackground = "background"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
+	// FieldTestCode holds the string denoting the test_code field in the database.
+	FieldTestCode = "test_code"
 	// FieldEstimatedTime holds the string denoting the estimated_time field in the database.
 	FieldEstimatedTime = "estimated_time"
 	// FieldLanguage holds the string denoting the language field in the database.
@@ -32,6 +34,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldBackground,
 	FieldCode,
+	FieldTestCode,
 	FieldEstimatedTime,
 	FieldLanguage,
 	FieldRequestID,

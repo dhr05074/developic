@@ -14,7 +14,7 @@ func init() {
 	problemFields := schema.Problem{}.Fields()
 	_ = problemFields
 	// problemDescEstimatedTime is the schema descriptor for estimated_time field.
-	problemDescEstimatedTime := problemFields[4].Descriptor()
+	problemDescEstimatedTime := problemFields[5].Descriptor()
 	// problem.DefaultEstimatedTime holds the default value on creation for the estimated_time field.
 	problem.DefaultEstimatedTime = problemDescEstimatedTime.Default.(int)
 }

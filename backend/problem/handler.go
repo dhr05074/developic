@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"regexp"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 		newCtx := context.TODO()
 		newGPTClient := h.gptClient.NewContext()
 
-		prompt := fmt.Sprintf("Imagine you are a backend developer at an IT company and create two key components of a code refactoring challenge. \n\n1. create a specific background scenario for the code to be refactored.\n\n2. create a piece of code that follows the previous scenario and would take a new developer %d minutes to fix. Use %s as your programming language.\n\n[Result format].\n{\"title\":\"\",\n\"background:\"\",\n\"target_code\":\"\",\n\"estimated_time\":30\n}", req.Body.EstimatedTime, req.Body.Language)
+		prompt := fmt.Sprintf("I want you to answer only in JSON format. JSON object should like this: {title, background, target_code, estimated_time}.\n\nTitle:\nThe topic of the refactoring challenge. It should be a situation that a developer would experience in real life.\n\nbackground:\nA more detailed description of the title.\n\ntarget_code:\nDirty, complex code generated from the title and background. The code should contain technical debt that a new developer can solve in %d minutes or less. The code should be written in the %s language.\n\nestimated_time:\nThe amount of time it would take a new developer to resolve the technical debt contained in the code. It should be an integer.", req.Body.EstimatedTime, req.Body.Language)
 		newGPTClient.AddPrompt(prompt)
 
 		startTime := time.Now()
@@ -57,14 +58,14 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 
 		var output Output
 		if err = json.Unmarshal([]byte(msg), &output); err != nil {
-			l.Errorw("error while unmarshalling output", "error", err)
+			l.Errorw("error while unmarshaling json", "error", err)
 			return
 		}
 
 		dur := time.Since(startTime)
 		l.Infof("problem created in %f seconds", dur.Seconds())
 
-		// If the code contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
+		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
 		output.TargetCode = base64.StdEncoding.EncodeToString([]byte(output.TargetCode))
 		if err != nil {
 			l.Errorw("error while decoding problem content", "error", err)
@@ -78,9 +79,45 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 			return
 		}
 
-		err = tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetTitle(output.Title).SetBackground(output.Background).SetCode(output.TargetCode).SetLanguage(req.Body.Language).SetNillableEstimatedTime(req.Body.EstimatedTime).Exec(newCtx)
+		pr, err := tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetTitle(output.Title).SetBackground(output.Background).SetCode(output.TargetCode).SetLanguage(req.Body.Language).SetNillableEstimatedTime(req.Body.EstimatedTime).Save(newCtx)
 		if err != nil {
 			l.Errorw("error while creating problem", "error", err)
+			return
+		}
+
+		if err = tx.Commit(); err != nil {
+			l.Errorw("error while committing transaction", "error", err)
+			return
+		}
+
+		// Creating test testCode for the testCode.
+		newGPTClient.AddPrompt("Create a test code for the previous code. It should have 5 test cases.")
+		testCode, err := newGPTClient.Complete(newCtx)
+		if err != nil {
+			l.Errorw("error while completing prompt", "error", err)
+			return
+		}
+
+		l.Info(testCode)
+
+		_, testCode = extractCode(testCode)
+
+		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
+		testCode = base64.StdEncoding.EncodeToString([]byte(testCode))
+		if err != nil {
+			l.Errorw("error while decoding problem content", "error", err)
+			return
+		}
+
+		tx, err = entClient.Tx(newCtx)
+		if err != nil {
+			l.Errorw("error while starting transaction", "error", err)
+			return
+		}
+
+		err = tx.Problem.UpdateOne(pr).SetTestCode(testCode).Exec(newCtx)
+		if err != nil {
+			l.Errorw("error while updating problem", "error", err)
 			return
 		}
 
@@ -141,4 +178,22 @@ func (h *Handler) GetProblem(ctx context.Context, req gateway.GetProblemRequestO
 
 func (h *Handler) generateID() string {
 	return gonanoid.MustGenerate(codeAlphabets, 7)
+}
+
+func extractField(markdown string, fieldMarker string) string {
+	regex := regexp.MustCompile(`(?s)` + fieldMarker + `\n(.+?)`)
+	match := regex.FindStringSubmatch(markdown)
+	if len(match) >= 2 {
+		return match[1]
+	}
+	return ""
+}
+
+func extractCode(markdown string) (string, string) {
+	regex := regexp.MustCompile("`{3}(.+?)\n(.+?)\n`{3}")
+	match := regex.FindStringSubmatch(markdown)
+	if len(match) >= 3 {
+		return match[1], match[2]
+	}
+	return "", ""
 }

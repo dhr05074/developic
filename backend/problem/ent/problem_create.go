@@ -43,6 +43,20 @@ func (pc *ProblemCreate) SetCode(s string) *ProblemCreate {
 	return pc
 }
 
+// SetTestCode sets the "test_code" field.
+func (pc *ProblemCreate) SetTestCode(s string) *ProblemCreate {
+	pc.mutation.SetTestCode(s)
+	return pc
+}
+
+// SetNillableTestCode sets the "test_code" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableTestCode(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetTestCode(*s)
+	}
+	return pc
+}
+
 // SetEstimatedTime sets the "estimated_time" field.
 func (pc *ProblemCreate) SetEstimatedTime(i int) *ProblemCreate {
 	pc.mutation.SetEstimatedTime(i)
@@ -174,6 +188,10 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Code(); ok {
 		_spec.SetField(problem.FieldCode, field.TypeString, value)
 		_node.Code = value
+	}
+	if value, ok := pc.mutation.TestCode(); ok {
+		_spec.SetField(problem.FieldTestCode, field.TypeString, value)
+		_node.TestCode = value
 	}
 	if value, ok := pc.mutation.EstimatedTime(); ok {
 		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)

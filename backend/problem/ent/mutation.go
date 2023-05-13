@@ -36,6 +36,7 @@ type ProblemMutation struct {
 	title             *string
 	background        *string
 	code              *string
+	test_code         *string
 	estimated_time    *int
 	addestimated_time *int
 	language          *string
@@ -288,6 +289,55 @@ func (m *ProblemMutation) ResetCode() {
 	m.code = nil
 }
 
+// SetTestCode sets the "test_code" field.
+func (m *ProblemMutation) SetTestCode(s string) {
+	m.test_code = &s
+}
+
+// TestCode returns the value of the "test_code" field in the mutation.
+func (m *ProblemMutation) TestCode() (r string, exists bool) {
+	v := m.test_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTestCode returns the old "test_code" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldTestCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTestCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTestCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTestCode: %w", err)
+	}
+	return oldValue.TestCode, nil
+}
+
+// ClearTestCode clears the value of the "test_code" field.
+func (m *ProblemMutation) ClearTestCode() {
+	m.test_code = nil
+	m.clearedFields[problem.FieldTestCode] = struct{}{}
+}
+
+// TestCodeCleared returns if the "test_code" field was cleared in this mutation.
+func (m *ProblemMutation) TestCodeCleared() bool {
+	_, ok := m.clearedFields[problem.FieldTestCode]
+	return ok
+}
+
+// ResetTestCode resets all changes to the "test_code" field.
+func (m *ProblemMutation) ResetTestCode() {
+	m.test_code = nil
+	delete(m.clearedFields, problem.FieldTestCode)
+}
+
 // SetEstimatedTime sets the "estimated_time" field.
 func (m *ProblemMutation) SetEstimatedTime(i int) {
 	m.estimated_time = &i
@@ -450,7 +500,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.uuid != nil {
 		fields = append(fields, problem.FieldUUID)
 	}
@@ -462,6 +512,9 @@ func (m *ProblemMutation) Fields() []string {
 	}
 	if m.code != nil {
 		fields = append(fields, problem.FieldCode)
+	}
+	if m.test_code != nil {
+		fields = append(fields, problem.FieldTestCode)
 	}
 	if m.estimated_time != nil {
 		fields = append(fields, problem.FieldEstimatedTime)
@@ -488,6 +541,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.Background()
 	case problem.FieldCode:
 		return m.Code()
+	case problem.FieldTestCode:
+		return m.TestCode()
 	case problem.FieldEstimatedTime:
 		return m.EstimatedTime()
 	case problem.FieldLanguage:
@@ -511,6 +566,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldBackground(ctx)
 	case problem.FieldCode:
 		return m.OldCode(ctx)
+	case problem.FieldTestCode:
+		return m.OldTestCode(ctx)
 	case problem.FieldEstimatedTime:
 		return m.OldEstimatedTime(ctx)
 	case problem.FieldLanguage:
@@ -553,6 +610,13 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCode(v)
+		return nil
+	case problem.FieldTestCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTestCode(v)
 		return nil
 	case problem.FieldEstimatedTime:
 		v, ok := value.(int)
@@ -619,7 +683,11 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProblemMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(problem.FieldTestCode) {
+		fields = append(fields, problem.FieldTestCode)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -632,6 +700,11 @@ func (m *ProblemMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProblemMutation) ClearField(name string) error {
+	switch name {
+	case problem.FieldTestCode:
+		m.ClearTestCode()
+		return nil
+	}
 	return fmt.Errorf("unknown Problem nullable field %s", name)
 }
 
@@ -650,6 +723,9 @@ func (m *ProblemMutation) ResetField(name string) error {
 		return nil
 	case problem.FieldCode:
 		m.ResetCode()
+		return nil
+	case problem.FieldTestCode:
+		m.ResetTestCode()
 		return nil
 	case problem.FieldEstimatedTime:
 		m.ResetEstimatedTime()

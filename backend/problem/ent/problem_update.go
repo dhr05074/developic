@@ -51,6 +51,26 @@ func (pu *ProblemUpdate) SetCode(s string) *ProblemUpdate {
 	return pu
 }
 
+// SetTestCode sets the "test_code" field.
+func (pu *ProblemUpdate) SetTestCode(s string) *ProblemUpdate {
+	pu.mutation.SetTestCode(s)
+	return pu
+}
+
+// SetNillableTestCode sets the "test_code" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableTestCode(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetTestCode(*s)
+	}
+	return pu
+}
+
+// ClearTestCode clears the value of the "test_code" field.
+func (pu *ProblemUpdate) ClearTestCode() *ProblemUpdate {
+	pu.mutation.ClearTestCode()
+	return pu
+}
+
 // SetEstimatedTime sets the "estimated_time" field.
 func (pu *ProblemUpdate) SetEstimatedTime(i int) *ProblemUpdate {
 	pu.mutation.ResetEstimatedTime()
@@ -137,6 +157,12 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Code(); ok {
 		_spec.SetField(problem.FieldCode, field.TypeString, value)
 	}
+	if value, ok := pu.mutation.TestCode(); ok {
+		_spec.SetField(problem.FieldTestCode, field.TypeString, value)
+	}
+	if pu.mutation.TestCodeCleared() {
+		_spec.ClearField(problem.FieldTestCode, field.TypeString)
+	}
 	if value, ok := pu.mutation.EstimatedTime(); ok {
 		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)
 	}
@@ -190,6 +216,26 @@ func (puo *ProblemUpdateOne) SetBackground(s string) *ProblemUpdateOne {
 // SetCode sets the "code" field.
 func (puo *ProblemUpdateOne) SetCode(s string) *ProblemUpdateOne {
 	puo.mutation.SetCode(s)
+	return puo
+}
+
+// SetTestCode sets the "test_code" field.
+func (puo *ProblemUpdateOne) SetTestCode(s string) *ProblemUpdateOne {
+	puo.mutation.SetTestCode(s)
+	return puo
+}
+
+// SetNillableTestCode sets the "test_code" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableTestCode(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetTestCode(*s)
+	}
+	return puo
+}
+
+// ClearTestCode clears the value of the "test_code" field.
+func (puo *ProblemUpdateOne) ClearTestCode() *ProblemUpdateOne {
+	puo.mutation.ClearTestCode()
 	return puo
 }
 
@@ -308,6 +354,12 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if value, ok := puo.mutation.Code(); ok {
 		_spec.SetField(problem.FieldCode, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.TestCode(); ok {
+		_spec.SetField(problem.FieldTestCode, field.TypeString, value)
+	}
+	if puo.mutation.TestCodeCleared() {
+		_spec.ClearField(problem.FieldTestCode, field.TypeString)
 	}
 	if value, ok := puo.mutation.EstimatedTime(); ok {
 		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)

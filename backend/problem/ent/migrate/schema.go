@@ -15,6 +15,7 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "background", Type: field.TypeString, Size: 2147483647},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
+		{Name: "test_code", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "estimated_time", Type: field.TypeInt, Default: 30},
 		{Name: "language", Type: field.TypeString},
 		{Name: "request_id", Type: field.TypeString},

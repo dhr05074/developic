@@ -23,6 +23,8 @@ type Problem struct {
 	Background string `json:"background,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
+	// TestCode holds the value of the "test_code" field.
+	TestCode string `json:"test_code,omitempty"`
 	// EstimatedTime holds the value of the "estimated_time" field.
 	EstimatedTime int `json:"estimated_time,omitempty"`
 	// Language holds the value of the "language" field.
@@ -38,7 +40,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldID, problem.FieldEstimatedTime:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldTitle, problem.FieldBackground, problem.FieldCode, problem.FieldLanguage, problem.FieldRequestID:
+		case problem.FieldUUID, problem.FieldTitle, problem.FieldBackground, problem.FieldCode, problem.FieldTestCode, problem.FieldLanguage, problem.FieldRequestID:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Problem", columns[i])
@@ -84,6 +86,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				pr.Code = value.String
+			}
+		case problem.FieldTestCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field test_code", values[i])
+			} else if value.Valid {
+				pr.TestCode = value.String
 			}
 		case problem.FieldEstimatedTime:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -142,6 +150,9 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("code=")
 	builder.WriteString(pr.Code)
+	builder.WriteString(", ")
+	builder.WriteString("test_code=")
+	builder.WriteString(pr.TestCode)
 	builder.WriteString(", ")
 	builder.WriteString("estimated_time=")
 	builder.WriteString(fmt.Sprintf("%v", pr.EstimatedTime))
