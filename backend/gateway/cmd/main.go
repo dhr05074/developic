@@ -49,6 +49,7 @@ func main() {
 		}
 	}()
 	app.HideBanner = true
+	app.Use(middleware.Recover())
 
 	gateway.RegisterHandlers(app, srvHandler)
 

@@ -11,8 +11,14 @@ const (
 	FieldUUID = "uuid"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
-	// FieldContent holds the string denoting the content field in the database.
-	FieldContent = "content"
+	// FieldBackground holds the string denoting the background field in the database.
+	FieldBackground = "background"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
+	// FieldEstimatedTime holds the string denoting the estimated_time field in the database.
+	FieldEstimatedTime = "estimated_time"
+	// FieldLanguage holds the string denoting the language field in the database.
+	FieldLanguage = "language"
 	// FieldRequestID holds the string denoting the request_id field in the database.
 	FieldRequestID = "request_id"
 	// Table holds the table name of the problem in the database.
@@ -24,7 +30,10 @@ var Columns = []string{
 	FieldID,
 	FieldUUID,
 	FieldTitle,
-	FieldContent,
+	FieldBackground,
+	FieldCode,
+	FieldEstimatedTime,
+	FieldLanguage,
 	FieldRequestID,
 }
 
@@ -37,3 +46,8 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultEstimatedTime holds the default value on creation for the "estimated_time" field.
+	DefaultEstimatedTime int
+)

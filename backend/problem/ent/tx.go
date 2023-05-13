@@ -14,8 +14,6 @@ type Tx struct {
 	config
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
-	// Scenario is the client for interacting with the Scenario builders.
-	Scenario *ScenarioClient
 
 	// lazily loaded.
 	client     *Client
@@ -148,7 +146,6 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Problem = NewProblemClient(tx.config)
-	tx.Scenario = NewScenarioClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

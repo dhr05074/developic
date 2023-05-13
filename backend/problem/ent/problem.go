@@ -19,8 +19,14 @@ type Problem struct {
 	UUID string `json:"uuid,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
-	// Content holds the value of the "content" field.
-	Content string `json:"content,omitempty"`
+	// Background holds the value of the "background" field.
+	Background string `json:"background,omitempty"`
+	// Code holds the value of the "code" field.
+	Code string `json:"code,omitempty"`
+	// EstimatedTime holds the value of the "estimated_time" field.
+	EstimatedTime int `json:"estimated_time,omitempty"`
+	// Language holds the value of the "language" field.
+	Language string `json:"language,omitempty"`
 	// RequestID holds the value of the "request_id" field.
 	RequestID string `json:"request_id,omitempty"`
 }
@@ -30,9 +36,9 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldID:
+		case problem.FieldID, problem.FieldEstimatedTime:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldTitle, problem.FieldContent, problem.FieldRequestID:
+		case problem.FieldUUID, problem.FieldTitle, problem.FieldBackground, problem.FieldCode, problem.FieldLanguage, problem.FieldRequestID:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Problem", columns[i])
@@ -67,11 +73,29 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Title = value.String
 			}
-		case problem.FieldContent:
+		case problem.FieldBackground:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field content", values[i])
+				return fmt.Errorf("unexpected type %T for field background", values[i])
 			} else if value.Valid {
-				pr.Content = value.String
+				pr.Background = value.String
+			}
+		case problem.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				pr.Code = value.String
+			}
+		case problem.FieldEstimatedTime:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field estimated_time", values[i])
+			} else if value.Valid {
+				pr.EstimatedTime = int(value.Int64)
+			}
+		case problem.FieldLanguage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field language", values[i])
+			} else if value.Valid {
+				pr.Language = value.String
 			}
 		case problem.FieldRequestID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -113,8 +137,17 @@ func (pr *Problem) String() string {
 	builder.WriteString("title=")
 	builder.WriteString(pr.Title)
 	builder.WriteString(", ")
-	builder.WriteString("content=")
-	builder.WriteString(pr.Content)
+	builder.WriteString("background=")
+	builder.WriteString(pr.Background)
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(pr.Code)
+	builder.WriteString(", ")
+	builder.WriteString("estimated_time=")
+	builder.WriteString(fmt.Sprintf("%v", pr.EstimatedTime))
+	builder.WriteString(", ")
+	builder.WriteString("language=")
+	builder.WriteString(pr.Language)
 	builder.WriteString(", ")
 	builder.WriteString("request_id=")
 	builder.WriteString(pr.RequestID)

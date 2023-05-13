@@ -39,37 +39,42 @@ func (pu *ProblemUpdate) SetTitle(s string) *ProblemUpdate {
 	return pu
 }
 
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableTitle(s *string) *ProblemUpdate {
-	if s != nil {
-		pu.SetTitle(*s)
+// SetBackground sets the "background" field.
+func (pu *ProblemUpdate) SetBackground(s string) *ProblemUpdate {
+	pu.mutation.SetBackground(s)
+	return pu
+}
+
+// SetCode sets the "code" field.
+func (pu *ProblemUpdate) SetCode(s string) *ProblemUpdate {
+	pu.mutation.SetCode(s)
+	return pu
+}
+
+// SetEstimatedTime sets the "estimated_time" field.
+func (pu *ProblemUpdate) SetEstimatedTime(i int) *ProblemUpdate {
+	pu.mutation.ResetEstimatedTime()
+	pu.mutation.SetEstimatedTime(i)
+	return pu
+}
+
+// SetNillableEstimatedTime sets the "estimated_time" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableEstimatedTime(i *int) *ProblemUpdate {
+	if i != nil {
+		pu.SetEstimatedTime(*i)
 	}
 	return pu
 }
 
-// ClearTitle clears the value of the "title" field.
-func (pu *ProblemUpdate) ClearTitle() *ProblemUpdate {
-	pu.mutation.ClearTitle()
+// AddEstimatedTime adds i to the "estimated_time" field.
+func (pu *ProblemUpdate) AddEstimatedTime(i int) *ProblemUpdate {
+	pu.mutation.AddEstimatedTime(i)
 	return pu
 }
 
-// SetContent sets the "content" field.
-func (pu *ProblemUpdate) SetContent(s string) *ProblemUpdate {
-	pu.mutation.SetContent(s)
-	return pu
-}
-
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableContent(s *string) *ProblemUpdate {
-	if s != nil {
-		pu.SetContent(*s)
-	}
-	return pu
-}
-
-// ClearContent clears the value of the "content" field.
-func (pu *ProblemUpdate) ClearContent() *ProblemUpdate {
-	pu.mutation.ClearContent()
+// SetLanguage sets the "language" field.
+func (pu *ProblemUpdate) SetLanguage(s string) *ProblemUpdate {
+	pu.mutation.SetLanguage(s)
 	return pu
 }
 
@@ -126,14 +131,20 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
 	}
-	if pu.mutation.TitleCleared() {
-		_spec.ClearField(problem.FieldTitle, field.TypeString)
+	if value, ok := pu.mutation.Background(); ok {
+		_spec.SetField(problem.FieldBackground, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Content(); ok {
-		_spec.SetField(problem.FieldContent, field.TypeString, value)
+	if value, ok := pu.mutation.Code(); ok {
+		_spec.SetField(problem.FieldCode, field.TypeString, value)
 	}
-	if pu.mutation.ContentCleared() {
-		_spec.ClearField(problem.FieldContent, field.TypeString)
+	if value, ok := pu.mutation.EstimatedTime(); ok {
+		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedEstimatedTime(); ok {
+		_spec.AddField(problem.FieldEstimatedTime, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.Language(); ok {
+		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
@@ -170,37 +181,42 @@ func (puo *ProblemUpdateOne) SetTitle(s string) *ProblemUpdateOne {
 	return puo
 }
 
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableTitle(s *string) *ProblemUpdateOne {
-	if s != nil {
-		puo.SetTitle(*s)
+// SetBackground sets the "background" field.
+func (puo *ProblemUpdateOne) SetBackground(s string) *ProblemUpdateOne {
+	puo.mutation.SetBackground(s)
+	return puo
+}
+
+// SetCode sets the "code" field.
+func (puo *ProblemUpdateOne) SetCode(s string) *ProblemUpdateOne {
+	puo.mutation.SetCode(s)
+	return puo
+}
+
+// SetEstimatedTime sets the "estimated_time" field.
+func (puo *ProblemUpdateOne) SetEstimatedTime(i int) *ProblemUpdateOne {
+	puo.mutation.ResetEstimatedTime()
+	puo.mutation.SetEstimatedTime(i)
+	return puo
+}
+
+// SetNillableEstimatedTime sets the "estimated_time" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableEstimatedTime(i *int) *ProblemUpdateOne {
+	if i != nil {
+		puo.SetEstimatedTime(*i)
 	}
 	return puo
 }
 
-// ClearTitle clears the value of the "title" field.
-func (puo *ProblemUpdateOne) ClearTitle() *ProblemUpdateOne {
-	puo.mutation.ClearTitle()
+// AddEstimatedTime adds i to the "estimated_time" field.
+func (puo *ProblemUpdateOne) AddEstimatedTime(i int) *ProblemUpdateOne {
+	puo.mutation.AddEstimatedTime(i)
 	return puo
 }
 
-// SetContent sets the "content" field.
-func (puo *ProblemUpdateOne) SetContent(s string) *ProblemUpdateOne {
-	puo.mutation.SetContent(s)
-	return puo
-}
-
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableContent(s *string) *ProblemUpdateOne {
-	if s != nil {
-		puo.SetContent(*s)
-	}
-	return puo
-}
-
-// ClearContent clears the value of the "content" field.
-func (puo *ProblemUpdateOne) ClearContent() *ProblemUpdateOne {
-	puo.mutation.ClearContent()
+// SetLanguage sets the "language" field.
+func (puo *ProblemUpdateOne) SetLanguage(s string) *ProblemUpdateOne {
+	puo.mutation.SetLanguage(s)
 	return puo
 }
 
@@ -287,14 +303,20 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if value, ok := puo.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
 	}
-	if puo.mutation.TitleCleared() {
-		_spec.ClearField(problem.FieldTitle, field.TypeString)
+	if value, ok := puo.mutation.Background(); ok {
+		_spec.SetField(problem.FieldBackground, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Content(); ok {
-		_spec.SetField(problem.FieldContent, field.TypeString, value)
+	if value, ok := puo.mutation.Code(); ok {
+		_spec.SetField(problem.FieldCode, field.TypeString, value)
 	}
-	if puo.mutation.ContentCleared() {
-		_spec.ClearField(problem.FieldContent, field.TypeString)
+	if value, ok := puo.mutation.EstimatedTime(); ok {
+		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedEstimatedTime(); ok {
+		_spec.AddField(problem.FieldEstimatedTime, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.Language(); ok {
+		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)

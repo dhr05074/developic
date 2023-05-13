@@ -10,7 +10,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/matoous/go-nanoid/v2 v2.0.0
-	github.com/sashabaranov/go-openai v1.6.1
+	github.com/sashabaranov/go-openai v1.9.4
 	go.uber.org/zap v1.24.0
 )
 

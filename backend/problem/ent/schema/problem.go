@@ -14,8 +14,11 @@ type Problem struct {
 func (Problem) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("uuid"),
-		field.String("title").Optional(),
-		field.Text("content").Optional(),
+		field.String("title"),
+		field.Text("background"),
+		field.Text("code"),
+		field.Int("estimated_time").Default(30),
+		field.String("language"),
 		field.String("request_id"),
 	}
 }

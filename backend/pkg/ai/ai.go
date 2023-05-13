@@ -4,6 +4,7 @@ import "context"
 
 type GPTClient interface {
 	NewContext() GPTClient
-	CompleteWithContext(ctx context.Context, prompts []string) (answer string, err error)
+	Complete(ctx context.Context) (answer string, err error)
 	ClearContext()
+	AddPrompt(prompt string)
 }

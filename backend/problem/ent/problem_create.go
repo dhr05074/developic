@@ -31,25 +31,35 @@ func (pc *ProblemCreate) SetTitle(s string) *ProblemCreate {
 	return pc
 }
 
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableTitle(s *string) *ProblemCreate {
-	if s != nil {
-		pc.SetTitle(*s)
+// SetBackground sets the "background" field.
+func (pc *ProblemCreate) SetBackground(s string) *ProblemCreate {
+	pc.mutation.SetBackground(s)
+	return pc
+}
+
+// SetCode sets the "code" field.
+func (pc *ProblemCreate) SetCode(s string) *ProblemCreate {
+	pc.mutation.SetCode(s)
+	return pc
+}
+
+// SetEstimatedTime sets the "estimated_time" field.
+func (pc *ProblemCreate) SetEstimatedTime(i int) *ProblemCreate {
+	pc.mutation.SetEstimatedTime(i)
+	return pc
+}
+
+// SetNillableEstimatedTime sets the "estimated_time" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableEstimatedTime(i *int) *ProblemCreate {
+	if i != nil {
+		pc.SetEstimatedTime(*i)
 	}
 	return pc
 }
 
-// SetContent sets the "content" field.
-func (pc *ProblemCreate) SetContent(s string) *ProblemCreate {
-	pc.mutation.SetContent(s)
-	return pc
-}
-
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableContent(s *string) *ProblemCreate {
-	if s != nil {
-		pc.SetContent(*s)
-	}
+// SetLanguage sets the "language" field.
+func (pc *ProblemCreate) SetLanguage(s string) *ProblemCreate {
+	pc.mutation.SetLanguage(s)
 	return pc
 }
 
@@ -66,6 +76,7 @@ func (pc *ProblemCreate) Mutation() *ProblemMutation {
 
 // Save creates the Problem in the database.
 func (pc *ProblemCreate) Save(ctx context.Context) (*Problem, error) {
+	pc.defaults()
 	return withHooks[*Problem, ProblemMutation](ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -91,10 +102,33 @@ func (pc *ProblemCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *ProblemCreate) defaults() {
+	if _, ok := pc.mutation.EstimatedTime(); !ok {
+		v := problem.DefaultEstimatedTime
+		pc.mutation.SetEstimatedTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`ent: missing required field "Problem.uuid"`)}
+	}
+	if _, ok := pc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Problem.title"`)}
+	}
+	if _, ok := pc.mutation.Background(); !ok {
+		return &ValidationError{Name: "background", err: errors.New(`ent: missing required field "Problem.background"`)}
+	}
+	if _, ok := pc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Problem.code"`)}
+	}
+	if _, ok := pc.mutation.EstimatedTime(); !ok {
+		return &ValidationError{Name: "estimated_time", err: errors.New(`ent: missing required field "Problem.estimated_time"`)}
+	}
+	if _, ok := pc.mutation.Language(); !ok {
+		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Problem.language"`)}
 	}
 	if _, ok := pc.mutation.RequestID(); !ok {
 		return &ValidationError{Name: "request_id", err: errors.New(`ent: missing required field "Problem.request_id"`)}
@@ -133,9 +167,21 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := pc.mutation.Content(); ok {
-		_spec.SetField(problem.FieldContent, field.TypeString, value)
-		_node.Content = value
+	if value, ok := pc.mutation.Background(); ok {
+		_spec.SetField(problem.FieldBackground, field.TypeString, value)
+		_node.Background = value
+	}
+	if value, ok := pc.mutation.Code(); ok {
+		_spec.SetField(problem.FieldCode, field.TypeString, value)
+		_node.Code = value
+	}
+	if value, ok := pc.mutation.EstimatedTime(); ok {
+		_spec.SetField(problem.FieldEstimatedTime, field.TypeInt, value)
+		_node.EstimatedTime = value
+	}
+	if value, ok := pc.mutation.Language(); ok {
+		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
+		_node.Language = value
 	}
 	if value, ok := pc.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
@@ -158,6 +204,7 @@ func (pcb *ProblemCreateBulk) Save(ctx context.Context) ([]*Problem, error) {
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ProblemMutation)
 				if !ok {

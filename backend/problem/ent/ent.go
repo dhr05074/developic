@@ -4,7 +4,6 @@ package ent
 
 import (
 	"code-connect/problem/ent/problem"
-	"code-connect/problem/ent/scenario"
 	"context"
 	"errors"
 	"fmt"
@@ -66,8 +65,7 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		problem.Table:  problem.ValidColumn,
-		scenario.Table: scenario.ValidColumn,
+		problem.Table: problem.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

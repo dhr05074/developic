@@ -10,29 +10,26 @@ type OpenAI struct {
 	messages     []openai.ChatCompletionMessage
 }
 
-func (o *OpenAI) NewContext() GPTClient {
-	return NewOpenAI(o.openaiClient)
-}
-
 func NewOpenAI(openaiClient *openai.Client) *OpenAI {
 	return &OpenAI{openaiClient: openaiClient}
+}
+
+func (o *OpenAI) AddPrompt(prompt string) {
+	o.messages = append(o.messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: prompt,
+	})
+}
+
+func (o *OpenAI) NewContext() GPTClient {
+	return NewOpenAI(o.openaiClient)
 }
 
 func (o *OpenAI) ClearContext() {
 	o.messages = []openai.ChatCompletionMessage{}
 }
 
-func (o *OpenAI) CompleteWithContext(ctx context.Context, prompts []string) (answer string, err error) {
-	messages := make([]openai.ChatCompletionMessage, len(prompts))
-	for i, prompt := range prompts {
-		messages[i] = openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: prompt,
-		}
-	}
-
-	o.messages = append(o.messages, messages...)
-
+func (o *OpenAI) Complete(ctx context.Context) (answer string, err error) {
 	response, err := o.openaiClient.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model:       openai.GPT3Dot5Turbo0301,
 		Temperature: 1,
