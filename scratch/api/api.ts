@@ -62,11 +62,23 @@ export interface CreateProblemRequest {
      */
     'language': string;
     /**
-     * 문제의 난이도입니다. 1부터 100까지의 정수로 입력합니다. 
+     * 문제의 코드 복잡도입니다. 1부터 100까지의 정수로 입력합니다. 
      * @type {number}
      * @memberof CreateProblemRequest
      */
-    'difficulty'?: number;
+    'code_complexity'?: number;
+    /**
+     * 문제의 리팩토링 범위입니다. 1부터 100까지의 정수로 입력합니다. 
+     * @type {number}
+     * @memberof CreateProblemRequest
+     */
+    'refactoring_scope'?: number;
+    /**
+     * 문제의 인지 부하입니다. 1부터 100까지의 정수로 입력합니다. 
+     * @type {number}
+     * @memberof CreateProblemRequest
+     */
+    'cognitive_load'?: number;
 }
 /**
  * 
@@ -130,6 +142,12 @@ export interface Problem {
      * @memberof Problem
      */
     'estimated_time': number;
+    /**
+     * 문제의 난이도입니다. 1부터 100까지의 정수로 입력합니다. 
+     * @type {number}
+     * @memberof Problem
+     */
+    'difficulty': number;
 }
 /**
  * 

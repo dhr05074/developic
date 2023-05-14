@@ -9,9 +9,10 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -43,7 +44,13 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 		newCtx := context.TODO()
 		newGPTClient := h.gptClient.NewContext()
 
-		prompt := fmt.Sprintf("Define a Context: Pinpoint a specific, real-world instance that exemplifies the functioning of a distinct application or system. This instance should be impactful for developers, offering them a practical understanding of the application or system.\n\nGenerate Unoptimized Code: Craft the code in %s, that corresponds to your defined instance. This code should be working, but it shouldn't be optimized or efficient. It should display a range of typical issues that signal a need for refactoring, including code repetition, lengthy methods, oversized classes, and poorly selected identifiers. Make sure the code is devoid of syntax errors or bugs that hinder its operation, as the aim here is to enhance the structure, not to rectify broken code.\n\nIntegrate steps 1 and 2 to create a refactoring task. The difficulty level of this task should correspond to difficulty level %d on a scale of 1 to 100. Your response should be provided exclusively in the JSON format. The JSON object should be structured as follows: {title, background, target_code, estimated_time}. The 'estimated_time' should be stipulated in minutes.", req.Body.Difficulty, req.Body.Language)
+		prompt := "Context: Select a real-world situation that illustrates the function of a specific application or system. This should be relevant and valuable to developers, offering them a practical understanding of the application or system.\n\nGenerate Unoptimized Code: Write code in {{programming_language}} that corresponds to the context you have chosen. The code should function correctly but exhibit typical signs of inefficiency, such as repetitive code, lengthy methods, large classes, and poorly chosen identifiers.\n\nCreate a Refactoring Task: Combine the above steps to create a refactoring task, assigning it a difficulty level of {{difficulty}} on a scale from 1 to 100. Please provide your response in JSON format with the following structure:\n\n```json\n{\n  \"title\": \"<title_of_the_task>\",\n  \"background\": \"<description_of_the_context>\",\n  \"target_code\": \"<unoptimized_code>\",\n  \"estimated_time\": <time_in_minutes>\n}\n"
+		prompt = strings.ReplaceAll(prompt, "{{programming_language}}", req.Body.Language)
+		difficulty := 50
+		if req.Body.Difficulty != nil {
+			difficulty = *req.Body.Difficulty
+		}
+		prompt = strings.ReplaceAll(prompt, "{{difficulty}}", strconv.Itoa(difficulty))
 		newGPTClient.AddPrompt(prompt)
 
 		startTime := time.Now()

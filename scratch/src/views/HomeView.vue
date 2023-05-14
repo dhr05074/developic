@@ -16,6 +16,7 @@
         <textarea
           placeholder="Code"
           class="w-full h-full p-2 border border-gray-400"
+          style="font-family: Menlo, serif"
           v-model="targetCode"
         ></textarea>
       </div>

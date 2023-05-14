@@ -28,12 +28,7 @@ paths:
                   description: "문제 출제 시 사용할 프로그래밍 언어입니다."
                   example: "python"
                 difficulty:
-                  type: integer
-                  description: |
-                      문제의 난이도입니다.
-                      1부터 100까지의 정수로 입력합니다.
-                  example: 50
-                  default: 50
+                  $ref: "#/components/schemas/difficulty"
       responses:
         "202":
           description: |
@@ -160,7 +155,7 @@ components:
       type: integer
       description: |
         초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
-        
+
         입력하지 않을 경우 기본값으로 30분이 설정됩니다.
       example: 30
       default: 30
@@ -190,9 +185,19 @@ components:
           example: "aW1wb3J0IG9zCm9zLnN5c3RlbSgpCm9zLnN5c3RlbSgpCg=="
         estimated_time:
           $ref: "#/components/schemas/estimated_time"
+        difficulty:
+          $ref: "#/components/schemas/difficulty"
       required:
         - problem_id
         - title
         - background
         - code
         - estimated_time
+        - difficulty
+    difficulty:
+      type: integer
+      description: |
+        문제의 난이도입니다.
+        1부터 100까지의 정수로 입력합니다.
+      example: 50
+      default: 50
