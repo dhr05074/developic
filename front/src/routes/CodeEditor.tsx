@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import NavBar from "@/component/NavBar/NavBar";
 import Problem from "@/component/Resizable/Problem";
 import Stepper from "@/component/Loading/Stepper";
+import { generateProblem } from "@/api/problem";
 
 const languages: string[] = [
     "go",
@@ -28,6 +29,9 @@ const languages: string[] = [
 const currentLang = "javascript" as LanguageType;
 function CodeEditor() {
     const [searchParams] = useSearchParams();
+    const difficulty = Number(searchParams.get("difficulty"));
+    const language = searchParams.get("language");
+
     const [useProblem, setProblem] = useState<string>("");
     // resizer
     const [runnerWidth, setRunnerWidth] = useState<number>(300);
@@ -78,10 +82,15 @@ function CodeEditor() {
         setIsResizing(false);
         // document.removeEventListener("mousemove", handleMouseMove);
     }
+    console.log("CodeEditor");
+    const createProblem = async () => {
+        const problem = await generateProblem().create(language, difficulty);
+        problem.request_id;
+    };
 
-    const getProblem = () => {
-        // problem: string
-        // setProblem(problem);
+    const getProblem = async (request_id: string) => {
+        const problem = await generateProblem().get(request_id);
+        console.log(problem);
     };
 
     const stepperStateChanger = () => {
@@ -142,7 +151,7 @@ function CodeEditor() {
                 {/* 스테퍼 제거해야함. */}
 
                 <section id="header">
-                    <NavBar currentLang={currentLang} getProblem={getProblem} />
+                    <NavBar currentLang={currentLang} />
                 </section>
                 <section
                     id="body"

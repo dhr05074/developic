@@ -1,12 +1,9 @@
 import axios from "axios";
+import { DefaultApi, CreateProblem202Response } from "../../api/api";
 import { apiErrorHandler } from "./errorhandler";
 
-const instance = axios.create({
-    // baseURL: "http://localhost:8080",
-    baseURL: "http://15.165.21.53:3000",
-    // timeout: 1000,
-    // headers: {'X-Custom-Header': 'foobar'}
-});
+const instance = axios.create();
+const baseURL = "http://15.165.21.53:3000";
 const headers = { "Content-Type": `application/json` };
 
 type postProblemReturn = {
@@ -20,7 +17,7 @@ type postProblemReturn = {
  * @param {number}difficulty
  * @returns {postProblemReturn}
  */
-export const postProblem = async (language: Language, difficulty: number) => {
+const postProblem = async (language: Language, difficulty: number) => {
     try {
         const res = await instance.post("/problems", { language, difficulty }, { headers });
         const data = res.data as postProblemReturn;
@@ -32,22 +29,42 @@ export const postProblem = async (language: Language, difficulty: number) => {
     }
 };
 
-type getProblemReturnType = {
-    id: string;
-    language: Languages;
-    content: string;
-};
+// type getProblemReturnType = {
+//     id: string;
+//     language: Languages;
+//     content: string;
+// };
 
-export const getProblem = async (problem_id: string) => {
-    try {
-        const res = await instance.get(`/problems/${problem_id}`, { headers });
-        const data = res.data as postProblemReturn;
-        console.log(data);
-        // content : base64
-        // id
-        // language
-        return data;
-    } catch (err) {
-        apiErrorHandler(err);
-    }
+// export const getProblem = async (problem_id: string) => {
+//     try {
+//         const res = await instance.get(`/problems/${problem_id}`, { headers });
+//         const data = res.data as postProblemReturn;
+//         console.log(data);
+//         // content : base64
+//         // id
+//         // language
+//         return data;
+//     } catch (err) {
+//         apiErrorHandler(err);
+//     }
+// };
+const generateProblem = () => {
+    const api = new DefaultApi(undefined, baseURL, instance);
+    const create = async (language: string, difficulty: number): CreateProblem202Response => {
+        const getCreate = await api.createProblem({
+            language,
+            difficulty,
+        });
+        return getCreate;
+    };
+
+    const get = async (requestId: string) => {
+        const problem = await api.getProblem(requestId);
+        return problem;
+    };
+    return {
+        create,
+        get,
+    };
 };
+export { generateProblem, postProblem };
