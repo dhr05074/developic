@@ -60,7 +60,6 @@ const generateProblem = async () => {
   const api = new DefaultApi(undefined, "http://localhost:3000", instance);
   const resp = await api.createProblem({
     language: "Go",
-    estimated_time: 10,
   });
 
   generating.value = true;

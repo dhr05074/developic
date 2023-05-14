@@ -43,7 +43,7 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 		newCtx := context.TODO()
 		newGPTClient := h.gptClient.NewContext()
 
-		prompt := fmt.Sprintf("I want you to answer only in JSON format. JSON object should like this: {title, background, target_code, estimated_time}.\n\nTitle:\nThe topic of the refactoring challenge. It should be a situation that a developer would experience in real life.\n\nbackground:\nA more detailed description of the title.\n\ntarget_code:\nDirty, complex code generated from the title and background. The code should contain technical debt that a new developer can solve in %d minutes or less. The code should be written in the %s language.\n\nestimated_time:\nThe amount of time it would take a new developer to resolve the technical debt contained in the code. It should be an integer.", req.Body.EstimatedTime, req.Body.Language)
+		prompt := fmt.Sprintf("Define a Context: Pinpoint a specific, real-world instance that exemplifies the functioning of a distinct application or system. This instance should be impactful for developers, offering them a practical understanding of the application or system.\n\nGenerate Unoptimized Code: Craft the code in %s, that corresponds to your defined instance. This code should be working, but it shouldn't be optimized or efficient. It should display a range of typical issues that signal a need for refactoring, including code repetition, lengthy methods, oversized classes, and poorly selected identifiers. Make sure the code is devoid of syntax errors or bugs that hinder its operation, as the aim here is to enhance the structure, not to rectify broken code.\n\nIntegrate steps 1 and 2 to create a refactoring task. The difficulty level of this task should correspond to difficulty level %d on a scale of 1 to 100. Your response should be provided exclusively in the JSON format. The JSON object should be structured as follows: {title, background, target_code, estimated_time}. The 'estimated_time' should be stipulated in minutes.", req.Body.Difficulty, req.Body.Language)
 		newGPTClient.AddPrompt(prompt)
 
 		startTime := time.Now()
@@ -58,7 +58,7 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 
 		var output Output
 		if err = json.Unmarshal([]byte(msg), &output); err != nil {
-			l.Errorw("error while unmarshaling json", "error", err)
+			l.Errorw("error while unmarshalling json", "error", err)
 			return
 		}
 
@@ -79,7 +79,7 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 			return
 		}
 
-		pr, err := tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetTitle(output.Title).SetBackground(output.Background).SetCode(output.TargetCode).SetLanguage(req.Body.Language).SetNillableEstimatedTime(req.Body.EstimatedTime).Save(newCtx)
+		pr, err := tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetTitle(output.Title).SetBackground(output.Background).SetCode(output.TargetCode).SetLanguage(req.Body.Language).SetEstimatedTime(output.EstimatedTime).Save(newCtx)
 		if err != nil {
 			l.Errorw("error while creating problem", "error", err)
 			return
@@ -178,15 +178,6 @@ func (h *Handler) GetProblem(ctx context.Context, req gateway.GetProblemRequestO
 
 func (h *Handler) generateID() string {
 	return gonanoid.MustGenerate(codeAlphabets, 7)
-}
-
-func extractField(markdown string, fieldMarker string) string {
-	regex := regexp.MustCompile(`(?s)` + fieldMarker + `\n(.+?)`)
-	match := regex.FindStringSubmatch(markdown)
-	if len(match) >= 2 {
-		return match[1]
-	}
-	return ""
 }
 
 func extractCode(markdown string) (string, string) {

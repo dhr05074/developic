@@ -62,11 +62,11 @@ export interface CreateProblemRequest {
      */
     'language': string;
     /**
-     * 초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.  입력하지 않을 경우 기본값으로 30분이 설정됩니다. 
+     * 문제의 난이도입니다. 1부터 100까지의 정수로 입력합니다. 
      * @type {number}
      * @memberof CreateProblemRequest
      */
-    'estimated_time'?: number;
+    'difficulty'?: number;
 }
 /**
  * 

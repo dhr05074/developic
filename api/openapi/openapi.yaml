@@ -27,8 +27,13 @@ paths:
                   type: string
                   description: "문제 출제 시 사용할 프로그래밍 언어입니다."
                   example: "python"
-                estimated_time:
-                  $ref: "#/components/schemas/estimated_time"
+                difficulty:
+                  type: integer
+                  description: |
+                      문제의 난이도입니다.
+                      1부터 100까지의 정수로 입력합니다.
+                  example: 50
+                  default: 50
       responses:
         "202":
           description: |

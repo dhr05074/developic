@@ -55,10 +55,9 @@ type RequestId = string
 
 // CreateProblemJSONBody defines parameters for CreateProblem.
 type CreateProblemJSONBody struct {
-	// EstimatedTime 초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
-	//
-	// 입력하지 않을 경우 기본값으로 30분이 설정됩니다.
-	EstimatedTime *EstimatedTime `json:"estimated_time,omitempty"`
+	// Difficulty 문제의 난이도입니다.
+	// 1부터 100까지의 정수로 입력합니다.
+	Difficulty *int `json:"difficulty,omitempty"`
 
 	// Language 문제 출제 시 사용할 프로그래밍 언어입니다.
 	Language string `json:"language"`
@@ -387,33 +386,34 @@ func (sh *strictHandler) SubmitSolution(ctx echo.Context, requestId RequestId) e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"BoYL0wu/BwAA//8bexsH5BMAAA==",
+	"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",
+	"TiVNzz8UAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
