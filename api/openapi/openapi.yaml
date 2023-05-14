@@ -1,138 +1,193 @@
 openapi: "3.0.0"
 info:
-    version: "0.1.0"
-    title: "CodeConnect"
-    description: "CodeConnect API"
+  version: "0.1.0"
+  title: "CodeConnect"
+  description: "CodeConnect API"
 servers:
-    - url: "https://api.codeconnect.io"
+  - url: "https://api.codeconnect.io"
 paths:
-    /problem:
-        post:
-            summary: "Create a new problem"
-            operationId: "createProblem"
-            requestBody:
-                description: "Problem to create"
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/Problem"
-            responses:
-                "201":
-                    $ref: "#/components/responses/CreateProblemResponse"
-                "400":
-                    description: "Invalid problem"
-                "500":
-                    description: "Internal server error"
-    /analyze:
-        post:
-            summary: "Analyze code"
-            operationId: "analyzeCode"
-            requestBody:
-                description: "Code to analyze"
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/AnalyzeCodeRequest"
-            responses:
-                "200":
-                    $ref: "#/components/responses/AnalyzeCodeResponse"
-                "400":
-                    description: "Invalid code"
-                "500":
-                    description: "Internal server error"
-components:
-    schemas:
-        CreateProblemRequest:
-            description: "Problem to create"
-            type: object
-            required:
+  /problems:
+    post:
+      summary: "문제를 만듭니다."
+      operationId: "createProblem"
+      description: |
+        로그인한 사용자의 정보와 입력한 언어를 바탕으로 최적의 문제를 만듭니다.
+        문제 생성에는 시간이 소요되므로 `202` 코드를 반환합니다.
+        문제 생성 완료 후 `/problems/:request_id` 에서 문제를 확인할 수 있습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
                 - language
-                - factors
-            properties:
+              properties:
                 language:
+                  type: string
+                  description: "문제 출제 시 사용할 프로그래밍 언어입니다."
+                  example: "python"
+                estimated_time:
+                  $ref: "#/components/schemas/estimated_time"
+      responses:
+        "202":
+          description: |
+            문제 생성 요청이 접수되었습니다.
+            문제 생성 완료 후 `/problems/:request_id` 에서 문제를 확인할 수 있습니다.
+          content:
+            application/json:
+              schema:
+                required:
+                  - request_id
+                properties:
+                  request_id:
+                    $ref: "#/components/schemas/request_id"
+        "400":
+          description: |
+            요청이 잘못되었습니다.
+            `language` 필드가 없는 경우에 발생합니다.
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                properties:
+                  message:
                     type: string
-                    description: "Language of the problem"
-                    example: "python"
-                factors:
-                    type: array
-                    description: "Factors of the problem"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-        AnalyzeCodeRequest:
-            description: "Code to analyze"
-            type: object
-            required:
+                    description: "Error message"
+                    example: "`language` field is required"
+        default:
+          description: "Unexpected error"
+  /problems/{request_id}:
+    parameters:
+      - name: request_id
+        in: path
+        required: true
+        description: "문제 생성 요청 후 반환된 요청 ID입니다."
+        schema:
+          $ref: "#/components/schemas/request_id"
+    get:
+      summary: "문제를 조회합니다."
+      operationId: "getProblem"
+      description: |
+        문제 생성 요청 후 반환된 요청 ID를 통해 문제를 조회합니다.
+        문제가 생성되지 않은 경우 404를 반환합니다.
+      responses:
+        "200":
+          description: "문제를 성공적으로 조회했습니다."
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - problem
+                properties:
+                  problem:
+                    $ref: "#/components/schemas/problem"
+        "404":
+          description: "문제를 찾을 수 없습니다."
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    description: "Error message"
+                    example: "Problem not found"
+  /submit/{request_id}:
+    post:
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          description: "문제 생성 요청 후 반환된 요청 ID입니다."
+          schema:
+            $ref: "#/components/schemas/request_id"
+      summary: "문제 풀이를 제출합니다."
+      operationId: "submitSolution"
+      description: |
+        문제 풀이를 제출합니다.
+        문제 풀이에는 시간이 소요되므로 202를 반환합니다.
+        문제 풀이 완료 후 `/report/:request_id` 에서 풀이 결과를 확인할 수 있습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
                 - code
-                - statement
-                - points
-            properties:
+              properties:
                 code:
+                  type: string
+                  description: |
+                    문제 풀이에 사용할 코드입니다.
+                    코드는 Base64로 인코딩되어야 합니다.
+                  example: "aW1wb3J0IG9zCm9zLnN5c3RlbSgpCm9zLnN5c3RlbSgpCg=="
+      responses:
+        "200":
+          description: "Evaluation is successful."
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - score
+                properties:
+                  score:
                     type: string
-                    description: "Code to analyze"
-                    example: "def foo():\n    return 1"
-                problem_id:
-                    type: string
-                    description: "ID of the problem"
-                    example: "1234567890"
-        Problem:
-            description: "Problem"
-            type: object
-            required:
-                - id
-                - language
-                - factors
-            properties:
-                id:
-                    type: string
-                    description: "ID of the problem"
-                    example: "1234567890"
-                language:
-                    type: string
-                    description: "Language of the problem"
-                    example: "python"
-                factors:
-                    type: array
-                    description: "Factors of the problem"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-        AnalyzeResult:
-            description: "Result of the analysis"
-            type: object
-            required:
-                - strengths
-                - weaknesses
-                - points
-            properties:
-                strengths:
-                    type: array
-                    description: "Strengths of the code"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-                weaknesses:
-                    type: array
-                    description: "Weaknesses of the code"
-                    items:
-                        type: string
-                        example: "Maintainable code"
-                points:
-                    type: integer
-                    description: "Points of the code"
-                    example: 100
-    responses:
-        CreateProblemResponse:
-            description: "Problem created"
-            content:
-                application/json:
-                    schema:
-                        $ref: "#/components/schemas/Problem"
-        AnalyzeCodeResponse:
-            description: "Code analyzed"
-            content:
-                application/json:
-                    schema:
-                        $ref: "#/components/schemas/AnalyzeResult"
+                    description: "Score of the solution out of 100."
+        default:
+          description: "Unexpected error"
+components:
+  schemas:
+    request_id:
+      type: string
+      description: This ID is given upon request. This ID allows the requested resource to be returned.
+      example: 7a283d
+    problem_id:
+      type: string
+      description: ID of the problem.
+      example: 7a283d
+    estimated_time:
+      type: integer
+      description: |
+        초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
+        
+        입력하지 않을 경우 기본값으로 30분이 설정됩니다.
+      example: 30
+      default: 30
+    problem:
+      type: object
+      description: |
+        사용자가 입력한 `language`와 `estimated_time`에 따라 자동으로 생성된 문제입니다.
+      properties:
+        problem_id:
+          $ref: "#/components/schemas/problem_id"
+        title:
+          type: string
+          description: |
+            문제의 제목입니다.
+            사용자가 문제를 이해하는 데 도움이 되는 정보를 제공합니다.
+          example: "Create a website"
+        background:
+          type: string
+          description: |
+            문제의 배경 설명입니다.
+            사용자가 문제를 이해하는 데 도움이 되는 정보를 제공합니다.
+          example: "Create a website that allows users to upload images."
+        code:
+          type: string
+          description: |
+            생성된 코드입니다. Base64로 인코딩되어 있으니, 화면에 출력하기 위해 디코딩이 필요합니다.
+          example: "aW1wb3J0IG9zCm9zLnN5c3RlbSgpCm9zLnN5c3RlbSgpCg=="
+        estimated_time:
+          $ref: "#/components/schemas/estimated_time"
+      required:
+        - problem_id
+        - title
+        - background
+        - code
+        - estimated_time
