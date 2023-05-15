@@ -83,15 +83,6 @@ function CodeEditor() {
         // document.removeEventListener("mousemove", handleMouseMove);
     }
     console.log("CodeEditor");
-    const createProblem = async () => {
-        const problem = await generateProblem().create(language, difficulty);
-        problem.request_id;
-    };
-
-    const getProblem = async (request_id: string) => {
-        const problem = await generateProblem().get(request_id);
-        console.log(problem);
-    };
 
     const stepperStateChanger = () => {
         if (step === 6) {

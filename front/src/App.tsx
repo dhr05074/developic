@@ -11,7 +11,7 @@ import { Route, Routes } from "react-router-dom";
 // import NavBar from "./component/NavBar/NavBar";
 // import Problem from "./component/Resizable/Problem";
 import { AnimatePresence } from "framer-motion";
-import CodeEditor from "./routes/CodeEditor";
+import Problem from "./routes/Problem";
 import ErrorPage from "./routes/Error";
 import HomePage from "./routes/Home";
 import Select from "./routes/Select";
@@ -23,7 +23,7 @@ function App(): JSX.Element {
                 <Routes>
                     <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
                     <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
-                    <Route path="/codeEditor" element={<CodeEditor />} errorElement={<ErrorPage />} />
+                    <Route path="/codeEditor" element={<Problem />} errorElement={<ErrorPage />} />
                 </Routes>
             </AnimatePresence>
         </RecoilRoot>
