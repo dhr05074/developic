@@ -1,5 +1,5 @@
 import React from "react";
-// import viteLogo from "../../../../../../vite.svg";
+import { RecoilRoot } from "recoil";
 import "./styles/App.css";
 import "./styles/index.css";
 import "./styles/component.css";
@@ -16,15 +16,17 @@ import ErrorPage from "./routes/Error";
 import HomePage from "./routes/Home";
 import Select from "./routes/Select";
 
-function App() {
+function App(): JSX.Element {
     return (
-        <AnimatePresence>
-            <Routes>
-                <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
-                <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
-                <Route path="/codeEditor" element={<CodeEditor />} errorElement={<ErrorPage />} />
-            </Routes>
-        </AnimatePresence>
+        <RecoilRoot>
+            <AnimatePresence>
+                <Routes>
+                    <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+                    <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+                    <Route path="/codeEditor" element={<CodeEditor />} errorElement={<ErrorPage />} />
+                </Routes>
+            </AnimatePresence>
+        </RecoilRoot>
     );
 }
 
