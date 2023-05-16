@@ -1,6 +1,6 @@
 import React from "react";
-import { Spinner } from "flowbite-react";
 import ButtonBasic from "../Button/Basic.Button";
+import useStepper from "@/hook/Stepper";
 
 type StepTypes = "idle" | "loading" | "complete";
 type StepperStyle = {
@@ -9,15 +9,11 @@ type StepperStyle = {
     loading: string;
     complete: string;
 };
-type PropsType = {
-    step: number;
-    list: StepperListTypes;
-    testFunction: () => void;
-};
 let stepButton = "다음";
 
-function Stepper(props: PropsType) {
-    if (props.step === 1) {
+function StepperComponent() {
+    const { step, StepperList, stepperStateChanger } = useStepper();
+    if (step === 1) {
         stepButton = "문제 풀러가기";
     }
     const style: StepperStyle = {
@@ -29,11 +25,11 @@ function Stepper(props: PropsType) {
     return (
         <div
             className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 ${
-                props.step === 0 && style.inviserble
+                step === 0 && style.inviserble
             }`}
         >
             <ol className="w-72 space-y-4">
-                {Object.entries(props?.list).map(([key, value]) => (
+                {Object.entries(StepperList).map(([key, value]) => (
                     <li key={key}>
                         <div
                             className={`motion_basic  stepper w-full rounded-lg  border p-4
@@ -85,10 +81,10 @@ function Stepper(props: PropsType) {
                         </div>
                     </li>
                 ))}
-                <ButtonBasic name={stepButton} clickFunction={props.testFunction} />
+                <ButtonBasic name={stepButton} clickFunction={stepperStateChanger} />
             </ol>
         </div>
     );
 }
 
-export default Stepper;
+export default StepperComponent;

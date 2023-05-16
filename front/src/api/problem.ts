@@ -12,12 +12,13 @@ type postProblemReturn = {
     statement: string;
     test_cases: string[];
 };
+
 /**
  * @param {Languages} language
  * @param {number}difficulty
  * @returns {postProblemReturn}
  */
-const postProblem = async (language: Language, difficulty: number) => {
+const postProblem = async (language: Languages, difficulty: number) => {
     try {
         const res = await instance.post("/problems", { language, difficulty }, { headers });
         const data = res.data as postProblemReturn;

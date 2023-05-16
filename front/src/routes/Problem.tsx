@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import NavBar from "@/component/NavBar/NavBar";
 import Problem from "@/component/Resizable/Problem";
-import Stepper from "@/component/Loading/Stepper";
+import Stepper from "@/component/Stepper/Stepper";
 import { generateProblem } from "@/api/problem";
 
 const languages: string[] = [
@@ -36,25 +36,7 @@ function CodeEditor() {
     // resizer
     const [runnerWidth, setRunnerWidth] = useState<number>(300);
     const [isResizing, setIsResizing] = useState<boolean>(false);
-    const [step, setStep] = useState<number>(6);
-    const [StepperList, setStepperList] = useState<StepperListTypes>({
-        difficult: {
-            value: "난이도 체크",
-            step: "idle",
-        },
-        language: {
-            value: "언어 체크",
-            step: "idle",
-        },
-        api: {
-            value: "API 불러오는 중",
-            step: "idle",
-        },
-        comp: {
-            value: "문제 출제 완료",
-            step: "idle",
-        },
-    });
+
     const runnerRef = useRef<HTMLDivElement>(null);
     const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -84,50 +66,6 @@ function CodeEditor() {
     }
     console.log("CodeEditor");
 
-    const stepperStateChanger = () => {
-        if (step === 6) {
-            StepperList.difficult.step = "loading";
-            const changeDefficult = StepperList.difficult;
-            setStepperList((prevState) => {
-                return { ...prevState, difficult: changeDefficult };
-            });
-        } else if (step === 5) {
-            StepperList.difficult.step = "complete";
-            StepperList.language.step = "loading";
-            const changeDefficult = StepperList.difficult;
-            const changeLanguage = StepperList.language;
-            setStepperList((prevState) => {
-                return { ...prevState, difficult: changeDefficult, language: changeLanguage };
-            });
-        } else if (step === 4) {
-            StepperList.language.step = "complete";
-            StepperList.api.step = "loading";
-            const changeLanguage = StepperList.language;
-            const changeApi = StepperList.api;
-            setStepperList((prevState) => {
-                return { ...prevState, language: changeLanguage, api: changeApi };
-            });
-        } else if (step === 3) {
-            StepperList.api.step = "complete";
-            StepperList.comp.step = "loading";
-            const changeApi = StepperList.api;
-            const changeComp = StepperList.comp;
-            setStepperList((prevState) => {
-                return { ...prevState, api: changeApi, comp: changeComp };
-            });
-        } else if (step === 2) {
-            StepperList.comp.step = "complete";
-            const changeComp = StepperList.comp;
-            setStepperList((prevState) => {
-                return { ...prevState, comp: changeComp };
-            });
-        } else if (step === 0) {
-            return false;
-        }
-        setStep(step - 1);
-        return true;
-    };
-
     return (
         <motion.div
             className=""
@@ -137,7 +75,7 @@ function CodeEditor() {
             transition={{ duration: 0.5 }}
         >
             <div id="CodeEditor" className="App h-screen w-screen">
-                <Stepper step={step} list={StepperList} testFunction={stepperStateChanger} />
+                <Stepper />
 
                 {/* 스테퍼 제거해야함. */}
 
