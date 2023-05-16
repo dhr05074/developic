@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"regexp"
 	"strconv"
@@ -188,15 +187,6 @@ func (h *Handler) generateID() string {
 	return gonanoid.MustGenerate(codeAlphabets, 7)
 }
 
-func extractCode(markdown string) (string, string) {
-	regex := regexp.MustCompile("`{3}(.+?)\n(.+?)\n`{3}")
-	match := regex.FindStringSubmatch(markdown)
-	if len(match) >= 3 {
-		return match[1], match[2]
-	}
-	return "", ""
-}
-
 func (h *Handler) SubmitCode(ctx context.Context, req gateway.SubmitSolutionRequestObject) (gateway.SubmitSolutionResponseObject, error) {
 	// Decode the submitted code.
 	submittedCode, err := base64.StdEncoding.DecodeString(req.Body.Code)
@@ -225,7 +215,9 @@ func (h *Handler) SubmitCode(ctx context.Context, req gateway.SubmitSolutionRequ
 	problem, err := tx.Problem.Query().ForUpdate().Where(problem2.UUID(req.RequestId)).Only(timeout)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, errors.New("problem not found. check your request id. or wait a minute and try again.")
+			return gateway.SubmitSolutiondefaultResponse{
+				StatusCode: 404,
+			}, err
 		}
 
 		return nil, err
@@ -247,4 +239,13 @@ func (h *Handler) SubmitCode(ctx context.Context, req gateway.SubmitSolutionRequ
 	return gateway.SubmitSolution200JSONResponse{
 		SubmissionId: uuid,
 	}, nil
+}
+
+func extractCode(markdown string) (string, string) {
+	regex := regexp.MustCompile("`{3}(.+?)\n(.+?)\n`{3}")
+	match := regex.FindStringSubmatch(markdown)
+	if len(match) >= 3 {
+		return match[1], match[2]
+	}
+	return "", ""
 }

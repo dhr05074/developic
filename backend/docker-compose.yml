@@ -19,3 +19,13 @@ services:
             MARIADB_DATABASE: aiign
         ports:
             - "3306:3306"
+    redis:
+        image: redis
+        command: redis-server --port 6379
+        container_name: redis
+        hostname: juchan
+        labels:
+            - "name=redis"
+            - "mode=standalone"
+        ports:
+            - "6379:6379"
