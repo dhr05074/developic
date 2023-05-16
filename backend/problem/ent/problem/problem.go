@@ -23,8 +23,17 @@ const (
 	FieldLanguage = "language"
 	// FieldRequestID holds the string denoting the request_id field in the database.
 	FieldRequestID = "request_id"
+	// EdgeSubmissions holds the string denoting the submissions edge name in mutations.
+	EdgeSubmissions = "submissions"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
+	// SubmissionsTable is the table that holds the submissions relation/edge.
+	SubmissionsTable = "submissions"
+	// SubmissionsInverseTable is the table name for the Submission entity.
+	// It exists in this package in order to avoid circular dependency with the "submission" package.
+	SubmissionsInverseTable = "submissions"
+	// SubmissionsColumn is the table column denoting the submissions relation/edge.
+	SubmissionsColumn = "problem_submissions"
 )
 
 // Columns holds all SQL columns for problem fields.

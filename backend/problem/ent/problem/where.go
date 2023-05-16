@@ -6,6 +6,7 @@ import (
 	"code-connect/problem/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -596,6 +597,33 @@ func RequestIDEqualFold(v string) predicate.Problem {
 // RequestIDContainsFold applies the ContainsFold predicate on the "request_id" field.
 func RequestIDContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldRequestID, v))
+}
+
+// HasSubmissions applies the HasEdge predicate on the "submissions" edge.
+func HasSubmissions() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmissionsWith applies the HasEdge predicate on the "submissions" edge with a given conditions (other predicates).
+func HasSubmissionsWith(preds ...predicate.Submission) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SubmissionsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionsTable, SubmissionsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

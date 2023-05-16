@@ -13,8 +13,7 @@ type StrictHandler struct {
 }
 
 func (s *StrictHandler) SubmitSolution(ctx context.Context, request gateway.SubmitSolutionRequestObject) (gateway.SubmitSolutionResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.problemHandler.SubmitCode(ctx, request)
 }
 
 func NewStrictHandler(gptClient ai.GPTClient, problemHandler *problem.Handler) *StrictHandler {

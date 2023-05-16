@@ -134,11 +134,11 @@ paths:
               schema:
                 type: object
                 required:
-                  - score
+                  - submission_id
                 properties:
-                  score:
+                  submission_id:
                     type: string
-                    description: "Score of the solution out of 100."
+                    description: "Submission ID"
         default:
           description: "Unexpected error"
 components:

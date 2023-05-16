@@ -11,10 +11,12 @@ import (
 	"code-connect/problem/ent/migrate"
 
 	"code-connect/problem/ent/problem"
+	"code-connect/problem/ent/submission"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -24,6 +26,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
+	// Submission is the client for interacting with the Submission builders.
+	Submission *SubmissionClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -38,6 +42,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Problem = NewProblemClient(c.config)
+	c.Submission = NewSubmissionClient(c.config)
 }
 
 type (
@@ -118,9 +123,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Problem: NewProblemClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		Problem:    NewProblemClient(cfg),
+		Submission: NewSubmissionClient(cfg),
 	}, nil
 }
 
@@ -138,9 +144,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Problem: NewProblemClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		Problem:    NewProblemClient(cfg),
+		Submission: NewSubmissionClient(cfg),
 	}, nil
 }
 
@@ -170,12 +177,14 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Problem.Use(hooks...)
+	c.Submission.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Problem.Intercept(interceptors...)
+	c.Submission.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -183,6 +192,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *ProblemMutation:
 		return c.Problem.mutate(ctx, m)
+	case *SubmissionMutation:
+		return c.Submission.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -281,6 +292,22 @@ func (c *ProblemClient) GetX(ctx context.Context, id int) *Problem {
 	return obj
 }
 
+// QuerySubmissions queries the submissions edge of a Problem.
+func (c *ProblemClient) QuerySubmissions(pr *Problem) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionsTable, problem.SubmissionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProblemClient) Hooks() []Hook {
 	return c.hooks.Problem
@@ -306,12 +333,146 @@ func (c *ProblemClient) mutate(ctx context.Context, m *ProblemMutation) (Value, 
 	}
 }
 
+// SubmissionClient is a client for the Submission schema.
+type SubmissionClient struct {
+	config
+}
+
+// NewSubmissionClient returns a client for the Submission from the given config.
+func NewSubmissionClient(c config) *SubmissionClient {
+	return &SubmissionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `submission.Hooks(f(g(h())))`.
+func (c *SubmissionClient) Use(hooks ...Hook) {
+	c.hooks.Submission = append(c.hooks.Submission, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `submission.Intercept(f(g(h())))`.
+func (c *SubmissionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Submission = append(c.inters.Submission, interceptors...)
+}
+
+// Create returns a builder for creating a Submission entity.
+func (c *SubmissionClient) Create() *SubmissionCreate {
+	mutation := newSubmissionMutation(c.config, OpCreate)
+	return &SubmissionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Submission entities.
+func (c *SubmissionClient) CreateBulk(builders ...*SubmissionCreate) *SubmissionCreateBulk {
+	return &SubmissionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Submission.
+func (c *SubmissionClient) Update() *SubmissionUpdate {
+	mutation := newSubmissionMutation(c.config, OpUpdate)
+	return &SubmissionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SubmissionClient) UpdateOne(s *Submission) *SubmissionUpdateOne {
+	mutation := newSubmissionMutation(c.config, OpUpdateOne, withSubmission(s))
+	return &SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SubmissionClient) UpdateOneID(id int) *SubmissionUpdateOne {
+	mutation := newSubmissionMutation(c.config, OpUpdateOne, withSubmissionID(id))
+	return &SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Submission.
+func (c *SubmissionClient) Delete() *SubmissionDelete {
+	mutation := newSubmissionMutation(c.config, OpDelete)
+	return &SubmissionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SubmissionClient) DeleteOne(s *Submission) *SubmissionDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SubmissionClient) DeleteOneID(id int) *SubmissionDeleteOne {
+	builder := c.Delete().Where(submission.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SubmissionDeleteOne{builder}
+}
+
+// Query returns a query builder for Submission.
+func (c *SubmissionClient) Query() *SubmissionQuery {
+	return &SubmissionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSubmission},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Submission entity by its id.
+func (c *SubmissionClient) Get(ctx context.Context, id int) (*Submission, error) {
+	return c.Query().Where(submission.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SubmissionClient) GetX(ctx context.Context, id int) *Submission {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProblem queries the problem edge of a Submission.
+func (c *SubmissionClient) QueryProblem(s *Submission) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.ProblemTable, submission.ProblemColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SubmissionClient) Hooks() []Hook {
+	return c.hooks.Submission
+}
+
+// Interceptors returns the client interceptors.
+func (c *SubmissionClient) Interceptors() []Interceptor {
+	return c.inters.Submission
+}
+
+func (c *SubmissionClient) mutate(ctx context.Context, m *SubmissionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SubmissionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SubmissionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SubmissionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SubmissionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Submission mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Problem []ent.Hook
+		Problem, Submission []ent.Hook
 	}
 	inters struct {
-		Problem []ent.Interceptor
+		Problem, Submission []ent.Interceptor
 	}
 )

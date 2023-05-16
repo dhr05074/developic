@@ -31,6 +31,27 @@ type Problem struct {
 	Language string `json:"language,omitempty"`
 	// RequestID holds the value of the "request_id" field.
 	RequestID string `json:"request_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProblemQuery when eager-loading is set.
+	Edges ProblemEdges `json:"edges"`
+}
+
+// ProblemEdges holds the relations/edges for other nodes in the graph.
+type ProblemEdges struct {
+	// Submissions holds the value of the submissions edge.
+	Submissions []*Submission `json:"submissions,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// SubmissionsOrErr returns the Submissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) SubmissionsOrErr() ([]*Submission, error) {
+	if e.loadedTypes[0] {
+		return e.Submissions, nil
+	}
+	return nil, &NotLoadedError{edge: "submissions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -114,6 +135,11 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 		}
 	}
 	return nil
+}
+
+// QuerySubmissions queries the "submissions" edge of the Problem entity.
+func (pr *Problem) QuerySubmissions() *SubmissionQuery {
+	return NewProblemClient(pr.config).QuerySubmissions(pr)
 }
 
 // Update returns a builder for updating this Problem.
