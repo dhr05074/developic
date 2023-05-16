@@ -4,6 +4,7 @@ package ent
 
 import (
 	"code-connect/problem/ent/problem"
+	"code-connect/problem/ent/submission"
 	"context"
 	"errors"
 	"fmt"
@@ -81,6 +82,21 @@ func (pc *ProblemCreate) SetLanguage(s string) *ProblemCreate {
 func (pc *ProblemCreate) SetRequestID(s string) *ProblemCreate {
 	pc.mutation.SetRequestID(s)
 	return pc
+}
+
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (pc *ProblemCreate) AddSubmissionIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddSubmissionIDs(ids...)
+	return pc
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (pc *ProblemCreate) AddSubmissions(s ...*Submission) *ProblemCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pc.AddSubmissionIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -204,6 +220,22 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
 		_node.RequestID = value
+	}
+	if nodes := pc.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
+	// Submission is the client for interacting with the Submission builders.
+	Submission *SubmissionClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +148,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Problem = NewProblemClient(tx.config)
+	tx.Submission = NewSubmissionClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

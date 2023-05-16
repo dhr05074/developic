@@ -26,11 +26,35 @@ var (
 		Columns:    ProblemsColumns,
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 	}
+	// SubmissionsColumns holds the columns for the "submissions" table.
+	SubmissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString, Size: 2147483647},
+		{Name: "submitter_id", Type: field.TypeString},
+		{Name: "problem_submissions", Type: field.TypeInt, Nullable: true},
+	}
+	// SubmissionsTable holds the schema information for the "submissions" table.
+	SubmissionsTable = &schema.Table{
+		Name:       "submissions",
+		Columns:    SubmissionsColumns,
+		PrimaryKey: []*schema.Column{SubmissionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submissions_problems_submissions",
+				Columns:    []*schema.Column{SubmissionsColumns[4]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProblemsTable,
+		SubmissionsTable,
 	}
 )
 
 func init() {
+	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
 }

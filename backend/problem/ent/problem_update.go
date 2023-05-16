@@ -5,6 +5,7 @@ package ent
 import (
 	"code-connect/problem/ent/predicate"
 	"code-connect/problem/ent/problem"
+	"code-connect/problem/ent/submission"
 	"context"
 	"errors"
 	"fmt"
@@ -104,9 +105,45 @@ func (pu *ProblemUpdate) SetRequestID(s string) *ProblemUpdate {
 	return pu
 }
 
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (pu *ProblemUpdate) AddSubmissionIDs(ids ...int) *ProblemUpdate {
+	pu.mutation.AddSubmissionIDs(ids...)
+	return pu
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (pu *ProblemUpdate) AddSubmissions(s ...*Submission) *ProblemUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.AddSubmissionIDs(ids...)
+}
+
 // Mutation returns the ProblemMutation object of the builder.
 func (pu *ProblemUpdate) Mutation() *ProblemMutation {
 	return pu.mutation
+}
+
+// ClearSubmissions clears all "submissions" edges to the Submission entity.
+func (pu *ProblemUpdate) ClearSubmissions() *ProblemUpdate {
+	pu.mutation.ClearSubmissions()
+	return pu
+}
+
+// RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
+func (pu *ProblemUpdate) RemoveSubmissionIDs(ids ...int) *ProblemUpdate {
+	pu.mutation.RemoveSubmissionIDs(ids...)
+	return pu
+}
+
+// RemoveSubmissions removes "submissions" edges to Submission entities.
+func (pu *ProblemUpdate) RemoveSubmissions(s ...*Submission) *ProblemUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pu.RemoveSubmissionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -174,6 +211,51 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
+	}
+	if pu.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedSubmissionsIDs(); len(nodes) > 0 && !pu.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -272,9 +354,45 @@ func (puo *ProblemUpdateOne) SetRequestID(s string) *ProblemUpdateOne {
 	return puo
 }
 
+// AddSubmissionIDs adds the "submissions" edge to the Submission entity by IDs.
+func (puo *ProblemUpdateOne) AddSubmissionIDs(ids ...int) *ProblemUpdateOne {
+	puo.mutation.AddSubmissionIDs(ids...)
+	return puo
+}
+
+// AddSubmissions adds the "submissions" edges to the Submission entity.
+func (puo *ProblemUpdateOne) AddSubmissions(s ...*Submission) *ProblemUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.AddSubmissionIDs(ids...)
+}
+
 // Mutation returns the ProblemMutation object of the builder.
 func (puo *ProblemUpdateOne) Mutation() *ProblemMutation {
 	return puo.mutation
+}
+
+// ClearSubmissions clears all "submissions" edges to the Submission entity.
+func (puo *ProblemUpdateOne) ClearSubmissions() *ProblemUpdateOne {
+	puo.mutation.ClearSubmissions()
+	return puo
+}
+
+// RemoveSubmissionIDs removes the "submissions" edge to Submission entities by IDs.
+func (puo *ProblemUpdateOne) RemoveSubmissionIDs(ids ...int) *ProblemUpdateOne {
+	puo.mutation.RemoveSubmissionIDs(ids...)
+	return puo
+}
+
+// RemoveSubmissions removes "submissions" edges to Submission entities.
+func (puo *ProblemUpdateOne) RemoveSubmissions(s ...*Submission) *ProblemUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return puo.RemoveSubmissionIDs(ids...)
 }
 
 // Where appends a list predicates to the ProblemUpdate builder.
@@ -372,6 +490,51 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if value, ok := puo.mutation.RequestID(); ok {
 		_spec.SetField(problem.FieldRequestID, field.TypeString, value)
+	}
+	if puo.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedSubmissionsIDs(); len(nodes) > 0 && !puo.mutation.SubmissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.SubmissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionsTable,
+			Columns: []string{problem.SubmissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Problem{config: puo.config}
 	_spec.Assign = _node.assignValues

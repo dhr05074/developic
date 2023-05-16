@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"regexp"
 	"strconv"
@@ -194,4 +195,56 @@ func extractCode(markdown string) (string, string) {
 		return match[1], match[2]
 	}
 	return "", ""
+}
+
+func (h *Handler) SubmitCode(ctx context.Context, req gateway.SubmitSolutionRequestObject) (gateway.SubmitSolutionResponseObject, error) {
+	// Decode the submitted code.
+	submittedCode, err := base64.StdEncoding.DecodeString(req.Body.Code)
+	if err != nil {
+		return nil, err
+	}
+
+	timeout, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	tx, err := h.entClient.Tx(timeout)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+
+		if err := tx.Rollback(); err != nil {
+			l.Errorw("error while rolling back transaction", "error", err)
+		}
+	}()
+
+	problem, err := tx.Problem.Query().ForUpdate().Where(problem2.UUID(req.RequestId)).Only(timeout)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("problem not found. check your request id. or wait a minute and try again.")
+		}
+
+		return nil, err
+	}
+
+	uuid := h.generateID()
+
+	err = tx.Submission.Create().
+		SetUUID(uuid).
+		SetProblem(problem).
+		SetCode(string(submittedCode)).
+		SetSubmitterID(h.generateID()).
+		SetProblemID(problem.ID).
+		Exec(timeout)
+	if err != nil {
+		return nil, err
+	}
+
+	return gateway.SubmitSolution200JSONResponse{
+		SubmissionId: uuid,
+	}, nil
 }

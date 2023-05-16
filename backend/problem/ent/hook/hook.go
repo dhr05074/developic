@@ -20,6 +20,18 @@ func (f ProblemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemMutation", m)
 }
 
+// The SubmissionFunc type is an adapter to allow the use of ordinary
+// function as Submission mutator.
+type SubmissionFunc func(context.Context, *ent.SubmissionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmissionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmissionMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

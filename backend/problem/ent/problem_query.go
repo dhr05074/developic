@@ -5,7 +5,9 @@ package ent
 import (
 	"code-connect/problem/ent/predicate"
 	"code-connect/problem/ent/problem"
+	"code-connect/problem/ent/submission"
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -18,11 +20,12 @@ import (
 // ProblemQuery is the builder for querying Problem entities.
 type ProblemQuery struct {
 	config
-	ctx        *QueryContext
-	order      []OrderFunc
-	inters     []Interceptor
-	predicates []predicate.Problem
-	modifiers  []func(*sql.Selector)
+	ctx             *QueryContext
+	order           []OrderFunc
+	inters          []Interceptor
+	predicates      []predicate.Problem
+	withSubmissions *SubmissionQuery
+	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (pq *ProblemQuery) Unique(unique bool) *ProblemQuery {
 func (pq *ProblemQuery) Order(o ...OrderFunc) *ProblemQuery {
 	pq.order = append(pq.order, o...)
 	return pq
+}
+
+// QuerySubmissions chains the current query on the "submissions" edge.
+func (pq *ProblemQuery) QuerySubmissions() *SubmissionQuery {
+	query := (&SubmissionClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionsTable, problem.SubmissionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Problem entity from the query.
@@ -246,15 +271,27 @@ func (pq *ProblemQuery) Clone() *ProblemQuery {
 		return nil
 	}
 	return &ProblemQuery{
-		config:     pq.config,
-		ctx:        pq.ctx.Clone(),
-		order:      append([]OrderFunc{}, pq.order...),
-		inters:     append([]Interceptor{}, pq.inters...),
-		predicates: append([]predicate.Problem{}, pq.predicates...),
+		config:          pq.config,
+		ctx:             pq.ctx.Clone(),
+		order:           append([]OrderFunc{}, pq.order...),
+		inters:          append([]Interceptor{}, pq.inters...),
+		predicates:      append([]predicate.Problem{}, pq.predicates...),
+		withSubmissions: pq.withSubmissions.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
 	}
+}
+
+// WithSubmissions tells the query-builder to eager-load the nodes that are connected to
+// the "submissions" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithSubmissions(opts ...func(*SubmissionQuery)) *ProblemQuery {
+	query := (&SubmissionClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withSubmissions = query
+	return pq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -333,8 +370,11 @@ func (pq *ProblemQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Problem, error) {
 	var (
-		nodes = []*Problem{}
-		_spec = pq.querySpec()
+		nodes       = []*Problem{}
+		_spec       = pq.querySpec()
+		loadedTypes = [1]bool{
+			pq.withSubmissions != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Problem).scanValues(nil, columns)
@@ -342,6 +382,7 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Problem{config: pq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(pq.modifiers) > 0 {
@@ -356,7 +397,46 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := pq.withSubmissions; query != nil {
+		if err := pq.loadSubmissions(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Submissions = []*Submission{} },
+			func(n *Problem, e *Submission) { n.Edges.Submissions = append(n.Edges.Submissions, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (pq *ProblemQuery) loadSubmissions(ctx context.Context, query *SubmissionQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Submission)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Problem)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Submission(func(s *sql.Selector) {
+		s.Where(sql.InValues(problem.SubmissionsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.problem_submissions
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "problem_submissions" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "problem_submissions" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (pq *ProblemQuery) sqlCount(ctx context.Context) (int, error) {

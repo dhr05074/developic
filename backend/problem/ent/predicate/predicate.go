@@ -8,3 +8,6 @@ import (
 
 // Problem is the predicate function for problem builders.
 type Problem func(*sql.Selector)
+
+// Submission is the predicate function for submission builders.
+type Submission func(*sql.Selector)
