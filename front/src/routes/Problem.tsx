@@ -1,11 +1,9 @@
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import { useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import NavBar from "@/component/NavBar/NavBar";
-import Problem from "@/component/Resizable/Problem";
+import MarkDown from "@/component/Resizable/MarkDown";
 import Stepper from "@/component/Stepper/Stepper";
-import { generateProblem } from "@/api/problem";
 
 const languages: string[] = [
     "go",
@@ -27,11 +25,7 @@ const languages: string[] = [
     "swift",
 ];
 const currentLang = "javascript" as LanguageType;
-function CodeEditor() {
-    const [searchParams] = useSearchParams();
-    const difficulty = Number(searchParams.get("difficulty"));
-    const language = searchParams.get("language");
-
+function Problem() {
     const [useProblem, setProblem] = useState<string>("");
     // resizer
     const [runnerWidth, setRunnerWidth] = useState<number>(300);
@@ -64,7 +58,6 @@ function CodeEditor() {
         setIsResizing(false);
         // document.removeEventListener("mousemove", handleMouseMove);
     }
-    console.log("CodeEditor");
 
     return (
         <motion.div
@@ -90,7 +83,7 @@ function CodeEditor() {
                     onMouseMove={handleMouseMove}
                 >
                     <article id="problem" style={{ width: style.problem.width }} className=" overflow-auto text-left">
-                        <Problem markdown={useProblem} />
+                        <MarkDown markdown={useProblem} />
                     </article>
                     {/* 고정 */}
                     <article className="flex w-full flex-row">
@@ -116,4 +109,4 @@ function CodeEditor() {
     );
 }
 
-export default CodeEditor;
+export default Problem;

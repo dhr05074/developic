@@ -88,3 +88,8 @@
 
 -   coustom hook으로 Stepper 리팩토링
 -   v0.0.0:18
+
+### 5/17
+
+-   problem, stepper 리팩토링 완료
+-   v0.0.0:19

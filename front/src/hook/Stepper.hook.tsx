@@ -1,7 +1,14 @@
-// import { useRecoilState } from "recoil";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRecoilState } from "recoil";
+import { useSearchParams } from "react-router-dom";
+import { setProblemState } from "../recoil/problem";
+import { generateProblem } from "@/api/problem";
 
-export default function useStepper() {
+const useStepper = () => {
+    const [searchParams] = useSearchParams();
+    const difficulty = Number(searchParams.get("difficulty"));
+    const language = searchParams.get("language");
+
     const [step, setStep] = useState<number>(6);
     const [StepperList, setStepperList] = useState<StepperListTypes>({
         difficult: {
@@ -21,7 +28,6 @@ export default function useStepper() {
             step: "idle",
         },
     });
-
     const stepperStateChanger = () => {
         if (step === 6) {
             StepperList.difficult.step = "loading";
@@ -71,4 +77,6 @@ export default function useStepper() {
         StepperList,
         stepperStateChanger,
     };
-}
+};
+
+export default useStepper;

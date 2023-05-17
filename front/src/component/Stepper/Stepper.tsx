@@ -1,6 +1,7 @@
 import React from "react";
 import ButtonBasic from "../Button/Basic.Button";
-import useStepper from "@/hook/Stepper";
+import useStepper from "@/hook/Stepper.hook";
+import useProblem from "@/hook/Problem.hook";
 
 type StepTypes = "idle" | "loading" | "complete";
 type StepperStyle = {
@@ -13,6 +14,8 @@ let stepButton = "다음";
 
 function StepperComponent() {
     const { step, StepperList, stepperStateChanger } = useStepper();
+    const { getProblemState } = useProblem();
+    console.log("StepperComponent", getProblemState);
     if (step === 1) {
         stepButton = "문제 풀러가기";
     }
