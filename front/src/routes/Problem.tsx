@@ -70,7 +70,7 @@ function Problem() {
             <div id="CodeEditor" className="App h-screen w-screen">
                 <Stepper />
 
-                {/* 스테퍼 제거해야함. */}
+                {/* if로 스테퍼 제거해야함. */}
 
                 <section id="header">
                     <NavBar currentLang={currentLang} />
