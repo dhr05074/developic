@@ -35,7 +35,7 @@ export default function Select() {
         c_difficulty = value;
     };
     const buttonOption = {
-        pathName: "/codeEditor",
+        pathName: "/problem",
         search: `?difficulty=${c_difficulty}&language=${currentLang}`,
     };
     return (

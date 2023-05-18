@@ -11,8 +11,9 @@ const useProblem = () => {
     const language = searchParams.get("language");
 
     const createProblem = async () => {
+        console.log("createProblem");
         const problem = await generateProblem().create(language, difficulty);
-        setId(problem.request_id);
+        // setId(problem.request_id);
     };
     const getProblemData = async (requestId: string) => {
         const problemInterval = setInterval(async () => {
@@ -20,7 +21,7 @@ const useProblem = () => {
             const newProblem = await generateProblem().get(requestId);
             if (newProblem) {
                 clearInterval(problemInterval);
-                return newProblem;
+                // setData(newProblem);
             }
         }, 3000);
     };

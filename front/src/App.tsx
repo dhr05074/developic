@@ -23,7 +23,7 @@ function App(): JSX.Element {
                 <Routes>
                     <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
                     <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
-                    <Route path="/codeEditor" element={<Problem />} errorElement={<ErrorPage />} />
+                    <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
                 </Routes>
             </AnimatePresence>
         </RecoilRoot>

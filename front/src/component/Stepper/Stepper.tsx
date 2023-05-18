@@ -15,6 +15,7 @@ let stepButton = "다음";
 function StepperComponent() {
     const { step, StepperList, stepperStateChanger } = useStepper();
     const { getProblemState } = useProblem();
+
     console.log("StepperComponent", getProblemState);
     if (step === 1) {
         stepButton = "문제 풀러가기";
