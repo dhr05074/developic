@@ -1,11 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { setProblemState } from "../recoil/problem";
 import { generateProblem } from "@/api/problem";
 
+// recoil로 변경
+let problemId = "";
+let problemData = "";
+
 const useProblem = () => {
-    const [getProblemState, setId, setData] = useRecoilState(setProblemState);
+    // const [getProblemState, setId, setData] = useRecoilState(setProblemState);
     const [searchParams] = useSearchParams();
     const difficulty = Number(searchParams.get("difficulty"));
     const language = searchParams.get("language");
@@ -13,15 +17,20 @@ const useProblem = () => {
     const createProblem = async () => {
         console.log("createProblem");
         const problem = await generateProblem().create(language, difficulty);
-        // setId(problem.request_id);
+        problemId = problem.data.request_id;
     };
-    const getProblemData = async (requestId: string) => {
+    const getProblemData = async () => {
         const problemInterval = setInterval(async () => {
-            console.log("problemInterval");
-            const newProblem = await generateProblem().get(requestId);
-            if (newProblem) {
-                clearInterval(problemInterval);
-                // setData(newProblem);
+            console.log("problemInterval", problemId);
+            if (problemId) {
+                const newProblem = await generateProblem().get(problemId);
+                console.log("🚀 ~ file: Problem.hook.tsx:27 ~ problemInterval ~ newProblem:", newProblem);
+                if (newProblem) {
+                    clearInterval(problemInterval);
+                    problemData = newProblem;
+                }
+            } else {
+                console.log("getProblemData : problemId 없음.");
             }
         }, 3000);
     };
@@ -32,9 +41,8 @@ const useProblem = () => {
     }, []);
 
     return {
-        getProblemState,
-        setId,
-        setData,
+        // getProblemState,
+        problemData,
         createProblem,
         getProblemData,
     };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { RecoilRoot } from "recoil";
 import "./styles/App.css";
 import "./styles/index.css";
@@ -15,16 +15,19 @@ import Problem from "./routes/Problem";
 import ErrorPage from "./routes/Error";
 import HomePage from "./routes/Home";
 import Select from "./routes/Select";
+import Stepper from "@/component/Stepper/Stepper";
 
 function App(): JSX.Element {
     return (
         <RecoilRoot>
             <AnimatePresence>
-                <Routes>
-                    <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
-                    <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
-                    <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
-                </Routes>
+                <Suspense fallback={<Stepper />}>
+                    <Routes>
+                        <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+                        <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+                        <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
+                    </Routes>
+                </Suspense>
             </AnimatePresence>
         </RecoilRoot>
     );

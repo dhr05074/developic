@@ -10,19 +10,19 @@ export const problemState = atom<any | undefined>({
     key: "problemState",
     default: "",
 });
-
+// recoil에서 비동기를 사용하려면 suspence를 사용해야한다.
 export const setProblemState = selector({
     key: "problemState/set",
-    get: async ({ get }, kind: "data" | "id") => {
+    get: ({ get }, kind: "data" | "id") => {
         if (kind === "id") return get(problemIdState);
         return get(problemState);
     },
-    setId: async ({ set, get }, id: string) => {
+    setId: ({ set, get }, id: string) => {
         const problem = get(problemIdState);
         problem.id = id;
         set(problemState, problem);
     },
-    setData: async ({ set }, data) => {
+    setData: ({ set }, data) => {
         const problem = get(problemIdState);
         problem.data = data;
         set(problemState, problem);

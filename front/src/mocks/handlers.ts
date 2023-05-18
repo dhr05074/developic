@@ -6,7 +6,7 @@ import { CreateProblem202Response, GetProblem200Response } from "../../api/api";
 const apiUrl = "http://15.165.21.53:3000";
 
 const createProblem: CreateProblem202Response = {
-    request_id: "id",
+    request_id: "returnId",
 };
 
 const getProblem: GetProblem200Response = {
@@ -28,11 +28,13 @@ export default [
      * @prams response
      */
     rest.post(`${apiUrl}/problems`, async (req, res, ctx) => {
+        console.log("msw post problems : ", req.body);
         return res(ctx.status(200), ctx.json(createProblem));
     }),
-    rest.get(`${apiUrl}/problems/request_id`, async (req, res, ctx) => {
-        const { request_id } = req.params;
-        console.log("msw request_id", request_id);
+    rest.get(`${apiUrl}/problems`, async (req, res, ctx) => {
+        console.log("msw get problems :", req);
+        const id = req.url.searchParams.get("request_id");
+        console.log("msw request_id", id);
         return res(ctx.status(200), ctx.json(getProblem));
     }),
 ];
