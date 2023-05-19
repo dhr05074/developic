@@ -15,19 +15,16 @@ import Problem from "./routes/Problem";
 import ErrorPage from "./routes/Error";
 import HomePage from "./routes/Home";
 import Select from "./routes/Select";
-import Stepper from "@/component/Stepper/Stepper";
 
 function App(): JSX.Element {
     return (
         <RecoilRoot>
             <AnimatePresence>
-                <Suspense fallback={<Stepper />}>
-                    <Routes>
-                        <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
-                        <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
-                        <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
-                    </Routes>
-                </Suspense>
+                <Routes>
+                    <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+                    <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+                    <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
+                </Routes>
             </AnimatePresence>
         </RecoilRoot>
     );
