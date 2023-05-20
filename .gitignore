@@ -170,3 +170,4 @@ test/
 # Go workspace file
 go.work
 
+tmp

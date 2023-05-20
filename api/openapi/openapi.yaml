@@ -12,7 +12,7 @@ paths:
       operationId: "createProblem"
       description: |
         로그인한 사용자의 정보와 입력한 언어를 바탕으로 최적의 문제를 만듭니다.
-        문제 생성에는 시간이 소요되므로 `202` 코드를 반환합니다.
+        문제 생성에는 시간 이 소요되므로 `202` 코드를 반환합니다.
         문제 생성 완료 후 `/problems/:request_id` 에서 문제를 확인할 수 있습니다.
       requestBody:
         required: true
