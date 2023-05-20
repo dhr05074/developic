@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DefaultApi, CreateProblem202Response, GetProblem200Response } from "../../api/api";
+import { Problem, DefaultApi, CreateProblem202Response, GetProblem200Response } from "../../api/api";
 import { apiErrorHandler } from "./errorhandler";
 
 const instance = axios.create();
@@ -51,7 +51,7 @@ const postProblem = async (language: Languages, difficulty: number) => {
 // };
 const generateProblem = () => {
     const api = new DefaultApi(undefined, baseURL, instance);
-    const create = async (language: string, difficulty: number): CreateProblem202Response => {
+    const create = async (language: string, difficulty: number) => {
         const getCreate = await api.createProblem({
             language,
             difficulty,
@@ -59,48 +59,16 @@ const generateProblem = () => {
         return getCreate.data;
     };
 
-    const get = async (requestId: string): GetProblem200Response => {
+    const get = async (requestId: string) => {
         const problem = await api.getProblem(requestId);
         // const res = await instance.get(`/problems/${requestId}`, { headers });
-        const data = problem.data.problem as GetProblem200Response;
+        const data = problem.data.problem as Problem;
         // console.log(data);
         return data;
     };
     return {
         create,
         get,
-    };
-};
-
-// 이거..
-const wrapPromise = (promise) => {
-    let status = "pending";
-    let result;
-    const suspender = promise.then(
-      (r) => {
-        status = "success";
-        result = r;
-      }, 
-      (e) => {
-        status = "error";
-        result = e;
-      })
-    );
-
-    return {
-        read() {
-            console.log(status);
-            if (status === "pending") {
-                console.log(suspender);
-                throw suspender;
-            }
-            if (status === "success") {
-                return result;
-            }
-            if (status === "error") {
-                throw result;
-            }
-        },
     };
 };
 

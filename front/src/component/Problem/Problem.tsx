@@ -1,10 +1,10 @@
-import { useRouteError } from "react-router-dom";
 import { useState, useRef, useEffect, createResource } from "react";
+import { GetProblem200Response } from "api/api";
 import NavBar from "@/component/NavBar/NavBar";
 import MarkDown from "@/component/Resizable/MarkDown";
-import Stepper from "@/component/Stepper/Stepper";
 import useProblem from "@/hook/Problem.hook";
 import useResizable from "../../hook/Resizable.hook";
+import fetchSuspenceData from "../../api/Suspencer";
 
 const languages: string[] = [
     "go",
@@ -32,18 +32,24 @@ const style = {
     },
 };
 export default function ProblemComponent() {
-    const [problem, setProblem] = useState<string>("");
+    const [problem, setProblem] = useState<GetProblem200Response>();
 
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseDown, handleMouseUp, runnerWidth } = useResizable();
-    const { hookProblem, getProblemData } = useProblem();
 
+    // const getProblemData = () => {
+    //     setTimeout(async () => {
+
+    //         console.log("🚀 ~ file: Problem.hook.tsx:28 ~ getProblemData ~ resource:", resource);
+    //         if (!resource) return getProblemData();
+    //         setProblem();
+    //     }, 3000);
+    // };
     useEffect(() => {
         getRef(runner, body);
-        getProblemData();
+        // getProblemData();
     }, []);
-
     return (
         <div id="CodeEditor" className="App h-screen w-screen">
             <section id="header">
@@ -57,7 +63,7 @@ export default function ProblemComponent() {
                 onMouseMove={handleMouseMove}
             >
                 <article id="problem" style={{ width: style.problem.width }} className=" overflow-auto text-left">
-                    <MarkDown markdown={hookProblem?.problem.code} />
+                    {/* <MarkDown markdown={problem.problem.code} /> */}
                 </article>
                 {/* 고정 */}
                 <article className="flex w-full flex-row">
