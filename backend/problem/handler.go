@@ -72,7 +72,6 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 		dur := time.Since(startTime)
 		l.Infof("problem created in %f seconds", dur.Seconds())
 
-		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
 		output.TargetCode = base64.StdEncoding.EncodeToString([]byte(output.TargetCode))
 		if err != nil {
 			l.Errorw("error while decoding problem content", "error", err)
@@ -97,7 +96,6 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 			return
 		}
 
-		// Creating test testCode for the testCode.
 		newGPTClient.AddPrompt("Create a test code for the previous code. It should have 5 test cases.")
 		testCode, err := newGPTClient.Complete(newCtx)
 		if err != nil {
@@ -109,7 +107,6 @@ func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequ
 
 		_, testCode = extractCode(testCode)
 
-		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
 		testCode = base64.StdEncoding.EncodeToString([]byte(testCode))
 		if err != nil {
 			l.Errorw("error while decoding problem content", "error", err)

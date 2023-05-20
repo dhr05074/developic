@@ -4,7 +4,7 @@ info:
   title: "CodeConnect"
   description: "CodeConnect API"
 servers:
-  - url: "https://api.codeconnect.io"
+  - url: "http://localhost:3000"
 paths:
   /problems:
     post:
