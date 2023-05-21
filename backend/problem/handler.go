@@ -238,7 +238,7 @@ func (h *Handler) SubmitCode(ctx context.Context, req gateway.SubmitSolutionRequ
 	}, nil
 }
 
-func extractCode(markdown string) (string, string) {
+func extractCode(markdown string) (language string, code string) {
 	regex := regexp.MustCompile("`{3}(.+?)\n(.+?)\n`{3}")
 	match := regex.FindStringSubmatch(markdown)
 	if len(match) >= 3 {

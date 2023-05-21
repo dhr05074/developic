@@ -171,3 +171,5 @@ test/
 go.work
 
 tmp
+
+.DS_Store
