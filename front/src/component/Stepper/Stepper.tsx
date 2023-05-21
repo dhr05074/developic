@@ -1,5 +1,5 @@
 import React from "react";
-import ButtonBasic from "../Button/Basic.Button";
+import ButtonBasic from "@/component/Button/Basic.Button";
 import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
 

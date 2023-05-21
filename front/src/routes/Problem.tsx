@@ -1,10 +1,8 @@
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Stepper from "@/component/Stepper/Stepper";
-import useProblem from "../hook/Problem.hook";
 import fetchProblem from "@/api/Suspencer";
 
 const ProblemComponent = React.lazy(() => import("../component/Problem/Problem"));
@@ -24,7 +22,9 @@ function Problem() {
         </motion.div>
     );
 }
+
 const resource = fetchProblem().create();
+
 // const resource2 = fetchProblem().problem();
 
 function ProfileDetails() {
@@ -63,4 +63,5 @@ function ProfileDetails() {
     return <h1>{id.request_id}</h1>;
     // <ProblemComponent />
 }
+
 export default Problem;

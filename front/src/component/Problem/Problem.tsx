@@ -1,10 +1,7 @@
-import { useState, useRef, useEffect, createResource } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GetProblem200Response } from "api/api";
 import NavBar from "@/component/NavBar/NavBar";
-import MarkDown from "@/component/Resizable/MarkDown";
-import useProblem from "@/hook/Problem.hook";
-import useResizable from "../../hook/Resizable.hook";
-import fetchSuspenceData from "../../api/Suspencer";
+import useResizable from "@/hook/resizable.hook";
 
 const languages: string[] = [
     "go",
