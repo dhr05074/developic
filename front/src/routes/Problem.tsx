@@ -1,13 +1,12 @@
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import React, { useState } from "react";
+import * as React from "react";
+
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Stepper from "@/component/Stepper/Stepper";
-import useProblem from "../hook/Problem.hook";
-import fetchProblem from "@/api/Suspencer";
+import useProblem from "@/hook/Problem.hook";
 
-const ProblemComponent = React.lazy(() => import("../component/Problem/Problem"));
+const ProblemComponent = React.lazy(() => import("../component/Problem/Problem.Component"));
 
 function Problem() {
     return (
@@ -18,49 +17,40 @@ function Problem() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <React.Suspense fallback={<Stepper />}>
-                <ProfileDetails />
-            </React.Suspense>
+            <ErrorBoundary fallback={<Stepper />}>
+                <Suspense fallback={<Stepper />}>
+                    <ProblemComponent />
+                </Suspense>
+            </ErrorBoundary>
         </motion.div>
     );
 }
-const resource = fetchProblem().create();
-// const resource2 = fetchProblem().problem();
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
 
-function ProfileDetails() {
-    const [id, setId] = useState("asdsad");
-    const [searchParams] = useSearchParams();
-    const difficulty = Number(searchParams.get("difficulty"));
-    const language = searchParams.get("language");
-    // const test = () => {
-    //     console.log("???", id);
+    static getDerivedStateFromError(error) {
+        // 다음 렌더링에서 폴백 UI가 보이도록 상태를 업데이트 합니다.
+        return { hasError: true };
+    }
 
-    //     setTimeout(() => {
-    //         if (id) {
-    //             setId(resource.read());
-    //         } else {
-    //             test();
-    //         }
+    componentDidCatch(error, errorInfo) {
+        // 에러 리포팅 서비스에 에러를 기록할 수도 있습니다.
+        //   logErrorToMyService(error, errorInfo);
+    }
 
-    //         // const getProb = fetchProblem().problem(id.request_id);
-    //         // const get = getProb.read();
-    //         // if (get) {
-    //         //     setAdvice(get);
-    //         // } else {
-    //         //     test();
-    //         // }
-    //     }, 1000);
-    // };
-    // useEffect(() => {
-    //     test();
-    // });
-    resource.read();
-
-    // setAdvice(problem);
-
-    // useEffect(() => {});
-    // setAdvice(getProblemData());
-    return <h1>{id.request_id}</h1>;
-    // <ProblemComponent />
+    render() {
+        if (this.state.hasError) {
+            // 폴백 UI를 커스텀하여 렌더링할 수 있습니다.
+            // <Stepper />;
+            return null;
+        }
+        return this.props.children;
+    }
 }
+//   <ErrorBoundary>
+//     <MyWidget />
+//   </ErrorBoundary>;
 export default Problem;

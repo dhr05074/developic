@@ -32,6 +32,7 @@
     "rules": {
         //        "prettier/prettier": "error",
         //        "import/no-unresolved": "error",
+        // "import/no-unresolved": "off",
         "import/extensions": [
             "error",
             "ignorePackages",
@@ -50,6 +51,10 @@
         "import/external-module-folders": [".yarn"],
         "import/parsers": {
             "@typescript-eslint/parser": [".ts", ".tsx"]
+        },
+        "import/resolver": {
+            // @인식에러
+            "typescript": {}
         }
     }
 }

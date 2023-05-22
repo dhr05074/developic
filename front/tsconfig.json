@@ -3,7 +3,7 @@
         "target": "esnext",
         "noImplicitAny": true,
         "strictNullChecks": true,
-        // "moduleResolution": "",
+        "moduleResolution": "node",
         "sourceMap": true,
         "module": "esnext",
         "noEmit": true,

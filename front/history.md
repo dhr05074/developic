@@ -114,3 +114,8 @@
 
 -   개같은 Suspence 포기
 -   v0.0.0:24
+
+### 5/21
+
+-   lint error 개선, suspence 이해
+-   v0.0.0:25

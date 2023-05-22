@@ -4,7 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import { GetProblem200Response, Problem } from "api/api";
 import { setProblemState } from "../recoil/problem";
 import { generateProblem } from "@/api/problem.api";
-import fetchSuspeceData from "../api/Suspencer";
 
 // recoil로 변경
 let problemId = "";
@@ -31,7 +30,7 @@ const useProblem = () => {
         // let re = null;
 
         // const interval = setInterval(async () => {
-        const resource = await fetchSuspeceData(suspenceFunction());
+        // const resource = await fetchSuspeceData(suspenceFunction());
         // resource.read();
         // console.log("resource.read()", await resource.read());
 

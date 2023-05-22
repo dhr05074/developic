@@ -35,6 +35,7 @@ const wrapPromise = (promise: Promise<unknown>) => {
 
     return { read };
 };
+export default wrapPromise;
 // const fetchPosts = () => {
 //     return new Promise((resolve) => {
 //             resolve([
@@ -46,11 +47,3 @@ const wrapPromise = (promise: Promise<unknown>) => {
 // };
 
 // suspece를 상요하는 api들.
-
-export default function fetchProblem() {
-    return {
-        // language: string, difficulty: number
-        create: () => wrapPromise(generateProblem().create("go", 50)),
-        problem: (requestId: string) => wrapPromise(generateProblem().get(requestId)),
-    };
-}

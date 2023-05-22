@@ -30,25 +30,6 @@ const postProblem = async (language: Languages, difficulty: number) => {
     }
 };
 
-// type getProblemReturnType = {
-//     id: string;
-//     language: Languages;
-//     content: string;
-// };
-
-// export const getProblem = async (problem_id: string) => {
-//     try {
-//         const res = await instance.get(`/problems/${problem_id}`, { headers });
-//         const data = res.data as postProblemReturn;
-//         console.log(data);
-//         // content : base64
-//         // id
-//         // language
-//         return data;
-//     } catch (err) {
-//         apiErrorHandler(err);
-//     }
-// };
 const generateProblem = () => {
     const api = new DefaultApi(undefined, baseURL, instance);
     const create = async (language: string, difficulty: number) => {
