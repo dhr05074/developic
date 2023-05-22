@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { RecoilRoot } from "recoil";
 import "./styles/App.css";
 import "./styles/index.css";

@@ -1,7 +1,7 @@
+import ButtonBasic from "@/component/Button/Basic.Button";
 import * as React from "react";
 import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
-import ButtonBasic from "../Button/Basic.Button";
 
 type StepTypes = "idle" | "loading" | "complete";
 type StepperStyle = {

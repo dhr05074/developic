@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createTheme } from "@uiw/codemirror-themes";
 import { useCodeMirror } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
@@ -41,7 +41,7 @@ const myTheme = createTheme({
 });
 
 export default function CodeEditor() {
-    const editor = useRef();
+    const editor = useRef<HTMLDivElement>(null);
     const { setContainer } = useCodeMirror({
         container: editor.current,
         extensions,
@@ -54,6 +54,10 @@ export default function CodeEditor() {
             setContainer(editor.current);
         }
     }, [editor.current]);
+
+    if (!editor) {
+        return null;
+    }
 
     return <div ref={editor} />;
 }

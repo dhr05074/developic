@@ -1,8 +1,5 @@
-import { useState, useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { setProblemState } from "../recoil/problem";
-import { generateProblem } from "@/api/problem";
 
 const useStepper = () => {
     const [searchParams] = useSearchParams();
