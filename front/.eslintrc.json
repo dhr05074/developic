@@ -87,10 +87,8 @@
       },
       "typescript": {}
       // this loads <rootdir>/tsconfig.json to eslint
-        },
-        "import/resolver": {
-            // @인식에러
-            "typescript": {}
-    }
+        }
+        
+
   }
 }

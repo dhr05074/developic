@@ -36,7 +36,11 @@ const style = {
 // const resource = fetchProblem().create();
 
 // const resource2 = fetchProblem().problem();
+const resorce = wrapPromise(generateProblem().create("javascript", 50));
+
 export default function ProblemComponent() {
+    const api = resorce.read();
+    console.log("ProblemComponent", api);
     const [problem, setProblem] = useState<GetProblem200Response | null>(null);
     const [searchParams] = useSearchParams();
     const difficulty = Number(searchParams.get("difficulty"));
@@ -45,14 +49,6 @@ export default function ProblemComponent() {
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseDown, handleMouseUp, runnerWidth } = useResizable();
-
-    const resorce = wrapPromise(generateProblem().create(language, difficulty));
-
-    const prom = generateProblem.create(language, difficulty);
-
-    prom.then().catch((e: Error) => {
-        throw e;
-    });
 
     // const getProblemData = () => {
     //     setTimeout(async () => {
@@ -64,11 +60,19 @@ export default function ProblemComponent() {
     // };
     useEffect(() => {
         getRef(runner, body);
+        console.log("pc", useEffect);
         // getProblemData();
         // setProblem(res.request_id);
 
-        resorce.read();
+        console.log(api);
     }, []);
+
+    // prom.then((p) => {
+    //     console.log("prom : ", p);
+    // }).catch((e: Error) => {
+    //     throw e;
+    // });
+
     return (
         <div id="CodeEditor" className="App h-screen w-screen">
             <section id="header">

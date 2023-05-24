@@ -5,28 +5,32 @@ import { generateProblem } from "./problem.api";
 const wrapPromise = (promise: Promise<unknown>) => {
     let status = "pending";
     let result = null;
-    const suspender = promise.then(
-        (r) => {
-            if (r) {
-                status = "success";
-                result = r;
-            } else {
-                status = "pending";
-                result = r;
-            }
-        },
-        (e) => {
-            status = "error";
-            result = e;
-        },
-    );
+    const suspender = promise
+        .then(
+            (r) => {
+                if (r) {
+                    status = "success";
+                    result = r;
+                } else {
+                    status = "pending";
+                    result = r;
+                }
+            },
+            (e) => {
+                status = "error";
+                result = e;
+            },
+        )
+        .catch((e) => {
+            console.error("suspense", e);
+        });
 
     console.log("wrapPromise", status);
     const read = () => {
         switch (status) {
-            case "pending":
+            case "pending": // 200에 아직 값이 안왔을 경우.
                 throw suspender;
-            case "error":
+            case "error": // 404
                 throw result;
             default:
                 return result;
