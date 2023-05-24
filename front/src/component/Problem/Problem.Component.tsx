@@ -35,12 +35,8 @@ const style = {
 };
 // const resource = fetchProblem().create();
 
-// const resource2 = fetchProblem().problem();
-const resorce = wrapPromise(generateProblem().create("javascript", 50));
-
 export default function ProblemComponent() {
-    const api = resorce.read();
-    console.log("ProblemComponent", api);
+    // console.log("ProblemComponent", api);
     const [problem, setProblem] = useState<GetProblem200Response | null>(null);
     const [searchParams] = useSearchParams();
     const difficulty = Number(searchParams.get("difficulty"));

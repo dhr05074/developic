@@ -1,4 +1,5 @@
-import { atom, selector } from "recoil";
+import { DefaultValue, atom, selector } from "recoil";
+import { generateProblem } from "@/api/problem.api";
 
 // recoil을 model로 사용한다.
 // problem 타입이 any라서 일단..
@@ -11,22 +12,17 @@ export const problemState = atom<any | undefined>({
     default: "",
 });
 // recoil에서 비동기를 사용하려면 suspence를 사용해야한다.
-export const setProblemState = selector({
+export const setProblemId = selector({
+    key: "problemId/set",
+    get: ({ get }) => get(problemIdState),
+    set: ({ set }, id) => set(problemIdState, id instanceof DefaultValue ? id : id),
+});
+export const setProblem = selector({
     key: "problemState/set",
-    get: ({ get }, kind: "data" | "id") => {
-        if (kind === "id") return get(problemIdState);
+    get: ({ get }) => {
         return get(problemState);
     },
-    setId: ({ set, get }, id: string) => {
-        const problem = get(problemIdState);
-        problem.id = id;
-        set(problemState, problem);
-    },
-    setData: ({ set }, data) => {
-        const problem = get(problemIdState);
-        problem.data = data;
-        set(problemState, problem);
-    },
+    set: ({ set }, data) => set(problemState, data),
 });
 
 // use case

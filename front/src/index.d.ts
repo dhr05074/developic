@@ -30,3 +30,5 @@ type StepperListTypes = {
     api: SteppersOption;
     comp: SteppersOption;
 };
+
+type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end";

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const useStepper = () => {
@@ -6,7 +6,7 @@ const useStepper = () => {
     const difficulty = Number(searchParams.get("difficulty"));
     const language = searchParams.get("language");
 
-    const [step, setStep] = useState<number>(6);
+    const [step] = useState<StepType>("idle");
     const [StepperList, setStepperList] = useState<StepperListTypes>({
         difficult: {
             value: "난이도 체크",
@@ -25,14 +25,14 @@ const useStepper = () => {
             step: "idle",
         },
     });
-    const stepperStateChanger = () => {
-        if (step === 6) {
+    const stepperStateChanger = (getStep: StepType) => {
+        if (getStep === "start") {
             StepperList.difficult.step = "loading";
             const changeDefficult = StepperList.difficult;
             setStepperList((prevState) => {
                 return { ...prevState, difficult: changeDefficult };
             });
-        } else if (step === 5) {
+        } else if (getStep === "level") {
             StepperList.difficult.step = "complete";
             StepperList.language.step = "loading";
             const changeDefficult = StepperList.difficult;
@@ -40,7 +40,7 @@ const useStepper = () => {
             setStepperList((prevState) => {
                 return { ...prevState, difficult: changeDefficult, language: changeLanguage };
             });
-        } else if (step === 4) {
+        } else if (getStep === "lang") {
             StepperList.language.step = "complete";
             StepperList.api.step = "loading";
             const changeLanguage = StepperList.language;
@@ -48,7 +48,7 @@ const useStepper = () => {
             setStepperList((prevState) => {
                 return { ...prevState, language: changeLanguage, api: changeApi };
             });
-        } else if (step === 3) {
+        } else if (getStep === "api") {
             StepperList.api.step = "complete";
             StepperList.comp.step = "loading";
             const changeApi = StepperList.api;
@@ -56,21 +56,19 @@ const useStepper = () => {
             setStepperList((prevState) => {
                 return { ...prevState, api: changeApi, comp: changeComp };
             });
-        } else if (step === 2) {
+        } else if (getStep === "clear") {
             StepperList.comp.step = "complete";
             const changeComp = StepperList.comp;
             setStepperList((prevState) => {
                 return { ...prevState, comp: changeComp };
             });
-        } else if (step === 0) {
+        } else if (getStep === "end") {
             return false;
         }
-        setStep(step - 1);
         return true;
     };
 
     return {
-        step,
         StepperList,
         stepperStateChanger,
     };

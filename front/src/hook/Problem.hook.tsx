@@ -2,30 +2,27 @@ import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { GetProblem200Response, Problem } from "api/api";
-import { setProblemState } from "../recoil/problem";
 import { generateProblem } from "@/api/problem.api";
+import { setProblemId } from "../recoil/problem";
 
 // recoil로 변경
-let problemId = "";
+// const problemId = "";
 const problemData: Problem | null = null;
 
 const useProblem = () => {
-    // const [getProblemState, setId, setData] = useRecoilState(setProblemState);
+    const [getId, setId] = useRecoilState(setProblemId);
     const [searchParams] = useSearchParams();
     const difficulty = Number(searchParams.get("difficulty"));
     const language = searchParams.get("language");
     const [currentProblem, setProblem] = useState<Problem>();
 
     const createProblem = async () => {
-        console.log("createProblem");
         const problem = await generateProblem().create(language, difficulty);
-        problemId = problem.request_id;
+        console.log("🚀 ~ file: Problem.hook.tsx:21 ~ createProblem ~ problem:", problem);
+        setId(problem.request_id);
+        console.log("getId", getId);
     };
-    const suspenceFunction = () => {
-        return new Promise((resolve) => {
-            resolve(generateProblem().get(problemId));
-        });
-    };
+
     const getProblemData = async () => {
         // let re = null;
 
@@ -44,12 +41,11 @@ const useProblem = () => {
     // didMount 대용
     useEffect(() => {
         console.log("problem.hook : useEffect");
-        createProblem();
     }, []);
 
     return {
+        createProblem,
         // getProblemState,
-        suspenceFunction,
     };
 };
 

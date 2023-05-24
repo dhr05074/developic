@@ -1,8 +1,12 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 
 import ButtonBasic from "@/component/Button/Basic.Button";
 import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
+import wrapPromise from "@/api/Suspencer";
+import { generateProblem } from "@/api/problem.api";
+import { useRecoilState } from "recoil";
+import { problemIdState } from "../../recoil/problem";
 
 type StepTypes = "idle" | "loading" | "complete";
 type StepperStyle = {
@@ -11,28 +15,45 @@ type StepperStyle = {
     loading: string;
     complete: string;
 };
-let stepButton = "다음";
+const stepButton = "다음";
 
 function StepperComponent() {
-    const { step, StepperList, stepperStateChanger } = useStepper();
-    const { getProblemState } = useProblem();
+    const { StepperList, stepperStateChanger } = useStepper();
+    const { createProblem } = useProblem();
+    const [getId, setId] = useRecoilState(problemIdState);
 
-    console.log("StepperComponent", getProblemState);
-    if (step === 1) {
-        stepButton = "문제 풀러가기";
-    }
+    // if (step === 1) {
+    //     stepButton = "문제 풀러가기";
+    // }
     const style: StepperStyle = {
         idle: "border-gray-300 bg-gray-100 text-gray-900",
         loading: "border-Navy-500 bg-Navy-600 text-white",
         complete: "border-green-300 bg-green-50 text-green-700",
         inviserble: "opacity-0 invisible",
     };
+    const stepChanger = () => {
+        const timer = (step: StepType, time: number) => {
+            setTimeout(() => {
+                if (step === "api") {
+                    console.log(getId);
+                }
+                stepperStateChanger(step);
+            }, time);
+        };
+        timer("start", 1000);
+        timer("level", 2000);
+        timer("lang", 3000);
+        timer("api", 4000);
+    };
+    useEffect(() => {
+        createProblem();
+        stepChanger();
+    }, []); // []가 없으면 상태가 바뀔때마다 호출.
     return (
-        <div
-            className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 ${
-                step === 0 && style.inviserble
-            }`}
-        >
+        // ${
+        //     style.inviserble
+        // }
+        <div className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 `}>
             <ol className="w-72 space-y-4">
                 {Object.entries(StepperList).map(([key, value]) => (
                     <li key={key}>
@@ -86,7 +107,6 @@ function StepperComponent() {
                         </div>
                     </li>
                 ))}
-                <ButtonBasic name={stepButton} clickFunction={stepperStateChanger} />
             </ol>
         </div>
     );
