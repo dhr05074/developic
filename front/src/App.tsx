@@ -1,70 +1,34 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import Footer from "./component/Footer/Footer";
-import TextArea from "./component/Textarea/Textarea";
-import Select from "./component/Select/Select";
-import { postProblem } from "./api/problem";
+import React from "react";
+import { RecoilRoot } from "recoil";
+import "./styles/App.css";
+import "./styles/index.css";
+import "./styles/component.css";
+// react-simple-code-editr
+// import { useCodeMirror } from "@uiw/react-codemirror";
+// import { javascript } from "@codemirror/lang-javascript";
+// import CodeEditor from './component/CodeEditor/CodeEditor';
+import { Route, Routes } from "react-router-dom";
+// import NavBar from "./component/NavBar/NavBar";
+// import Problem from "./component/Resizable/Problem";
+import { AnimatePresence } from "framer-motion";
+import Problem from "./routes/Problem";
+import ErrorPage from "./routes/Error";
+import HomePage from "./routes/Home";
+import Select from "./routes/Select";
+import Stepper from "./routes/Stepper";
 
-function App() {
-    const languages = [
-        "Go",
-        "TypeScript",
-        "JavaScript",
-        "Python3",
-        "C",
-        "C++",
-        "C#",
-        "Clojure",
-        "Dart",
-        "Elixir",
-        "Java",
-        "Kotlin",
-        "PHP",
-        "R",
-        "Ruby",
-        "Scala",
-        "Swift",
-    ];
-    let currentLang = "";
-    // const [textareaValue, setText] = useState("입력하세요");
-    // const [] = useState("");
-    // const onTextChange = (e) => {
-    //     setText(e.target.value);
-    // };
-    const onClickAPI = (e) => {
-        e.preventDefault();
-
-        if (currentLang) {
-            postProblem(currentLang, 90);
-            return;
-        }
-        postProblem("Go", 90);
-    };
-    const getMenuValue = (value: string) => {
-        console.log("🚀 ~ file: App.tsx:41 ~ getMenuValue ~ value:", value);
-        currentLang = value;
-    };
-
+function App(): JSX.Element {
     return (
-        <div className="App">
-            <section id="header" className="flex flex-row justify-between">
-                <Select value={{ menu: languages, callback: getMenuValue }} />
-                <button
-                    onClick={onClickAPI}
-                    type="submit"
-                    className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800"
-                >
-                    postProblem
-                </button>
-            </section>
-            <h4 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white"></h4>
-            <section className="bg-white dark:bg-gray-900">
-                <TextArea />
-            </section>
-            {/* <Footer /> */}
-        </div>
+        <RecoilRoot>
+            <AnimatePresence>
+                <Routes>
+                    <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+                    <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+                    <Route path="/stepper" element={<Stepper />} errorElement={<ErrorPage />} />
+                    <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
+                </Routes>
+            </AnimatePresence>
+        </RecoilRoot>
     );
 }
 
