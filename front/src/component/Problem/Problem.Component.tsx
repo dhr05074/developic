@@ -43,9 +43,6 @@ export default function ProblemComponent() {
 
     return (
         <div id="CodeEditor" className="App h-screen w-screen">
-            <section id="header">
-                <NavBar currentLang={currentLang} />
-            </section>
             <section
                 role="presentation"
                 id="body"

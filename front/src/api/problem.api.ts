@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Problem, DefaultApi, CreateProblem202Response, GetProblem200Response } from "../../api/api";
+import { Problem, DefaultApi } from "../../api/api";
 import { apiErrorHandler } from "./errorhandler";
 
 const instance = axios.create();

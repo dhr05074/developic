@@ -4,6 +4,7 @@ export default {
     theme: {
         fontFamily: {
             Pretendard: ["Pretendard"],
+            D2Coding: ["D2Coding"],
         },
         colors: {
             coco: {

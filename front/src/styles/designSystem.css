@@ -1,0 +1,25 @@
+.D2Coding_regular {
+    @apply font-Pretendard text-[16px] font-normal;
+}
+
+.pretendard_regular_12 {
+    @apply font-Pretendard text-[12px] font-normal;
+}
+.pretendard_regular_16 {
+    @apply font-Pretendard text-[16px] font-normal;
+}
+.pretendard_bold_16 {
+    @apply font-Pretendard text-[16px] font-bold;
+}
+.pretendard_medium_20 {
+    @apply font-Pretendard text-[20px] font-medium;
+}
+.pretendard_bold_20 {
+    @apply font-Pretendard text-[20px] font-bold;
+}
+.pretendard_bold_24 {
+    @apply font-Pretendard text-[24px] font-bold;
+}
+.pretendard_extrabold_32 {
+    @apply font-Pretendard text-[32px] font-extrabold;
+}
