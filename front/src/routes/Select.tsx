@@ -35,7 +35,7 @@ export default function Select() {
         c_difficulty = value;
     };
     const buttonOption = {
-        pathName: "/problem",
+        pathName: "/stepper",
         search: `?difficulty=${c_difficulty}&language=${currentLang}`,
     };
     return (

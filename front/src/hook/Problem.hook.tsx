@@ -1,50 +1,49 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
-import { GetProblem200Response, Problem } from "api/api";
 import { generateProblem } from "@/api/problem.api";
-import { setProblemId } from "../recoil/problem";
+import { problemIdState, problemState } from "../recoil/problem.recoil";
 
 // recoil로 변경
 // const problemId = "";
-const problemData: Problem | null = null;
 
 const useProblem = () => {
-    const [getId, setId] = useRecoilState(setProblemId);
+    const [problemId, setId] = useRecoilState(problemIdState);
+    const [problem, setProblem] = useRecoilState(problemState);
     const [searchParams] = useSearchParams();
     const difficulty = Number(searchParams.get("difficulty"));
     const language = searchParams.get("language");
-    const [currentProblem, setProblem] = useState<Problem>();
 
     const createProblem = async () => {
-        const problem = await generateProblem().create(language, difficulty);
-        console.log("🚀 ~ file: Problem.hook.tsx:21 ~ createProblem ~ problem:", problem);
-        setId(problem.request_id);
-        console.log("getId", getId);
+        const p = await generateProblem().create(language, difficulty);
+        setId(p.request_id);
     };
 
     const getProblemData = async () => {
         // let re = null;
 
-        // const interval = setInterval(async () => {
-        // const resource = await fetchSuspeceData(suspenceFunction());
-        // resource.read();
-        // console.log("resource.read()", await resource.read());
-
-        // re = await resource.read();
-        // if (re) clearInterval(interval);
-        // }, 1000);
-
-        return resource;
+        const interval = setInterval(async () => {
+            if (problemId) {
+                const p_data = await generateProblem().get(problemId);
+                if (p_data) {
+                    setProblem(p_data);
+                    clearInterval(interval);
+                }
+            }
+        }, 3000);
     };
 
     // didMount 대용
+
     useEffect(() => {
-        console.log("problem.hook : useEffect");
+        createProblem();
     }, []);
 
     return {
         createProblem,
+        getProblemData,
+        problemId,
+        problem,
         // getProblemState,
     };
 };

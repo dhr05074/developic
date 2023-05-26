@@ -15,6 +15,7 @@ import Problem from "./routes/Problem";
 import ErrorPage from "./routes/Error";
 import HomePage from "./routes/Home";
 import Select from "./routes/Select";
+import Stepper from "./routes/Stepper";
 
 function App(): JSX.Element {
     return (
@@ -23,6 +24,7 @@ function App(): JSX.Element {
                 <Routes>
                     <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
                     <Route path="/select" element={<Select />} errorElement={<ErrorPage />} />
+                    <Route path="/stepper" element={<Stepper />} errorElement={<ErrorPage />} />
                     <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
                 </Routes>
             </AnimatePresence>

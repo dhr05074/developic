@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const useStepper = () => {
-    const [searchParams] = useSearchParams();
-    const difficulty = Number(searchParams.get("difficulty"));
-    const language = searchParams.get("language");
+    const navigate = useNavigate();
 
-    const [step] = useState<StepType>("idle");
     const [StepperList, setStepperList] = useState<StepperListTypes>({
         difficult: {
             value: "난이도 체크",
@@ -63,7 +60,7 @@ const useStepper = () => {
                 return { ...prevState, comp: changeComp };
             });
         } else if (getStep === "end") {
-            return false;
+            navigate("/problem");
         }
         return true;
     };
