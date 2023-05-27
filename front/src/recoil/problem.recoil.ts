@@ -1,4 +1,4 @@
-import { DefaultValue, atom, selector } from "recoil";
+import { atom } from "recoil";
 import { Problem } from "api/api";
 
 // recoil을 model로 사용한다.

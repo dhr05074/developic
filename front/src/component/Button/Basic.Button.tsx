@@ -11,7 +11,7 @@ type PropsType = {
 
 export default function ButtonBasic(props: PropsType) {
     const className =
-        "motion_basic inline-flex items-center justify-center rounded-lg bg-coco-green_500 px-5 py-3 text-center text-base font-medium text-black  hover:bg-Navy-700 hover:text-white";
+        "motion_basic inline-flex items-center justify-center rounded-3xl bg-coco-green_500 w-full py-5 text-center text-base font-medium text-black  hover:bg-Navy-700 hover:text-white";
 
     if (props.link?.pathName) {
         return (

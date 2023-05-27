@@ -11,7 +11,7 @@ export default {
                 green_500: "#B9FF47",
                 yellow_500: "#FFEF51",
                 red_500: "#FF0D64",
-                blue_500: "3AA0FF",
+                blue_500: "#3AA0FF",
             },
             Navy: {
                 50: "#E6E5EC",
@@ -24,6 +24,10 @@ export default {
                 700: "#3A3369",
                 800: "#353346",
                 900: "#1F1C32",
+            },
+            new: {
+                600: "#62606F",
+                700: "#4C495B",
             },
         },
         extend: {},

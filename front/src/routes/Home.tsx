@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import React from "react";
 import { motion } from "framer-motion";
 import SelectComponent from "@/component/Select/Select";
@@ -58,11 +57,21 @@ export default function Select() {
                                 Here at Flowbite we focus on markets where technology, innovation, ,and capital can
                                 unlock long-term value and drive economic growth.
                             </p>
-                            <div className="flex flex-row gap-2">
-                                <SelectComponent value={{ menu: languages, callback: setLang }} />
-                                <SelectComponent value={{ menu: difficulty, callback: setDifficulty }} />
+                            <div className="relative mt-14 flex h-14 w-full  flex-row">
+                                <SelectComponent
+                                    value={{ menu: languages, callback: setLang }}
+                                    disabled="Language"
+                                    location="left-0"
+                                />
+                                <SelectComponent
+                                    value={{ menu: difficulty, callback: setDifficulty }}
+                                    disabled="Difficulty"
+                                    location="right-0"
+                                />
                             </div>
-                            <ButtonBasic link={buttonOption} name="Start" />
+                            <div className="w-full">
+                                <ButtonBasic link={buttonOption} name="Start" />
+                            </div>
                         </div>
                     </article>
                 </section>
