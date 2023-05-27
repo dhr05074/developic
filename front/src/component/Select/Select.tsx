@@ -13,9 +13,7 @@ interface propsState {
 export default function Select(props: propsState) {
     const [isClick, setIsClick] = useState(false);
     const [selectMenu, setSelectMenu] = useState(props.disabled);
-    const onChangeSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-        props?.value.callback(e.target.value);
-    };
+
     const setOptions = () => {
         console.log(props?.value);
         const menu = props?.value.menu;
@@ -35,6 +33,7 @@ export default function Select(props: propsState) {
     const onClickMenu = (e: MouseEventHandler<HTMLLIElement>) => {
         const target = e.target as HTMLLIElement;
         setSelectMenu(target.innerHTML);
+        props?.value.callback(target.innerHTML);
         setIsClick(!isClick);
     };
     // didMount 나중에 넣기.
@@ -42,7 +41,7 @@ export default function Select(props: propsState) {
     const style = " border-new-600 bg-new-700 text-coco-green_500 rounded-[1.6rem] " + props.location;
 
     return (
-        <div className={"selectBox absolute flex w-[12rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}>
+        <div className={"selectBox absolute flex w-[13rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}>
             {/* <select
                 className={" coco_select w-full  border px-6 py-3 text-sm  " + style}
                 onChange={onChangeSelect}
@@ -59,11 +58,11 @@ export default function Select(props: propsState) {
                 {isClick ? (
                     <img
                         src={Polygon}
-                        className="h-3 rotate-180 transition-all duration-500"
+                        className="h-2 rotate-180 transition-all duration-500"
                         alt="select button icon"
                     />
                 ) : (
-                    <img src={Polygon} className="h-3  transition-all duration-500" alt="select button icon" />
+                    <img src={Polygon} className="h-2  transition-all duration-500" alt="select button icon" />
                 )}
             </div>
             {/* menu */}

@@ -1,7 +1,7 @@
-import React from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import SelectComponent from "@/component/Select/Select";
-import ButtonBasic from "@/component/Button/Basic.Button";
+import ButtonLink from "@/component/Button/Link.Button";
 import mainImage from "@/assets/main_image.svg";
 
 const languages: LanguageType[] = [
@@ -26,17 +26,23 @@ const languages: LanguageType[] = [
 ];
 const difficulty: string[] = ["hard", "normal", "easy"];
 export default function Select() {
-    let currentLang = "javascript" as LanguageType;
-    let defaultDifficulty = "normal";
+    const [selectOptoin, setSelectOption] = useState({
+        currentLang: "" as LanguageType,
+        defaultDifficulty: "",
+    });
     const setLang = (value: LanguageType) => {
-        currentLang = value;
+        setSelectOption((prevState) => {
+            return { ...prevState, currentLang: value };
+        });
     };
     const setDifficulty = (value: string) => {
-        defaultDifficulty = value;
+        setSelectOption((prevState) => {
+            return { ...prevState, defaultDifficulty: value };
+        });
     };
     const buttonOption = {
         pathName: "/stepper",
-        search: `?difficulty=${defaultDifficulty}&language=${currentLang}`,
+        search: `?difficulty=${selectOptoin.defaultDifficulty}&language=${selectOptoin.currentLang}`,
     };
     return (
         <motion.div
@@ -51,13 +57,13 @@ export default function Select() {
                         <img className="h-[40%]" src={mainImage} alt="refactor your code" />
                     </article>
                     <article className=" h-full w-1/2 gap-4">
-                        <div className="flex h-full  w-[400px] flex-col items-center  justify-center text-left">
+                        <div className="flex h-full  w-[440px] flex-col items-start justify-center  gap-4 text-left">
                             <h3 className="pretendard_extrabold_32 w-full">Code Refactoring</h3>
-                            <p className="pretendard_medium_20 w-full">
+                            <p className="pretendard_medium_20 w-11/12">
                                 Here at Flowbite we focus on markets where technology, innovation, ,and capital can
                                 unlock long-term value and drive economic growth.
                             </p>
-                            <div className="relative mt-14 flex h-14 w-full  flex-row">
+                            <div className="relative mt-10 flex h-14 w-full  flex-row">
                                 <SelectComponent
                                     value={{ menu: languages, callback: setLang }}
                                     disabled="Language"
@@ -69,8 +75,12 @@ export default function Select() {
                                     location="right-0"
                                 />
                             </div>
-                            <div className="w-full">
-                                <ButtonBasic link={buttonOption} name="Start" />
+                            <div className="mt-3 w-full">
+                                {selectOptoin.currentLang && selectOptoin.defaultDifficulty ? (
+                                    <ButtonLink link={buttonOption} name="Start" />
+                                ) : (
+                                    <ButtonLink name="Start" />
+                                )}
                             </div>
                         </div>
                     </article>
