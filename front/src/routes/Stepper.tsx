@@ -60,14 +60,13 @@ function StepperComponent() {
     }, [problem]);
     return (
         <motion.div
+            className="h-full w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <div
-                className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 `}
-            >
+            <div className={`motion_basic flex h-full w-full flex-row items-center justify-center bg-Navy-900 `}>
                 <ol className="w-72 space-y-4">
                     {Object.entries(StepperList).map(([key, value]) => (
                         <li key={key}>

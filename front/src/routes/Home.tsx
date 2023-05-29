@@ -46,46 +46,45 @@ export default function Select() {
     };
     return (
         <motion.div
+            className="h-full w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <div>
-                <section className="flex h-screen w-screen flex-row  bg-Navy-900">
-                    <article className="flex h-full w-1/2 flex-row items-center justify-center">
-                        <img className="h-[40%]" src={mainImage} alt="refactor your code" />
-                    </article>
-                    <article className=" h-full w-1/2 gap-4">
-                        <div className="flex h-full  w-[440px] flex-col items-start justify-center  gap-4 text-left">
-                            <h3 className="pretendard_extrabold_32 w-full">Code Refactoring</h3>
-                            <p className="pretendard_medium_20 w-11/12">
-                                Here at Flowbite we focus on markets where technology, innovation, ,and capital can
-                                unlock long-term value and drive economic growth.
-                            </p>
-                            <div className="relative mt-10 flex h-14 w-full  flex-row">
-                                <SelectComponent
-                                    value={{ menu: languages, callback: setLang }}
-                                    disabled="Language"
-                                    location="left-0"
-                                />
-                                <SelectComponent
-                                    value={{ menu: difficulty, callback: setDifficulty }}
-                                    disabled="Difficulty"
-                                    location="right-0"
-                                />
-                            </div>
-                            <div className="mt-3 w-full">
-                                {selectOptoin.currentLang && selectOptoin.defaultDifficulty ? (
-                                    <ButtonLink link={buttonOption} name="Start" />
-                                ) : (
-                                    <ButtonLink name="Start" />
-                                )}
-                            </div>
+            <section className="flex h-full w-full flex-row  bg-Navy-900">
+                <article className="flex h-full w-1/2 flex-row items-center justify-center">
+                    <img className="h-[40%]" src={mainImage} alt="refactor your code" />
+                </article>
+                <article className=" h-full w-1/2 gap-4">
+                    <div className="flex h-full  w-[440px] flex-col items-start justify-center  gap-4 text-left">
+                        <h3 className="pretendard_extrabold_32 w-full">Code Refactoring</h3>
+                        <p className="pretendard_medium_20 w-11/12">
+                            Here at Flowbite we focus on markets where technology, innovation, ,and capital can unlock
+                            long-term value and drive economic growth.
+                        </p>
+                        <div className="relative mt-10 flex h-14 w-full  flex-row">
+                            <SelectComponent
+                                value={{ menu: languages, callback: setLang }}
+                                disabled="Language"
+                                location="left-0"
+                            />
+                            <SelectComponent
+                                value={{ menu: difficulty, callback: setDifficulty }}
+                                disabled="Difficulty"
+                                location="right-0"
+                            />
                         </div>
-                    </article>
-                </section>
-            </div>
+                        <div className="mt-3 w-full">
+                            {selectOptoin.currentLang && selectOptoin.defaultDifficulty ? (
+                                <ButtonLink link={buttonOption} name="Start" />
+                            ) : (
+                                <ButtonLink name="Start" />
+                            )}
+                        </div>
+                    </div>
+                </article>
+            </section>
         </motion.div>
     );
 }

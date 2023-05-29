@@ -20,7 +20,7 @@ export default function Select(props: propsState) {
         const result = [];
         for (let i = 0; i < menu.length; i++) {
             result.push(
-                <li onClick={onClickMenu} key={i}>
+                <li onClick={onClickMenu} key={i} class="motion_basic hover:text-coco-green_500 ">
                     {menu[i]}
                 </li>,
             );
@@ -42,16 +42,6 @@ export default function Select(props: propsState) {
 
     return (
         <div className={"selectBox absolute flex w-[13rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}>
-            {/* <select
-                className={" coco_select w-full  border px-6 py-3 text-sm  " + style}
-                onChange={onChangeSelect}
-            >
-                <option disabled selected>
-                    {props.disabled}
-                </option>
-                {setOptions()};
-            </select>
-                <img src={Polygon} alt="select button icon" /> */}
             <div onClick={onClickSelect} className="flex flex-row items-center justify-between">
                 <p>{selectMenu}</p>
                 {/* image */}
@@ -76,8 +66,3 @@ export default function Select(props: propsState) {
         </div>
     );
 }
-// 버튼으로 language + 세모
-// 옵션은 안보이게한다.
-// 버튼을 클릭했을 경우 옵션을 보이게한다.
-// 옵션은 버튼바로 밑이 아닌 조금 올라오게 겹쳐서 보이게한다.
-// 세모는 누를때마다 돈다.

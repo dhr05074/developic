@@ -21,15 +21,17 @@ function App(): JSX.Element {
     return (
         <RecoilRoot>
             <AnimatePresence>
-                <div className=" h-screen w-screen">
-                    <section id="header" className="absolute">
+                <div className="flex h-screen w-screen flex-col">
+                    <section id="header" className="h-20 w-full">
                         <NavBar />
                     </section>
-                    <Routes>
-                        <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
-                        <Route path="/stepper" element={<Stepper />} errorElement={<ErrorPage />} />
-                        <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
-                    </Routes>
+                    <section id="body" className="h-full w-full">
+                        <Routes>
+                            <Route path="/" element={<HomePage />} errorElement={<ErrorPage />} />
+                            <Route path="/stepper" element={<Stepper />} errorElement={<ErrorPage />} />
+                            <Route path="/problem" element={<Problem />} errorElement={<ErrorPage />} />
+                        </Routes>
+                    </section>
                 </div>
             </AnimatePresence>
         </RecoilRoot>

@@ -12,13 +12,31 @@ const createProblem: CreateProblem202Response = {
 const getProblem: GetProblem200Response = {
     problem: null,
 };
+
+const code = `
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number, next?: ListNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (next===undefined ? null : next)
+ *     }
+ * }
+ */
+
+function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
+
+};`;
 const onCreateProblem = () => {
     setTimeout(() => {
         getProblem.problem = {
             problem_id: "123",
-            title: "문제 제목",
-            background: "문제 배경 설명",
-            code: btoa("code"),
+            title: "Add Two Numbers",
+            background: `<p class="has-line-data" data-line-start="3" data-line-end="4">You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.</p>
+            <p class="has-line-data" data-line-start="5" data-line-end="6">You may assume the two numbers do not contain any leading zero, except the number 0 itself.</p>`,
+            code: btoa(code),
             estimated_time: 0,
         };
     }, 5000);
