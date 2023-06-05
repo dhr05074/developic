@@ -1,5 +1,5 @@
 import { rest } from "msw";
-import { CreateProblem202Response, GetProblem200Response } from "../../api/api";
+import type { CreateProblem202Response, GetProblem200Response, Problem } from "../../api/api";
 // src/mocks/handlers.js
 
 // problem
@@ -10,7 +10,13 @@ const createProblem: CreateProblem202Response = {
 };
 
 const getProblem: GetProblem200Response = {
-    problem: null,
+    problem: {
+        problem_id: "",
+        title: "",
+        background: "",
+        code: "",
+        estimated_time: 0,
+    },
 };
 
 const code = `

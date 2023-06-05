@@ -16,3 +16,4 @@ type LanguageType =
     | "ruby"
     | "scala"
     | "swift";
+type difficultyType = "hard" | "normal" | "easy";

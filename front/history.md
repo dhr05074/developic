@@ -146,3 +146,8 @@
 
 -   codeEditor, markdown 개선
 -   v0.0.0:32
+
+### 6/6
+
+-   typeError 전부 제거!
+-   v0.0.0:33

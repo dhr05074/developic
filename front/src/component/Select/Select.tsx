@@ -1,10 +1,10 @@
-import { ChangeEvent, MouseEventHandler, useState } from "react";
+import React, { ChangeEvent, MouseEventHandler, useState } from "react";
 import Polygon from "@/assets/Polygon.svg";
 
 interface propsState {
     value: {
         callback: Function;
-        menu: Languages | string;
+        menu: LanguageType[] | difficultyType[];
     };
     disabled: string;
     location: "left-0" | "right-0";
@@ -20,7 +20,7 @@ export default function Select(props: propsState) {
         const result = [];
         for (let i = 0; i < menu.length; i++) {
             result.push(
-                <li onClick={onClickMenu} key={i} class="motion_basic hover:text-coco-green_500 ">
+                <li onClick={onClickMenu} key={i} className="motion_basic hover:text-coco-green_500 ">
                     {menu[i]}
                 </li>,
             );
@@ -30,7 +30,7 @@ export default function Select(props: propsState) {
     const onClickSelect = () => {
         setIsClick(!isClick);
     };
-    const onClickMenu = (e: MouseEventHandler<HTMLLIElement>) => {
+    const onClickMenu = (e: React.MouseEvent<HTMLLIElement>) => {
         const target = e.target as HTMLLIElement;
         setSelectMenu(target.innerHTML);
         props?.value.callback(target.innerHTML);

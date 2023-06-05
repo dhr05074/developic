@@ -4,14 +4,6 @@ import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
 import { motion } from "framer-motion";
 
-type StepTypes = "idle" | "loading" | "complete";
-type StepperStyle = {
-    [component: StepTypes]: StepTypes;
-    idle: string;
-    loading: string;
-    complete: string;
-};
-
 function StepperComponent() {
     const { StepperList, stepperStateChanger } = useStepper();
     const { problemId, problem, getProblemData } = useProblem();

@@ -17,8 +17,10 @@ const useResizable = () => {
     };
 
     const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
-        if (bodyRef.current.clientWidth < 300) {
-            console.log("???");
+        if (bodyRef && bodyRef.current) {
+            if (bodyRef.current.clientWidth < 300) {
+                console.log("???");
+            }
         }
         if (isResizing && runnerRef?.current) {
             console.log(event);

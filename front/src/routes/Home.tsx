@@ -24,7 +24,7 @@ const languages: LanguageType[] = [
     // "scala",
     // "swift",
 ];
-const difficulty: string[] = ["hard", "normal", "easy"];
+const difficulty: difficultyType[] = ["hard", "normal", "easy"];
 export default function Select() {
     const [selectOptoin, setSelectOption] = useState({
         currentLang: "" as LanguageType,

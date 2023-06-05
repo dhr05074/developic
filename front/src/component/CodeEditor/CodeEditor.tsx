@@ -30,7 +30,7 @@ const extensions = [javascript({ jsx: true })];
 //gutter : line 번호
 //caret : 깜빡이
 const myTheme = createTheme({
-    theme: "",
+    theme: "light",
     settings: {
         background: "#1F1C32",
         foreground: "#75baff",

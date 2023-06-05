@@ -15,8 +15,10 @@ const useProblem = () => {
     const language = searchParams.get("language");
 
     const createProblem = async () => {
-        const p = await generateProblem().create(language, difficulty);
-        setId(p.request_id);
+        if (language) {
+            const p = await generateProblem().create(language, difficulty);
+            setId(p.request_id);
+        }
     };
 
     const getProblemData = async () => {

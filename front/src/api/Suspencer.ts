@@ -4,7 +4,7 @@ import { generateProblem } from "./problem.api";
 
 const wrapPromise = (promise: Promise<unknown>) => {
     let status = "pending";
-    let result = null;
+    let result: null | unknown = null;
     const suspender = promise
         .then(
             (r) => {
