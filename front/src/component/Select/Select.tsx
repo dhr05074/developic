@@ -38,11 +38,14 @@ export default function Select(props: propsState) {
     };
     // didMount 나중에 넣기.
     // onChangeSelect();
-    const style = " border-new-600 bg-new-700 text-coco-green_500 rounded-[1.6rem] " + props.location;
+    const style = " border-Navy-600 bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " + props.location;
 
     return (
-        <div className={"selectBox absolute flex w-[13rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}>
-            <div onClick={onClickSelect} className="flex flex-row items-center justify-between">
+        <div
+            className={"selectBox absolute flex w-[13rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}
+            onClick={onClickSelect}
+        >
+            <div className="flex flex-row items-center justify-between ">
                 <p>{selectMenu}</p>
                 {/* image */}
                 {isClick ? (
@@ -57,8 +60,8 @@ export default function Select(props: propsState) {
             </div>
             {/* menu */}
             <ul
-                className={`list-none text-white transition-all  ease-in-out ${
-                    isClick ? "flex flex-col gap-4 pb-4 opacity-100" : "h-0 opacity-0 "
+                className={`list-none text-white transition-all   ease-in-out ${
+                    isClick ? "flex  flex-col gap-4 pb-4 opacity-100" : "h-0 opacity-0  "
                 }`}
             >
                 {isClick && setOptions()}
