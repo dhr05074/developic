@@ -63,7 +63,7 @@ export default function Select() {
                             Here at Flowbite we focus on markets where technology, innovation, ,and capital can unlock
                             long-term value and drive economic growth.
                         </p>
-                        <div className="relative mt-10 flex h-14 w-full  flex-row">
+                        <section id="home_selectButtons" className="relative mt-10 flex h-14 w-full  flex-row">
                             <SelectComponent
                                 value={{ menu: languages, callback: setLang }}
                                 disabled="Language"
@@ -74,14 +74,16 @@ export default function Select() {
                                 disabled="Difficulty"
                                 location="right-0"
                             />
-                        </div>
-                        <div className="mt-3 w-full">
-                            {selectOptoin.currentLang && selectOptoin.defaultDifficulty ? (
-                                <ButtonLink link={buttonOption} name="Start" />
-                            ) : (
-                                <ButtonLink name="Start" />
-                            )}
-                        </div>
+                        </section>
+                        <section id="home_startButton" className="flex w-full flex-row justify-center">
+                            <div className="mt-3 w-[80%]">
+                                {selectOptoin.currentLang && selectOptoin.defaultDifficulty ? (
+                                    <ButtonLink link={buttonOption} name="Start" />
+                                ) : (
+                                    <ButtonLink name="Start" />
+                                )}
+                            </div>
+                        </section>
                     </div>
                 </article>
             </section>
