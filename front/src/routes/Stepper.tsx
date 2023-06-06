@@ -5,7 +5,7 @@ import useProblem from "@/hook/Problem.hook";
 import { motion } from "framer-motion";
 
 function StepperComponent() {
-    const { StepperList, stepperStateChanger } = useStepper();
+    const { StepperList, stepperStateChanger, stepInit, endStep } = useStepper();
     const { problemId, problem, getProblemData } = useProblem();
 
     // if (step === 1) {
@@ -17,39 +17,13 @@ function StepperComponent() {
         complete: "border-green-300 bg-green-50 text-green-700",
         inviserble: "opacity-0 invisible",
     };
-    const stepChanger = (selectStep?: StepType) => {
-        const timer = (step: StepType, time: number) => {
-            setTimeout(() => {
-                if (step === "lang") {
-                    if (problemId) {
-                        timer("api", 1000);
-                    }
-                }
-                if (step === "clear") {
-                    timer("end", 1000);
-                }
-                stepperStateChanger(step);
-            }, time);
-        };
-        if (selectStep) {
-            timer(selectStep, 1000);
-            return;
-        }
-
-        timer("start", 1000);
-        timer("level", 2000);
-        timer("lang", 3000);
-    };
     useEffect(() => {
-        if (problemId) {
-            console.log("problemId", problemId);
-            stepChanger();
-            getProblemData();
+        if (StepperList.comp.step === "loading") {
+            if (problem) {
+                endStep();
+            }
         }
-    }, [problemId]);
-    useEffect(() => {
-        if (problem) stepChanger("clear");
-    }, [problem]);
+    }, [problem, problemId, StepperList]);
     return (
         <motion.div
             className="h-full w-full"

@@ -27,4 +27,4 @@ type StepperListTypes = {
     [key in Steppers]: SteppersOption;
 };
 
-type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end";
+type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end" | "stop";

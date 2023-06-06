@@ -14,6 +14,11 @@ const useProblem = () => {
     const difficulty = Number(searchParams.get("difficulty"));
     const language = searchParams.get("language");
 
+    const initProblem = () => {
+        generateProblem().get("", true);
+        setId(null);
+        setProblem(null);
+    };
     const createProblem = async () => {
         if (language) {
             const p = await generateProblem().create(language, difficulty);
@@ -34,16 +39,23 @@ const useProblem = () => {
             }
         }, 3000);
     };
-
     // didMount 대용
 
     useEffect(() => {
-        createProblem();
+        if (!problemId && !problem) createProblem();
+        if (problemId && !problem) getProblemData();
+    }, [problem, problemId]);
+    useEffect(() => {
+        return () => {
+            console.log("problem hook unmount");
+            initProblem();
+        };
     }, []);
 
     return {
         createProblem,
         getProblemData,
+        initProblem,
         problemId,
         problem,
         // getProblemState,

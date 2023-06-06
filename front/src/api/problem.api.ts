@@ -6,6 +6,8 @@ const instance = axios.create();
 const baseURL = "http://15.165.21.53:3000";
 const headers = { "Content-Type": `application/json` };
 
+const CancelToken = axios.CancelToken;
+
 type postProblemReturn = {
     functions: string[];
     requirements: string[];
@@ -18,17 +20,17 @@ type postProblemReturn = {
  * @param {number}difficulty
  * @returns {postProblemReturn}
  */
-const postProblem = async (language: Languages, difficulty: number) => {
-    try {
-        const res = await instance.post("/problems", { language, difficulty }, { headers });
-        const data = res.data as postProblemReturn;
-        console.log("🚀 ~ file: problem.ts:12 ~ res:", data);
+// const postProblem = async (language: Languages, difficulty: number) => {
+//     try {
+//         const res = await instance.post("/problems", { language, difficulty }, { headers });
+//         const data = res.data as postProblemReturn;
+//         console.log("🚀 ~ file: problem.ts:12 ~ res:", data);
 
-        return data;
-    } catch (err) {
-        apiErrorHandler(err);
-    }
-};
+//         return data;
+//     } catch (err) {
+//         apiErrorHandler(err);
+//     }
+// };
 
 const generateProblem = () => {
     const api = new DefaultApi(undefined, baseURL, instance);
@@ -40,8 +42,18 @@ const generateProblem = () => {
         return getCreate.data;
     };
 
-    const get = async (requestId: string) => {
-        const problem = await api.getProblem(requestId);
+    const get = async (requestId: string, cancel?: boolean) => {
+        const problem = await api.getProblem(
+            requestId,
+            cancel
+                ? {
+                      cancelToken: new CancelToken(function executor(c) {
+                          // excutor 함수는 cancel 함수를 매개 변수로 받습니다.
+                          console.log("get problem cancel");
+                      }),
+                  }
+                : undefined,
+        );
         // const res = await instance.get(`/problems/${requestId}`, { headers });
         const data = problem.data.problem as Problem;
         // console.log(data);
@@ -53,4 +65,4 @@ const generateProblem = () => {
     };
 };
 
-export { generateProblem, postProblem };
+export { generateProblem };
