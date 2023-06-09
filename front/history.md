@@ -159,3 +159,9 @@
 -   stepper 버그 제거
 -   api cancel 추가
 -   v0.0.0:36
+
+### 6/9
+
+-   iconfont component 제작
+-   profile icon 추가
+-   v0.0.0:37

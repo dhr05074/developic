@@ -17,3 +17,5 @@ type LanguageType =
     | "scala"
     | "swift";
 type difficultyType = "hard" | "normal" | "easy";
+type IconType = "profile";
+type IconColorType = "#A5A4AD";

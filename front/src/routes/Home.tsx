@@ -57,7 +57,7 @@ export default function Select() {
                     <img className="h-[40%]" src={mainImage} alt="refactor your code" />
                 </article>
                 <article className=" h-full w-1/2 gap-4">
-                    <div className="flex h-full  w-[440px] flex-col items-start justify-center  gap-4 text-left">
+                    <div className="flex h-full  w-[440px] flex-col items-start justify-center  gap-4 text-left text-white">
                         <h3 className="pretendard_extrabold_32 w-full">Code Refactoring</h3>
                         <p className="pretendard_medium_20 w-11/12">
                             Here at Flowbite we focus on markets where technology, innovation, ,and capital can unlock
