@@ -18,9 +18,7 @@
     src: url("https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff") format("woff");
     font-style: normal;
 }
-#header {
-    height: 10%;
-}
+
 #body {
     height: 90%;
 }

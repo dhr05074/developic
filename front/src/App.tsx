@@ -22,7 +22,7 @@ function App(): JSX.Element {
         <RecoilRoot>
             <AnimatePresence>
                 <div className="flex h-screen w-screen flex-col">
-                    <section id="header" className="h-20 w-full">
+                    <section id="header" className=" h-16 w-full">
                         <NavBar />
                     </section>
                     <section id="body" className="h-full w-full">

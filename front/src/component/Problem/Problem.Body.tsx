@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import NavBar from "@/component/NavBar/NavBar";
 import MarkDown from "@/component/Resizable/MarkDown";
-import useResizable from "@/hook/Resizable.hook";
+import useResizable from "@/hook/resizable.hook";
 import { Problem } from "api/api";
 import useProblem from "../../hook/Problem.hook";
 import CodeEditor from "../CodeEditor/CodeEditor";

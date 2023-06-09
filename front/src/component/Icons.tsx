@@ -1,3 +1,4 @@
+import React from "react";
 import { Icon } from "@iconify/react";
 
 type PropsType = {
@@ -7,8 +8,10 @@ type PropsType = {
 };
 
 function Icons(props: PropsType) {
-    if (props.icon === "profile")
-        return <Icon icon="mdi:account-circle-outline" width={props.width} color={props.color} />;
+    // if ()
+    return props.icon === "profile" ? (
+        <Icon icon="mdi:account-circle-outline" width={props.width} color={props.color} />
+    ) : null;
 }
 
 export default Icons;
