@@ -4,8 +4,136 @@ info:
   description: Developic 서비스에서 사용하는 REST API 입니다.
   version: 1.0.0
 servers:
-  - url: 'https'
+  - url: 'https://api.developic.kr'
+security:
+  - apiKey: []
 components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: X-API-KEY
+      in: header
+  requestBodies:
+    SubmitCode:
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              problem_id:
+                $ref: "#/components/schemas/ProblemID"
+              code:
+                $ref: "#/components/schemas/Code"
+            required:
+              - problem_id
+              - code
+  responses:
+    Submit202:
+      description: 문제 채점 요청이 성공적으로 접수된 상태입니다. 시스템에서 채점을 시작합니다.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              report_id:
+                $ref: "#/components/schemas/RecordID"
+            required:
+              - report_id
+    GetRecords200:
+      description: 성공적으로 채점 결과를 조회한 경우입니다.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - records
+            properties:
+              records:
+                type: array
+                minItems: 0
+                maxItems: 100
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - id
+                    - problem_id
+                    - problem_name
+                    - score
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/RecordID"
+                    problem_id:
+                      $ref: "#/components/schemas/ProblemID"
+                    problem_name:
+                      $ref: "#/components/schemas/ProblemName"
+                    score:
+                      $ref: "#/components/schemas/RecordScore"
+    GetRecord200:
+      description: 채점 보고서가 생성되었으며, 성공적으로 조회한 상태입니다.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - problem
+              - user_code
+              - result
+            properties:
+              id:
+                $ref: "#/components/schemas/RecordID"
+              problem:
+                $ref: "#/components/schemas/Problem"
+              user_code:
+                $ref: "#/components/schemas/Code"
+              result:
+                type: object
+                additionalProperties: false
+                required:
+                  - score
+                  - sub_score
+                properties:
+                  score:
+                    type: integer
+                    description: 채점 결과의 총점입니다. 100점 만점입니다.
+                  sub_score:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      readability:
+                        $ref: "#/components/schemas/SucceedCheckListItems"
+                      modularity:
+                        $ref: "#/components/schemas/SucceedCheckListItems"
+                      efficiency:
+                        $ref: "#/components/schemas/SucceedCheckListItems"
+                      testability:
+                        $ref: "#/components/schemas/SucceedCheckListItems"
+                      maintainability:
+                        $ref: "#/components/schemas/SucceedCheckListItems"
+                    required:
+                      - readability
+                      - modularity
+                      - efficiency
+                      - testability
+                      - maintainability
+    InternalServerError:
+      description: 내부 서버 오류입니다. 오류 코드와 함께 반환됩니다.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - error_code
+            properties:
+              error_code:
+                type: string
+                example: "sys_012"
   schemas:
     ProgrammingLanguage:
       type: string
@@ -17,6 +145,7 @@ components:
       default: "Go"
     Problem:
       type: object
+      additionalProperties: false
       properties:
         id:
           $ref: "#/components/schemas/ProblemID"
@@ -31,7 +160,8 @@ components:
     ProblemID:
       type: string
       description: Developic에서 출제한 문제의 고유 ID입니다.
-      example: 1a2b3c4d5e
+      example: 1a2b3c4d
+      maxLength: 8
     ProblemName:
       type: string
       description: Developic에서 출제한 문제의 타이틀입니다.
@@ -39,14 +169,19 @@ components:
     RecordID:
       type: string
       description: Developic에서 생성된 결과 보고서의 고유 ID입니다.
-      example: 1a2b3c4d5e
+      example: 1a2b3c4d
+      maxLength: 8
     SucceedCheckListItems:
       type: array
       description: 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+      minItems: 0
+      maxItems: 20
       items:
         type: integer
+        format: int32
     RecordScore:
       type: integer
+      format: int32
       description: 결과 보고서에서 사용자가 취득한 총점입니다.
       minimum: 0
       maximum: 100
@@ -57,13 +192,6 @@ components:
         Developic에서 사용되는 코드 데이터입니다.
         코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
       example: 7J6s7ZmY7J207ZiVIOuwlOuztA==
-    InternalServerError:
-      type: object
-      description: 내부 서버 오류입니다. 오류 코드와 함께 반환됩니다.
-      properties:
-        error_code:
-          type: string
-          example: "sys_012"
 paths:
   /problems:
     post:
@@ -72,6 +200,7 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               required:
                 - language
               properties:
@@ -84,19 +213,22 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
                 required:
                   - problem_id
                 properties:
                   problem_id:
                     $ref: "#/components/schemas/ProblemID"
         default:
-          $ref: "#/components/schemas/InternalServerError"
+          $ref: "#/components/responses/InternalServerError"
   /problems/{id}:
     parameters:
       - in: path
         name: id
         description: 문제 생성 시 발급받은 ID입니다.
         required: true
+        schema:
+          $ref: "#/components/schemas/ProblemID"
     get:
       responses:
         200:
@@ -110,98 +242,35 @@ paths:
         409:
           description: 문제 생성이 접수되었으나, 시스템에서 아직 문제 생성이 완료되지 않은 상태입니다.
         default:
-          $ref: "#/components/schemas/InternalServerError"
+          $ref: "#/components/responses/InternalServerError"
   /submit:
     post:
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                problem_id:
-                  $ref: "#/components/schemas/ProblemID"
-                code:
-                  $ref: "#/components/schemas/Code"
-              required:
-                - problem_id
-                - code
+        $ref: "#/components/requestBodies/SubmitCode"
       responses:
         202:
-          description: 문제 채점 요청이 성공적으로 접수된 상태입니다. 시스템에서 채점을 시작합니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  report_id:
-                    $ref: "#/components/schemas/RecordID"
-                required:
-                  - report_id
+          $ref: "#/components/responses/Submit202"
         default:
-          $ref: "#/components/schemas/InternalServerError"
+          $ref: "#/components/responses/InternalServerError"
   /records/{id}:
     parameters:
       - in: path
         name: id
         description: 조회하고자 하는 채점 보고서의 ID입니다.
+        required: true
         schema:
           $ref: "#/components/schemas/RecordID"
     get:
       description: 입력한 ID를 가진 채점 보고서를 조회합니다.
       responses:
         200:
-          description: 채점 보고서가 생성되었으며, 성공적으로 조회한 상태입니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                  - problem
-                  - user_code
-                  - result
-                properties:
-                  id:
-                    $ref: "#/components/schemas/RecordID"
-                  problem:
-                    $ref: "#/components/schemas/Problem"
-                  user_code:
-                    $ref: "#/components/schemas/Code"
-                  result:
-                    type: object
-                    required:
-                      - score
-                      - sub_score
-                    properties:
-                      score:
-                        type: integer
-                        description: 채점 결과의 총점입니다. 100점 만점입니다.
-                      sub_score:
-                        type: object
-                        properties:
-                          readability:
-                            $ref: "#/components/schemas/SucceedCheckListItems"
-                          modularity:
-                            $ref: "#/components/schemas/SucceedCheckListItems"
-                          efficiency:
-                            $ref: "#/components/schemas/SucceedCheckListItems"
-                          testability:
-                            $ref: "#/components/schemas/SucceedCheckListItems"
-                          maintainability:
-                            $ref: "#/components/schemas/SucceedCheckListItems"
-                        required:
-                          - readability
-                          - modularity
-                          - efficiency
-                          - testability
-                          - maintainability
+          $ref: "#/components/responses/GetRecord200"
         404:
           description: 입력한 ID에 해당하는 채점 보고서가 없는 경우입니다.
         409:
           description: 입력한 ID에 해당하는 채점 보고서가 아직 완성되지 않은 경우입니다.
         default:
-          $ref: "#/components/schemas/InternalServerError"
+          $ref: "#/components/responses/InternalServerError"
   /records:
     get:
       parameters:
@@ -210,41 +279,21 @@ paths:
           schema:
             type: integer
             minimum: 1
+            maximum: 1024
+            format: int32
           description: 조회할 페이지입니다.
+          example: 1
         - in: query
           name: limit
           schema:
             type: integer
+            format: int32
             minimum: 1
             maximum: 100
           description: 한 페이지당 조회할 아이템의 수입니다.
+          example: 20
       responses:
         200:
-          description: 성공적으로 채점 결과를 조회한 경우입니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - records
-                properties:
-                  records:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - id
-                        - problem_id
-                        - problem_name
-                        - score
-                      properties:
-                        id:
-                          $ref: "#/components/schemas/RecordID"
-                        problem_id:
-                          $ref: "#/components/schemas/ProblemID"
-                        problem_name:
-                          $ref: "#/components/schemas/ProblemName"
-                        score:
-                          $ref: "#/components/schemas/RecordScore"
+          $ref: "#/components/responses/GetRecords200"
         default:
-          $ref: "#/components/schemas/InternalServerError"
+          $ref: "#/components/responses/InternalServerError"
