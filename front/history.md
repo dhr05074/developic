@@ -168,3 +168,9 @@
 -   problem nav top 추가
 -   button function 제작 중.
 -   v0.0.0:38
+
+### 6/10
+
+-   openapi 변경 사항 적용
+-   problem.hook 리팩토링
+-   v0.0.0:39

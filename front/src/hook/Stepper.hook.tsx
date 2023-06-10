@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useProblem from "@/hook/Problem.hook";
 
 const useStepper = () => {
     const navigate = useNavigate();
@@ -48,17 +47,17 @@ const useStepper = () => {
         setCurrentStep(getStep);
         if (getStep === "start") {
             StepperList.difficult.step = "loading";
-            const changeDefficult = StepperList.difficult;
+            const changeDifficult = StepperList.difficult;
             setStepperList((prevState) => {
-                return { ...prevState, difficult: changeDefficult };
+                return { ...prevState, difficult: changeDifficult };
             });
         } else if (getStep === "level") {
             StepperList.difficult.step = "complete";
             StepperList.language.step = "loading";
-            const changeDefficult = StepperList.difficult;
+            const changeDifficult = StepperList.difficult;
             const changeLanguage = StepperList.language;
             setStepperList((prevState) => {
-                return { ...prevState, difficult: changeDefficult, language: changeLanguage };
+                return { ...prevState, difficult: changeDifficult, language: changeLanguage };
             });
         } else if (getStep === "lang") {
             StepperList.language.step = "complete";
@@ -111,6 +110,7 @@ const useStepper = () => {
         };
     }, []);
     const endStep = () => {
+        // Stepper.tsx에서 실행
         stepperStateChanger("clear");
         setTimeout(() => {
             stepperStateChanger("end");

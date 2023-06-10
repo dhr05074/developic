@@ -15,9 +15,11 @@ function StepperComponent() {
         idle: "border-gray-300 bg-gray-100 text-gray-900",
         loading: "border-Navy-500 bg-Navy-600 text-white",
         complete: "border-green-300 bg-green-50 text-green-700",
-        inviserble: "opacity-0 invisible",
+        invisible: "opacity-0 invisible",
     };
     useEffect(() => {
+        console.log(problem, StepperList.comp.step);
+
         if (StepperList.comp.step === "loading") {
             if (problem) {
                 endStep();

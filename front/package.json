@@ -7,8 +7,7 @@
         "dev": "vite",
         "build": "vite build",
         "type-check": "tsc -watch",
-        "preview": "vite preview",
-        "generator": "openapi-generator-cli generate -g typescript-axios -o api -i https://coplay-test.s3.ap-northeast-2.amazonaws.com/code_connect.yaml"
+        "preview": "vite preview"
     },
     "dependencies": {
         "@codemirror/lang-javascript": "^6.1.5",
@@ -16,7 +15,6 @@
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@lezer/highlight": "^1.1.4",
-        "@openapitools/openapi-generator-cli": "^2.6.0",
         "@uiw/codemirror-themes": "^4.19.11",
         "@uiw/react-codemirror": "^4.19.11",
         "@yarnpkg/plugin-pnp": "^4.0.0-rc.43",

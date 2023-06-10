@@ -1,15 +1,15 @@
 import { rest } from "msw";
-import type { CreateProblem202Response, GetProblem200Response, Problem } from "../../api/api";
+import { RequestProblem202Response, Problem } from "api/api";
 // src/mocks/handlers.js
 
 // problem
 const apiUrl = "http://15.165.21.53:3000";
 
-const createProblem: CreateProblem202Response = {
-    request_id: "problem_id",
+const createProblem: RequestProblem202Response = {
+    problem_id: "problem_id",
 };
 
-const getProblem: GetProblem200Response = {
+const getProblem = {
     problem: {
         problem_id: "",
         title: "",
