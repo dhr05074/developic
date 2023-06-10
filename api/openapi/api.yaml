@@ -195,6 +195,7 @@ components:
 paths:
   /problems:
     post:
+      operationId: requestProblem
       requestBody:
         content:
           application/json:
@@ -230,6 +231,7 @@ paths:
         schema:
           $ref: "#/components/schemas/ProblemID"
     get:
+      operationId: getProblem
       responses:
         200:
           description: 문제가 성공적으로 생성된 상태입니다.
@@ -245,6 +247,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
   /submit:
     post:
+      operationId: submitSolution
       requestBody:
         $ref: "#/components/requestBodies/SubmitCode"
       responses:
@@ -261,6 +264,7 @@ paths:
         schema:
           $ref: "#/components/schemas/RecordID"
     get:
+      operationId: getRecord
       description: 입력한 ID를 가진 채점 보고서를 조회합니다.
       responses:
         200:
@@ -273,6 +277,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
   /records:
     get:
+      operationId: getRecords
       parameters:
         - in: query
           name: page

@@ -12,18 +12,27 @@ type StrictHandler struct {
 	problemHandler *problem.Handler
 }
 
-func (s *StrictHandler) SubmitSolution(ctx context.Context, request gateway.SubmitSolutionRequestObject) (gateway.SubmitSolutionResponseObject, error) {
-	return s.problemHandler.SubmitCode(ctx, request)
+func (s StrictHandler) PostProblems(ctx context.Context, request gateway.PostProblemsRequestObject) (gateway.PostProblemsResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func NewStrictHandler(gptClient ai.GPTClient, problemHandler *problem.Handler) *StrictHandler {
-	return &StrictHandler{gptClient: gptClient, problemHandler: problemHandler}
+func (s StrictHandler) GetProblemsId(ctx context.Context, request gateway.GetProblemsIdRequestObject) (gateway.GetProblemsIdResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *StrictHandler) CreateProblem(ctx context.Context, request gateway.CreateProblemRequestObject) (gateway.CreateProblemResponseObject, error) {
-	return s.problemHandler.CreateProblem(ctx, request)
+func (s StrictHandler) GetRecords(ctx context.Context, request gateway.GetRecordsRequestObject) (gateway.GetRecordsResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *StrictHandler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	return s.problemHandler.GetProblem(ctx, request)
+func (s StrictHandler) GetRecordsId(ctx context.Context, request gateway.GetRecordsIdRequestObject) (gateway.GetRecordsIdResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s StrictHandler) PostSubmit(ctx context.Context, request gateway.PostSubmitRequestObject) (gateway.PostSubmitResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
 }
