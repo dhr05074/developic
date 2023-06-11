@@ -4,5 +4,5 @@ type StepperStyle = {
     idle: string;
     loading: string;
     complete: string;
-    inviserble: string;
+    invisible: string;
 };

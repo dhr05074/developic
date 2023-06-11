@@ -180,3 +180,5 @@
 -   logo, favicon,profile 변경
 -   iconify 제거
 -   v0.0.0:40
+-   styled component 이용하여 button 제작
+-   v0.0.0:41

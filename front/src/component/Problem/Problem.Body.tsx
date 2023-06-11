@@ -1,36 +1,8 @@
 import { useRef, useEffect } from "react";
-import NavBar from "@/component/NavBar/NavBar";
 import MarkDown from "@/component/Resizable/MarkDown";
 import useResizable from "@/hook/resizable.hook";
-import { Problem } from "api/api";
 import useProblem from "../../hook/Problem.hook";
 import CodeEditor from "../CodeEditor/CodeEditor";
-
-const languages: string[] = [
-    "go",
-    "javascript",
-    "typescript",
-    "python3",
-    "c",
-    "cpp",
-    "c#",
-    "clojure",
-    "dart",
-    "elixir",
-    "java",
-    "kotlin",
-    "php",
-    "r",
-    "ruby",
-    "scala",
-    "swift",
-];
-const currentLang = "javascript" as LanguageType;
-const style = {
-    problem: {
-        width: "600px",
-    },
-};
 
 export default function ProblemComponent() {
     const { problem } = useProblem();
