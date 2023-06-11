@@ -1,5 +1,5 @@
 import React, { ChangeEvent, MouseEventHandler, useState } from "react";
-import Polygon from "@/assets/Polygon.svg";
+import Polygon from "@/assets/images/Polygon.svg";
 
 interface propsState {
     value: {

@@ -1,7 +1,0 @@
-{
-  "env": {
-    "development": {
-      "plugins": ["styled-components"]
-    }
-  }
-}

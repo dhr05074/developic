@@ -174,3 +174,9 @@
 -   openapi 변경 사항 적용
 -   problem.hook 리팩토링
 -   v0.0.0:39
+
+### 6/11
+
+-   logo, favicon,profile 변경
+-   iconify 제거
+-   v0.0.0:40

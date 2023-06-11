@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import SelectComponent from "@/component/Select/Select";
 import ButtonLink from "@/component/Button/Link.Button";
-import mainImage from "@/assets/main_image.svg";
+import mainImage from "@/assets/images/main_image.svg";
 
 const languages: LanguageType[] = [
     "javascript",

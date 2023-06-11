@@ -37,7 +37,6 @@
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx": "^7.21.5",
-        "@iconify/react": "^4.1.0",
         "@tailwindcss/typography": "^0.5.9",
         "@types/eslint": "^8",
         "@types/prettier": "^2",

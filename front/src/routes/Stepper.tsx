@@ -5,8 +5,8 @@ import useProblem from "@/hook/Problem.hook";
 import { motion } from "framer-motion";
 
 function StepperComponent() {
-    const { StepperList, stepperStateChanger, stepInit, endStep } = useStepper();
-    const { problemId, problem, getProblemData } = useProblem();
+    const { StepperList, endStep } = useStepper();
+    const { problemId, problem } = useProblem();
 
     // if (step === 1) {
     //     stepButton = "문제 풀러가기";

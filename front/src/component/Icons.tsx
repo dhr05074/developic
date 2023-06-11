@@ -1,17 +1,13 @@
 import React from "react";
-import { Icon } from "@iconify/react";
-
+import profileImg from "@/assets/images/profile.png";
 type PropsType = {
     icon: IconType;
-    color: IconColorType;
     width: number;
 };
 
 function Icons(props: PropsType) {
     // if ()
-    return props.icon === "profile" ? (
-        <Icon icon="mdi:account-circle-outline" width={props.width} color={props.color} />
-    ) : null;
+    return props.icon === "profile" ? <img src={profileImg} width={props.width} /> : null;
 }
 
 export default Icons;
