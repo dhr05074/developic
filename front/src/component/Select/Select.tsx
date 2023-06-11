@@ -8,6 +8,7 @@ interface propsState {
     };
     disabled: string;
     location: "left-0" | "right-0";
+    size: "small" | "large";
 }
 
 export default function Select(props: propsState) {
@@ -38,11 +39,12 @@ export default function Select(props: propsState) {
     };
     // didMount 나중에 넣기.
     // onChangeSelect();
-    const style = " border-Navy-600 bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " + props.location;
+    const style = " border-Navy-600 border bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " + props.location;
+    const size = `${props.size === "large" ? " w-[13rem] px-6 py-4" : " w-[6rem] text-xs px-4 py-2 mt-[0.18rem]"}`;
 
     return (
         <div
-            className={"selectBox absolute flex w-[13rem]  cursor-pointer flex-col gap-4 px-6 pt-4" + style}
+            className={"selectBox absolute flex cursor-pointer flex-col gap-4  " + style + size}
             onClick={onClickSelect}
         >
             <div className="flex flex-row items-center justify-between ">
@@ -60,8 +62,8 @@ export default function Select(props: propsState) {
             </div>
             {/* menu */}
             <ul
-                className={`list-none text-white transition-all   ease-in-out ${
-                    isClick ? "flex  flex-col gap-4 pb-4 opacity-100" : "h-0 opacity-0  "
+                className={`list-none text-white transition-all ease-in-out ${
+                    isClick ? "flex  flex-col gap-4 pb-4 opacity-100" : "-mt-4 "
                 }`}
             >
                 {isClick && setOptions()}

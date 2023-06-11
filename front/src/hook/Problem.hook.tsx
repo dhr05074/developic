@@ -2,18 +2,21 @@ import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
-import { problemIdState, problemState } from "../recoil/problem.recoil";
+import { languageState, difficultState, problemIdState, problemState } from "../recoil/problem.recoil";
 import { ProgrammingLanguage } from "api/api";
 
 // recoil로 변경
 // const problemId = "";
 
 const useProblem = () => {
+    // const [languages, setLanguages] = useRecoilState(languageState);
+    // const [difficultList, setDifficultList] = useRecoilState(difficultState);
+
     const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
     const [searchParams] = useSearchParams();
-    const difficulty = Number(searchParams.get("difficulty"));
-    const language = searchParams.get("language") as ProgrammingLanguage;
+    const getDifficulty = Number(searchParams.get("difficulty"));
+    const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
     const initProblem = () => {
         if (problemId) {
@@ -27,10 +30,10 @@ const useProblem = () => {
         setProblem(null);
     };
     const createProblem = async () => {
-        console.log("createProblem", language);
-        if (language) {
+        console.log("createProblem", getLanguage);
+        if (getLanguage) {
             const getCreate = await api.requestProblem({
-                language,
+                language: getLanguage,
             });
             return getCreate.data.problem_id;
         }
@@ -38,6 +41,10 @@ const useProblem = () => {
 
     const getProblemData = async (problemId: string) => {
         console.log("getProblemData", problemId);
+        if (!problemId) {
+            console.log("no problemId. Problem.hook.tsx 45");
+            return false;
+        }
         const interval = setInterval(async () => {
             const p_data = await api.getProblem(problemId);
             if (p_data) {

@@ -3,6 +3,23 @@ import { Problem } from "api/api";
 
 // recoil을 model로 사용한다.
 // problem 타입이 any라서 일단..
+
+export const languageState = atom<LanguageType[]>({
+    key: "languageList",
+    default: ["Javascript", "Go", "Cpp"],
+});
+export const difficultState = atom<difficultyType[]>({
+    key: "difficultList",
+    default: ["Hard", "Normal", "Easy"],
+});
+export const selectOptionState = atom({
+    key: "selectOptions",
+    default: {
+        currentLang: "" as LanguageType,
+        defaultDifficulty: "" as difficultyType,
+    },
+});
+
 export const problemIdState = atom<string | null>({
     key: "problemId",
     default: null,

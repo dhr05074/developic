@@ -43,5 +43,7 @@ export default function ButtonFunction(props: PropsType) {
                 {props.name}
             </LineButton>
         );
+    } else {
+        return null;
     }
 }

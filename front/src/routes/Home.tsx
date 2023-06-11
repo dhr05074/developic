@@ -1,45 +1,11 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import SelectComponent from "@/component/Select/Select";
 import ButtonLink from "@/component/Button/Link.Button";
 import mainImage from "@/assets/images/main_image.svg";
+import useSelectComponent from "@/hook/SelectComponent.hook";
 
-const languages: LanguageType[] = [
-    "javascript",
-    "go",
-    "c++",
-
-    // "typescript",
-    // "python3",
-    // "cpp",
-    // "c#",
-    // "clojure",
-    // "dart",
-    // "elixir",
-    // "java",
-    // "kotlin",
-    // "php",
-    // "r",
-    // "ruby",
-    // "scala",
-    // "swift",
-];
-const difficulty: difficultyType[] = ["hard", "normal", "easy"];
 export default function Select() {
-    const [selectOptoin, setSelectOption] = useState({
-        currentLang: "" as LanguageType,
-        defaultDifficulty: "",
-    });
-    const setLang = (value: LanguageType) => {
-        setSelectOption((prevState) => {
-            return { ...prevState, currentLang: value };
-        });
-    };
-    const setDifficulty = (value: string) => {
-        setSelectOption((prevState) => {
-            return { ...prevState, defaultDifficulty: value };
-        });
-    };
+    const { languages, difficultList, setLang, setDifficulty, selectOptoin } = useSelectComponent();
     const buttonOption = {
         pathName: "/stepper",
         search: `?difficulty=${selectOptoin.defaultDifficulty}&language=${selectOptoin.currentLang}`,
@@ -68,11 +34,13 @@ export default function Select() {
                                 value={{ menu: languages, callback: setLang }}
                                 disabled="Language"
                                 location="left-0"
+                                size="large"
                             />
                             <SelectComponent
-                                value={{ menu: difficulty, callback: setDifficulty }}
+                                value={{ menu: difficultList, callback: setDifficulty }}
                                 disabled="Difficulty"
                                 location="right-0"
+                                size="large"
                             />
                         </section>
                         <section id="home_startButton" className="flex w-full flex-row justify-center">
