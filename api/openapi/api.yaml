@@ -29,7 +29,13 @@ components:
               - problem_id
               - code
   responses:
-    Submit202:
+    200GetProblem:
+      description: 문제가 성공적으로 생성된 상태입니다.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    202Submit:
       description: 문제 채점 요청이 성공적으로 접수된 상태입니다. 시스템에서 채점을 시작합니다.
       content:
         application/json:
@@ -41,7 +47,7 @@ components:
                 $ref: "#/components/schemas/RecordID"
             required:
               - report_id
-    GetRecords200:
+    200GetRecords:
       description: 성공적으로 채점 결과를 조회한 경우입니다.
       content:
         application/json:
@@ -72,7 +78,7 @@ components:
                       $ref: "#/components/schemas/ProblemName"
                     score:
                       $ref: "#/components/schemas/RecordScore"
-    GetRecord200:
+    200GetRecord:
       description: 채점 보고서가 생성되었으며, 성공적으로 조회한 상태입니다.
       content:
         application/json:
@@ -234,11 +240,7 @@ paths:
       operationId: getProblem
       responses:
         200:
-          description: 문제가 성공적으로 생성된 상태입니다.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
+          $ref: "#/components/responses/200GetProblem"
         404:
           description: 존재하지 않는 문제 ID를 입력한 상태입니다.
         409:
@@ -252,7 +254,7 @@ paths:
         $ref: "#/components/requestBodies/SubmitCode"
       responses:
         202:
-          $ref: "#/components/responses/Submit202"
+          $ref: "#/components/responses/202Submit"
         default:
           $ref: "#/components/responses/InternalServerError"
   /records/{id}:
@@ -268,7 +270,7 @@ paths:
       description: 입력한 ID를 가진 채점 보고서를 조회합니다.
       responses:
         200:
-          $ref: "#/components/responses/GetRecord200"
+          $ref: "#/components/responses/200GetRecord"
         404:
           description: 입력한 ID에 해당하는 채점 보고서가 없는 경우입니다.
         409:
@@ -299,6 +301,6 @@ paths:
           example: 20
       responses:
         200:
-          $ref: "#/components/responses/GetRecords200"
+          $ref: "#/components/responses/200GetRecords"
         default:
           $ref: "#/components/responses/InternalServerError"

@@ -15,7 +15,9 @@ func NewSSMClient(client *ssm.Client) *SSMClient {
 }
 
 func (c *SSMClient) GetParameter(ctx context.Context, name string) (string, error) {
-	result, err := c.client.GetParameter(ctx, &ssm.GetParameterInput{})
+	result, err := c.client.GetParameter(ctx, &ssm.GetParameterInput{
+		Name: &name,
+	})
 	if err != nil {
 		return "", err
 	}
