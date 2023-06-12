@@ -20,74 +20,169 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// EstimatedTime 초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
-//
-// 입력하지 않을 경우 기본값으로 30분이 설정됩니다.
-type EstimatedTime = int
+const (
+	ApiKeyScopes = "apiKey.Scopes"
+)
 
-// Problem 사용자가 입력한 `language`와 `estimated_time`에 따라 자동으로 생성된 문제입니다.
+// Defines values for ProgrammingLanguage.
+const (
+	Cpp        ProgrammingLanguage = "Cpp"
+	Go         ProgrammingLanguage = "Go"
+	Javascript ProgrammingLanguage = "Javascript"
+)
+
+// Code Developic에서 사용되는 코드 데이터입니다.
+// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+type Code = string
+
+// Problem defines model for Problem.
 type Problem struct {
-	// Background 문제의 배경 설명입니다.
-	// 사용자가 문제를 이해하는 데 도움이 되는 정보를 제공합니다.
-	Background string `json:"background"`
+	// Code Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	Code Code `json:"code"`
 
-	// Code 생성된 코드입니다. Base64로 인코딩되어 있으니, 화면에 출력하기 위해 디코딩이 필요합니다.
-	Code string `json:"code"`
+	// Id Developic에서 출제한 문제의 고유 ID입니다.
+	Id ProblemID `json:"id"`
 
-	// EstimatedTime 초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
-	//
-	// 입력하지 않을 경우 기본값으로 30분이 설정됩니다.
-	EstimatedTime EstimatedTime `json:"estimated_time"`
-
-	// ProblemId ID of the problem.
-	ProblemId ProblemId `json:"problem_id"`
-
-	// Title 문제의 제목입니다.
-	// 사용자가 문제를 이해하는 데 도움이 되는 정보를 제공합니다.
-	Title string `json:"title"`
+	// Name Developic에서 출제한 문제의 타이틀입니다.
+	Name ProblemName `json:"name"`
 }
 
-// ProblemId ID of the problem.
-type ProblemId = string
+// ProblemID Developic에서 출제한 문제의 고유 ID입니다.
+type ProblemID = string
 
-// RequestId This ID is given upon request. This ID allows the requested resource to be returned.
-type RequestId = string
+// ProblemName Developic에서 출제한 문제의 타이틀입니다.
+type ProblemName = string
 
-// CreateProblemJSONBody defines parameters for CreateProblem.
-type CreateProblemJSONBody struct {
-	// EstimatedTime 초보 프로그래머 기준 문제 풀이 예상 소요 시간입니다. 분 단위로 입력합니다.
-	//
-	// 입력하지 않을 경우 기본값으로 30분이 설정됩니다.
-	EstimatedTime *EstimatedTime `json:"estimated_time,omitempty"`
+// ProgrammingLanguage Developic에서 사용할 프로그래밍 언어입니다.
+type ProgrammingLanguage string
 
-	// Language 문제 출제 시 사용할 프로그래밍 언어입니다.
-	Language string `json:"language"`
+// RecordID Developic에서 생성된 결과 보고서의 고유 ID입니다.
+type RecordID = string
+
+// RecordScore 결과 보고서에서 사용자가 취득한 총점입니다.
+type RecordScore = int32
+
+// SucceedCheckListItems 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+type SucceedCheckListItems = []int32
+
+// N200GetRecord defines model for 200GetRecord.
+type N200GetRecord struct {
+	// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	Id      RecordID `json:"id"`
+	Problem Problem  `json:"problem"`
+	Result  struct {
+		// Score 채점 결과의 총점입니다. 100점 만점입니다.
+		Score    int `json:"score"`
+		SubScore struct {
+			// Efficiency 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Efficiency SucceedCheckListItems `json:"efficiency"`
+
+			// Maintainability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Maintainability SucceedCheckListItems `json:"maintainability"`
+
+			// Modularity 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Modularity SucceedCheckListItems `json:"modularity"`
+
+			// Readability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Readability SucceedCheckListItems `json:"readability"`
+
+			// Testability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Testability SucceedCheckListItems `json:"testability"`
+		} `json:"sub_score"`
+	} `json:"result"`
+
+	// UserCode Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	UserCode Code `json:"user_code"`
+}
+
+// N200GetRecords defines model for 200GetRecords.
+type N200GetRecords struct {
+	Records []struct {
+		// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
+		Id RecordID `json:"id"`
+
+		// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+		ProblemId ProblemID `json:"problem_id"`
+
+		// ProblemName Developic에서 출제한 문제의 타이틀입니다.
+		ProblemName ProblemName `json:"problem_name"`
+
+		// Score 결과 보고서에서 사용자가 취득한 총점입니다.
+		Score RecordScore `json:"score"`
+	} `json:"records"`
+}
+
+// N202Submit defines model for 202Submit.
+type N202Submit struct {
+	// ReportId Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	ReportId RecordID `json:"report_id"`
+}
+
+// InternalServerError defines model for InternalServerError.
+type InternalServerError struct {
+	ErrorCode string `json:"error_code"`
+}
+
+// SubmitCode defines model for SubmitCode.
+type SubmitCode struct {
+	// Code Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	Code Code `json:"code"`
+
+	// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+	ProblemId ProblemID `json:"problem_id"`
+}
+
+// RequestProblemJSONBody defines parameters for RequestProblem.
+type RequestProblemJSONBody struct {
+	// Language Developic에서 사용할 프로그래밍 언어입니다.
+	Language ProgrammingLanguage `json:"language"`
+}
+
+// GetRecordsParams defines parameters for GetRecords.
+type GetRecordsParams struct {
+	// Page 조회할 페이지입니다.
+	Page *int32 `form:"page,omitempty" json:"page,omitempty"`
+
+	// Limit 한 페이지당 조회할 아이템의 수입니다.
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // SubmitSolutionJSONBody defines parameters for SubmitSolution.
 type SubmitSolutionJSONBody struct {
-	// Code 문제 풀이에 사용할 코드입니다.
-	// 코드는 Base64로 인코딩되어야 합니다.
-	Code string `json:"code"`
+	// Code Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	Code Code `json:"code"`
+
+	// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+	ProblemId ProblemID `json:"problem_id"`
 }
 
-// CreateProblemJSONRequestBody defines body for CreateProblem for application/json ContentType.
-type CreateProblemJSONRequestBody CreateProblemJSONBody
+// RequestProblemJSONRequestBody defines body for RequestProblem for application/json ContentType.
+type RequestProblemJSONRequestBody RequestProblemJSONBody
 
 // SubmitSolutionJSONRequestBody defines body for SubmitSolution for application/json ContentType.
 type SubmitSolutionJSONRequestBody SubmitSolutionJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// 문제를 만듭니다.
+
 	// (POST /problems)
-	CreateProblem(ctx echo.Context) error
-	// 문제를 조회합니다.
-	// (GET /problems/{request_id})
-	GetProblem(ctx echo.Context, requestId RequestId) error
-	// 문제 풀이를 제출합니다.
-	// (POST /submit/{request_id})
-	SubmitSolution(ctx echo.Context, requestId RequestId) error
+	RequestProblem(ctx echo.Context) error
+
+	// (GET /problems/{id})
+	GetProblem(ctx echo.Context, id ProblemID) error
+
+	// (GET /records)
+	GetRecords(ctx echo.Context, params GetRecordsParams) error
+
+	// (GET /records/{id})
+	GetRecord(ctx echo.Context, id RecordID) error
+
+	// (POST /submit)
+	SubmitSolution(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -95,44 +190,88 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// CreateProblem converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateProblem(ctx echo.Context) error {
+// RequestProblem converts echo context to params.
+func (w *ServerInterfaceWrapper) RequestProblem(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(ApiKeyScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.CreateProblem(ctx)
+	err = w.Handler.RequestProblem(ctx)
 	return err
 }
 
 // GetProblem converts echo context to params.
 func (w *ServerInterfaceWrapper) GetProblem(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "request_id" -------------
-	var requestId RequestId
+	// ------------- Path parameter "id" -------------
+	var id ProblemID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "request_id", runtime.ParamLocationPath, ctx.Param("request_id"), &requestId)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter request_id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(ApiKeyScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetProblem(ctx, id)
+	return err
+}
+
+// GetRecords converts echo context to params.
+func (w *ServerInterfaceWrapper) GetRecords(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(ApiKeyScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetRecordsParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetProblem(ctx, requestId)
+	err = w.Handler.GetRecords(ctx, params)
+	return err
+}
+
+// GetRecord converts echo context to params.
+func (w *ServerInterfaceWrapper) GetRecord(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id RecordID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(ApiKeyScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetRecord(ctx, id)
 	return err
 }
 
 // SubmitSolution converts echo context to params.
 func (w *ServerInterfaceWrapper) SubmitSolution(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "request_id" -------------
-	var requestId RequestId
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "request_id", runtime.ParamLocationPath, ctx.Param("request_id"), &requestId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter request_id: %s", err))
-	}
+	ctx.Set(ApiKeyScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.SubmitSolution(ctx, requestId)
+	err = w.Handler.SubmitSolution(ctx)
 	return err
 }
 
@@ -164,65 +303,112 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/problems", wrapper.CreateProblem)
-	router.GET(baseURL+"/problems/:request_id", wrapper.GetProblem)
-	router.POST(baseURL+"/submit/:request_id", wrapper.SubmitSolution)
+	router.POST(baseURL+"/problems", wrapper.RequestProblem)
+	router.GET(baseURL+"/problems/:id", wrapper.GetProblem)
+	router.GET(baseURL+"/records", wrapper.GetRecords)
+	router.GET(baseURL+"/records/:id", wrapper.GetRecord)
+	router.POST(baseURL+"/submit", wrapper.SubmitSolution)
 
 }
 
-type CreateProblemRequestObject struct {
-	Body *CreateProblemJSONRequestBody
+type N200GetRecordJSONResponse struct {
+	// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	Id      RecordID `json:"id"`
+	Problem Problem  `json:"problem"`
+	Result  struct {
+		// Score 채점 결과의 총점입니다. 100점 만점입니다.
+		Score    int `json:"score"`
+		SubScore struct {
+			// Efficiency 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Efficiency SucceedCheckListItems `json:"efficiency"`
+
+			// Maintainability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Maintainability SucceedCheckListItems `json:"maintainability"`
+
+			// Modularity 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Modularity SucceedCheckListItems `json:"modularity"`
+
+			// Readability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Readability SucceedCheckListItems `json:"readability"`
+
+			// Testability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
+			Testability SucceedCheckListItems `json:"testability"`
+		} `json:"sub_score"`
+	} `json:"result"`
+
+	// UserCode Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	UserCode Code `json:"user_code"`
 }
 
-type CreateProblemResponseObject interface {
-	VisitCreateProblemResponse(w http.ResponseWriter) error
+type N200GetRecordsJSONResponse struct {
+	Records []struct {
+		// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
+		Id RecordID `json:"id"`
+
+		// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+		ProblemId ProblemID `json:"problem_id"`
+
+		// ProblemName Developic에서 출제한 문제의 타이틀입니다.
+		ProblemName ProblemName `json:"problem_name"`
+
+		// Score 결과 보고서에서 사용자가 취득한 총점입니다.
+		Score RecordScore `json:"score"`
+	} `json:"records"`
 }
 
-type CreateProblem202JSONResponse struct {
-	// RequestId This ID is given upon request. This ID allows the requested resource to be returned.
-	RequestId RequestId `json:"request_id"`
+type N202SubmitJSONResponse struct {
+	// ReportId Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	ReportId RecordID `json:"report_id"`
 }
 
-func (response CreateProblem202JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
+type InternalServerErrorJSONResponse struct {
+	ErrorCode string `json:"error_code"`
+}
+
+type RequestProblemRequestObject struct {
+	Body *RequestProblemJSONRequestBody
+}
+
+type RequestProblemResponseObject interface {
+	VisitRequestProblemResponse(w http.ResponseWriter) error
+}
+
+type RequestProblem202JSONResponse struct {
+	// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+	ProblemId ProblemID `json:"problem_id"`
+}
+
+func (response RequestProblem202JSONResponse) VisitRequestProblemResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(202)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type CreateProblem400JSONResponse struct {
-	// Message Error message
-	Message string `json:"message"`
-}
-
-func (response CreateProblem400JSONResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateProblemdefaultResponse struct {
+type RequestProblemdefaultJSONResponse struct {
+	Body struct {
+		ErrorCode string `json:"error_code"`
+	}
 	StatusCode int
 }
 
-func (response CreateProblemdefaultResponse) VisitCreateProblemResponse(w http.ResponseWriter) error {
+func (response RequestProblemdefaultJSONResponse) VisitRequestProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
-	return nil
+
+	return json.NewEncoder(w).Encode(response.Body)
 }
 
 type GetProblemRequestObject struct {
-	RequestId RequestId `json:"request_id"`
+	Id ProblemID `json:"id"`
 }
 
 type GetProblemResponseObject interface {
 	VisitGetProblemResponse(w http.ResponseWriter) error
 }
 
-type GetProblem200JSONResponse struct {
-	// Problem 사용자가 입력한 `language`와 `estimated_time`에 따라 자동으로 생성된 문제입니다.
-	Problem Problem `json:"problem"`
-}
+type GetProblem200JSONResponse Problem
 
 func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -231,58 +417,161 @@ func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetProblem404JSONResponse struct {
-	// Message Error message
-	Message string `json:"message"`
+type GetProblem404Response struct {
 }
 
-func (response GetProblem404JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
+func (response GetProblem404Response) VisitGetProblemResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
+	return nil
 }
 
-type SubmitSolutionRequestObject struct {
-	RequestId RequestId `json:"request_id"`
-	Body      *SubmitSolutionJSONRequestBody
+type GetProblem409Response struct {
 }
 
-type SubmitSolutionResponseObject interface {
-	VisitSubmitSolutionResponse(w http.ResponseWriter) error
+func (response GetProblem409Response) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
 }
 
-type SubmitSolution200JSONResponse struct {
-	// Score Score of the solution out of 100.
-	Score string `json:"score"`
+type GetProblemdefaultJSONResponse struct {
+	Body struct {
+		ErrorCode string `json:"error_code"`
+	}
+	StatusCode int
 }
 
-func (response SubmitSolution200JSONResponse) VisitSubmitSolutionResponse(w http.ResponseWriter) error {
+func (response GetProblemdefaultJSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type GetRecordsRequestObject struct {
+	Params GetRecordsParams
+}
+
+type GetRecordsResponseObject interface {
+	VisitGetRecordsResponse(w http.ResponseWriter) error
+}
+
+type GetRecords200JSONResponse struct{ N200GetRecordsJSONResponse }
+
+func (response GetRecords200JSONResponse) VisitGetRecordsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type SubmitSolutiondefaultResponse struct {
+type GetRecordsdefaultJSONResponse struct {
+	Body struct {
+		ErrorCode string `json:"error_code"`
+	}
 	StatusCode int
 }
 
-func (response SubmitSolutiondefaultResponse) VisitSubmitSolutionResponse(w http.ResponseWriter) error {
+func (response GetRecordsdefaultJSONResponse) VisitGetRecordsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type GetRecordRequestObject struct {
+	Id RecordID `json:"id"`
+}
+
+type GetRecordResponseObject interface {
+	VisitGetRecordResponse(w http.ResponseWriter) error
+}
+
+type GetRecord200JSONResponse struct{ N200GetRecordJSONResponse }
+
+func (response GetRecord200JSONResponse) VisitGetRecordResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetRecord404Response struct {
+}
+
+func (response GetRecord404Response) VisitGetRecordResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
+}
+
+type GetRecord409Response struct {
+}
+
+func (response GetRecord409Response) VisitGetRecordResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
+}
+
+type GetRecorddefaultJSONResponse struct {
+	Body struct {
+		ErrorCode string `json:"error_code"`
+	}
+	StatusCode int
+}
+
+func (response GetRecorddefaultJSONResponse) VisitGetRecordResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type SubmitSolutionRequestObject struct {
+	Body *SubmitSolutionJSONRequestBody
+}
+
+type SubmitSolutionResponseObject interface {
+	VisitSubmitSolutionResponse(w http.ResponseWriter) error
+}
+
+type SubmitSolution202JSONResponse struct{ N202SubmitJSONResponse }
+
+func (response SubmitSolution202JSONResponse) VisitSubmitSolutionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SubmitSolutiondefaultJSONResponse struct {
+	Body struct {
+		ErrorCode string `json:"error_code"`
+	}
+	StatusCode int
+}
+
+func (response SubmitSolutiondefaultJSONResponse) VisitSubmitSolutionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
 }
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// 문제를 만듭니다.
+
 	// (POST /problems)
-	CreateProblem(ctx context.Context, request CreateProblemRequestObject) (CreateProblemResponseObject, error)
-	// 문제를 조회합니다.
-	// (GET /problems/{request_id})
+	RequestProblem(ctx context.Context, request RequestProblemRequestObject) (RequestProblemResponseObject, error)
+
+	// (GET /problems/{id})
 	GetProblem(ctx context.Context, request GetProblemRequestObject) (GetProblemResponseObject, error)
-	// 문제 풀이를 제출합니다.
-	// (POST /submit/{request_id})
+
+	// (GET /records)
+	GetRecords(ctx context.Context, request GetRecordsRequestObject) (GetRecordsResponseObject, error)
+
+	// (GET /records/{id})
+	GetRecord(ctx context.Context, request GetRecordRequestObject) (GetRecordResponseObject, error)
+
+	// (POST /submit)
 	SubmitSolution(ctx context.Context, request SubmitSolutionRequestObject) (SubmitSolutionResponseObject, error)
 }
 
@@ -299,29 +588,29 @@ type strictHandler struct {
 	middlewares []StrictMiddlewareFunc
 }
 
-// CreateProblem operation middleware
-func (sh *strictHandler) CreateProblem(ctx echo.Context) error {
-	var request CreateProblemRequestObject
+// RequestProblem operation middleware
+func (sh *strictHandler) RequestProblem(ctx echo.Context) error {
+	var request RequestProblemRequestObject
 
-	var body CreateProblemJSONRequestBody
+	var body RequestProblemJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
 		return err
 	}
 	request.Body = &body
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateProblem(ctx.Request().Context(), request.(CreateProblemRequestObject))
+		return sh.ssi.RequestProblem(ctx.Request().Context(), request.(RequestProblemRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateProblem")
+		handler = middleware(handler, "RequestProblem")
 	}
 
 	response, err := handler(ctx, request)
 
 	if err != nil {
 		return err
-	} else if validResponse, ok := response.(CreateProblemResponseObject); ok {
-		return validResponse.VisitCreateProblemResponse(ctx.Response())
+	} else if validResponse, ok := response.(RequestProblemResponseObject); ok {
+		return validResponse.VisitRequestProblemResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("Unexpected response type: %T", response)
 	}
@@ -329,10 +618,10 @@ func (sh *strictHandler) CreateProblem(ctx echo.Context) error {
 }
 
 // GetProblem operation middleware
-func (sh *strictHandler) GetProblem(ctx echo.Context, requestId RequestId) error {
+func (sh *strictHandler) GetProblem(ctx echo.Context, id ProblemID) error {
 	var request GetProblemRequestObject
 
-	request.RequestId = requestId
+	request.Id = id
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.GetProblem(ctx.Request().Context(), request.(GetProblemRequestObject))
@@ -353,11 +642,59 @@ func (sh *strictHandler) GetProblem(ctx echo.Context, requestId RequestId) error
 	return nil
 }
 
-// SubmitSolution operation middleware
-func (sh *strictHandler) SubmitSolution(ctx echo.Context, requestId RequestId) error {
-	var request SubmitSolutionRequestObject
+// GetRecords operation middleware
+func (sh *strictHandler) GetRecords(ctx echo.Context, params GetRecordsParams) error {
+	var request GetRecordsRequestObject
 
-	request.RequestId = requestId
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetRecords(ctx.Request().Context(), request.(GetRecordsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetRecords")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetRecordsResponseObject); ok {
+		return validResponse.VisitGetRecordsResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetRecord operation middleware
+func (sh *strictHandler) GetRecord(ctx echo.Context, id RecordID) error {
+	var request GetRecordRequestObject
+
+	request.Id = id
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetRecord(ctx.Request().Context(), request.(GetRecordRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetRecord")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetRecordResponseObject); ok {
+		return validResponse.VisitGetRecordResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// SubmitSolution operation middleware
+func (sh *strictHandler) SubmitSolution(ctx echo.Context) error {
+	var request SubmitSolutionRequestObject
 
 	var body SubmitSolutionJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -387,33 +724,38 @@ func (sh *strictHandler) SubmitSolution(ctx echo.Context, requestId RequestId) e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"BoYL0wu/BwAA//8bexsH5BMAAA==",
+	"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",
+	"QUNZkIcT9cIPGNTWav8LAAD//yJl0N4OHAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

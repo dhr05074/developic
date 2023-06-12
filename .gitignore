@@ -170,3 +170,6 @@ test/
 # Go workspace file
 go.work
 
+tmp
+
+.DS_Store
