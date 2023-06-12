@@ -1,0 +1,53 @@
+.D2Coding_regular {
+    @apply font-Pretendard text-[16px] font-normal;
+}
+
+.pretendard_regular_12 {
+    @apply font-Pretendard text-[12px] font-normal;
+}
+.pretendard_regular_16 {
+    @apply font-Pretendard text-[16px] font-normal;
+}
+.pretendard_bold_16 {
+    @apply font-Pretendard text-[16px] font-bold;
+}
+.pretendard_medium_20 {
+    @apply font-Pretendard text-[20px] font-medium;
+}
+.pretendard_bold_20 {
+    @apply font-Pretendard text-[20px] font-bold;
+}
+.pretendard_bold_24 {
+    @apply font-Pretendard text-[24px] font-bold;
+}
+.pretendard_extrabold_32 {
+    @apply font-Pretendard text-[32px] font-extrabold;
+}
+/* width 고정할지 정하기.*/
+.coco_button {
+    @apply inline-flex w-full items-center  justify-center bg-coco-green_500 text-center  text-black;
+}
+.coco_button:hover {
+    @apply bg-Navy-700 text-white;
+}
+.coco_button_outline {
+    @apply inline-flex w-full cursor-not-allowed items-center justify-center bg-coco-green_500 text-center text-coco-green_500;
+}
+.coco_button_disabled {
+    @apply inline-flex w-full cursor-not-allowed items-center justify-center bg-Navy-800 text-center text-Navy-500 hover:text-Navy-500;
+}
+.button_large {
+    @apply transition-all duration-300 ease-in-out;
+    @apply font-Pretendard text-[24px] font-bold;
+    @apply rounded-full py-3;
+}
+.button_medium {
+    @apply transition-all duration-300 ease-in-out;
+    @apply font-Pretendard text-[20px] font-medium;
+    @apply rounded-full py-2;
+}
+.button_small {
+    @apply transition-all duration-300 ease-in-out;
+    @apply font-Pretendard text-[12px] font-normal;
+    @apply rounded-full py-1;
+}

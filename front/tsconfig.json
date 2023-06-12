@@ -1,37 +1,29 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
-    "sourceMap": true,
-    "module": "esnext",
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    // "paths"가 있는 경우 반드시 지정되어야함.
-    "removeComments": true,
-    "paths": {
-      "@": [
-        "./src"
-      ],
-      "@/*": [
-        "./src/*"
-      ]
+    "compilerOptions": {
+        "target": "esnext",
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "allowImportingTsExtensions": true,
+        "sourceMap": true,
+        "module": "esnext",
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        // "paths"가 있는 경우 반드시 지정되어야함.
+        "removeComments": true,
+        "paths": {
+            "@": ["./src"],
+            "@/*": ["./src/*"]
+        },
+        "typeRoots": ["./src/types", "./node_modules/@types", "./api"],
+        "allowSyntheticDefaultImports": true
     },
-    "typeRoots": [
-      "./@types",
-      "./node_modules/@types"
-    ],
-    "allowSyntheticDefaultImports": true
-  },
-  "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    "include": ["src"],
+    "exclude": ["node_modules"],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }

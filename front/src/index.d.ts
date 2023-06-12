@@ -24,11 +24,7 @@ type SteppersOption = {
     step: "idle" | "loading" | "complete";
 };
 type StepperListTypes = {
-    [key: Steppers]: SteppersOption;
-    difficult: SteppersOption;
-    language: SteppersOption;
-    api: SteppersOption;
-    comp: SteppersOption;
+    [key in Steppers]: SteppersOption;
 };
 
-type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end";
+type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end" | "stop";

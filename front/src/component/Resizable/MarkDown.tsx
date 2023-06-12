@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 type Props = {
-    markdown: string;
+    markdown: string | undefined;
 };
 export default function MarkDown({ markdown }: Props) {
     return (
@@ -17,7 +17,7 @@ export default function MarkDown({ markdown }: Props) {
                 // code: ({ node, ...props }) => <p {...props} className="text-white bg-Navy-500" />,
                 a: ({ node, ...props }) => <a {...props} className="text-indigo-500 no-underline" />,
             }}
-            children={markdown}
+            children={markdown ? markdown : ""}
         />
     );
 }

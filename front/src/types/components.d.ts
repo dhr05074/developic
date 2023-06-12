@@ -1,10 +1,9 @@
 type LanguageType =
-    | "go"
-    | "typescript"
-    | "javascript"
+    | "Go"
+    | "Typescript"
+    | "Javascript"
     | "python3"
-    | "c++"
-    | "cpp"
+    | "Cpp"
     | "c#"
     | "clojure"
     | "dart"
@@ -16,3 +15,5 @@ type LanguageType =
     | "ruby"
     | "scala"
     | "swift";
+type difficultyType = "Hard" | "Normal" | "Easy";
+type IconType = "profile";
