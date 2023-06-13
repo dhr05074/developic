@@ -1,199 +1,106 @@
 package problem
 
 import (
+	"code-connect/ent"
+	"code-connect/ent/problem"
 	"code-connect/gateway"
 	"code-connect/pkg/ai"
-	"code-connect/pkg/log"
-	"code-connect/problem/ent"
-	problem2 "code-connect/problem/ent/problem"
+	"code-connect/pkg/store"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	gonanoid "github.com/matoous/go-nanoid/v2"
-	"regexp"
-	"time"
+	nanoid "github.com/matoous/go-nanoid/v2"
+	"strings"
 )
 
-const codeAlphabets = "0123456789abcdefghijklmnopqrstuvwxyz"
-
 type Handler struct {
-	gptClient ai.GPTClient
-	entClient *ent.Client
+	paramClient store.KV
+	gptClient   ai.GPTClient
+	entClient   *ent.Client
 }
-
-func NewHandler(gptClient ai.GPTClient, entClient *ent.Client) *Handler {
-	return &Handler{gptClient: gptClient, entClient: entClient}
-}
-
-var l = log.NewZap()
 
 type Output struct {
-	Title         string `json:"title"`
-	Background    string `json:"background"`
-	TargetCode    string `json:"target_code"`
-	EstimatedTime int    `json:"estimated_time"`
+	Title string `json:"title"`
+	Code  string `json:"code"`
 }
 
-func (h *Handler) CreateProblem(_ context.Context, req gateway.CreateProblemRequestObject) (*gateway.CreateProblem202JSONResponse, error) {
-	// When searching for problems created later, you can search by Request ID.
-	requestID := h.generateID()
+const (
+	generatingProblemPromptKey = "/prompts/problem/generating"
+	languageTemplateKey        = "{LANGUAGE}"
+	eloScoreTemplateKey        = "{ELO_SCORE}"
+	defaultELOScore            = 1500
+)
 
-	go func(entClient *ent.Client, requestID string) {
-		newCtx := context.TODO()
-		newGPTClient := h.gptClient.NewContext()
+func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
+	problemID := nanoid.Must(8)
 
-		prompt := fmt.Sprintf("I want you to answer only in JSON format. JSON object should like this: {title, background, target_code, estimated_time}.\n\nTitle:\nThe topic of the refactoring challenge. It should be a situation that a developer would experience in real life.\n\nbackground:\nA more detailed description of the title.\n\ntarget_code:\nDirty, complex code generated from the title and background. The code should contain technical debt that a new developer can solve in %d minutes or less. The code should be written in the %s language.\n\nestimated_time:\nThe amount of time it would take a new developer to resolve the technical debt contained in the code. It should be an integer.", req.Body.EstimatedTime, req.Body.Language)
-		newGPTClient.AddPrompt(prompt)
-
-		startTime := time.Now()
-
-		msg, err := newGPTClient.Complete(newCtx)
-		if err != nil {
-			l.Errorw("error while completing prompt", "error", err)
-			return
-		}
-
-		l.Info(msg)
-
-		var output Output
-		if err = json.Unmarshal([]byte(msg), &output); err != nil {
-			l.Errorw("error while unmarshaling json", "error", err)
-			return
-		}
-
-		dur := time.Since(startTime)
-		l.Infof("problem created in %f seconds", dur.Seconds())
-
-		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
-		output.TargetCode = base64.StdEncoding.EncodeToString([]byte(output.TargetCode))
-		if err != nil {
-			l.Errorw("error while decoding problem content", "error", err)
-			return
-		}
-		problemID := h.generateID()
-
-		tx, err := entClient.Tx(newCtx)
-		if err != nil {
-			l.Errorw("error while starting transaction", "error", err)
-			return
-		}
-
-		pr, err := tx.Problem.Create().SetUUID(problemID).SetRequestID(requestID).SetTitle(output.Title).SetBackground(output.Background).SetCode(output.TargetCode).SetLanguage(req.Body.Language).SetNillableEstimatedTime(req.Body.EstimatedTime).Save(newCtx)
-		if err != nil {
-			l.Errorw("error while creating problem", "error", err)
-			return
-		}
-
-		if err = tx.Commit(); err != nil {
-			l.Errorw("error while committing transaction", "error", err)
-			return
-		}
-
-		// Creating test testCode for the testCode.
-		newGPTClient.AddPrompt("Create a test code for the previous code. It should have 5 test cases.")
-		testCode, err := newGPTClient.Complete(newCtx)
-		if err != nil {
-			l.Errorw("error while completing prompt", "error", err)
-			return
-		}
-
-		l.Info(testCode)
-
-		_, testCode = extractCode(testCode)
-
-		// If the testCode contents are returned as they are, there will be an escape problem, so encode with Base64 before saving.
-		testCode = base64.StdEncoding.EncodeToString([]byte(testCode))
-		if err != nil {
-			l.Errorw("error while decoding problem content", "error", err)
-			return
-		}
-
-		tx, err = entClient.Tx(newCtx)
-		if err != nil {
-			l.Errorw("error while starting transaction", "error", err)
-			return
-		}
-
-		err = tx.Problem.UpdateOne(pr).SetTestCode(testCode).Exec(newCtx)
-		if err != nil {
-			l.Errorw("error while updating problem", "error", err)
-			return
-		}
-
-		if err = tx.Commit(); err != nil {
-			l.Errorw("error while committing transaction", "error", err)
-			return
-		}
-	}(h.entClient, requestID)
-
-	return &gateway.CreateProblem202JSONResponse{
-		RequestId: requestID,
-	}, nil
-}
-
-func (h *Handler) GetProblem(ctx context.Context, req gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	timeout, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-
-	tx, err := h.entClient.Tx(timeout)
-	if err != nil {
-		return nil, err
+	// UUID만 담긴 문제 객체를 미리 생성한다.
+	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
+	if err := h.createProblem(ctx, problemID); err != nil {
+		return gateway.RequestProblemdefaultJSONResponse{
+			Body: struct {
+				ErrorCode string `json:"error_code"`
+			}{},
+			StatusCode: 500,
+		}, nil
 	}
 
-	defer func() {
-		if err == nil {
+	go func() {
+		anotherCtx := context.TODO()
+
+		output, err := h.requestProblem(anotherCtx, request)
+		if err != nil {
 			return
 		}
 
-		if err := tx.Rollback(); err != nil {
-			l.Errorw("error while rolling back transaction", "error", err)
+		if err := h.saveProblem(anotherCtx, problemID, output); err != nil {
+			return
 		}
 	}()
 
-	problem, err := tx.Problem.Query().ForUpdate().Where(problem2.RequestID(req.RequestId)).Only(timeout)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return gateway.GetProblem404JSONResponse{Message: "problem not found. check your request id. or wait a minute and try again."}, nil
-		}
-
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		l.Errorw("error while committing transaction", "error", err)
-		return nil, err
-	}
-
-	return &gateway.GetProblem200JSONResponse{
-		Problem: gateway.Problem{
-			Background:    problem.Background,
-			Code:          problem.Code,
-			EstimatedTime: problem.EstimatedTime,
-			Title:         problem.Title,
-			ProblemId:     problem.UUID,
-		},
+	// 사용자에게는 문제 ID를 바로 반환하고, 백그라운드에서 문제를 생성한다.
+	return gateway.RequestProblem202JSONResponse{
+		ProblemId: problemID,
 	}, nil
 }
 
-func (h *Handler) generateID() string {
-	return gonanoid.MustGenerate(codeAlphabets, 7)
+func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (Output, error) {
+	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
+	if err != nil {
+		return Output{}, err
+	}
+
+	prompt = h.injectData(prompt, request)
+	h.gptClient.AddPrompt(prompt)
+
+	result, err := h.gptClient.Complete(ctx)
+	if err != nil {
+		return Output{}, err
+	}
+
+	var output Output
+	if err := json.Unmarshal([]byte(result), &output); err != nil {
+		return Output{}, err
+	}
+
+	encoder := base64.StdEncoding
+	output.Code = encoder.EncodeToString([]byte(output.Code))
+
+	return output, nil
 }
 
-func extractField(markdown string, fieldMarker string) string {
-	regex := regexp.MustCompile(`(?s)` + fieldMarker + `\n(.+?)`)
-	match := regex.FindStringSubmatch(markdown)
-	if len(match) >= 2 {
-		return match[1]
-	}
-	return ""
+func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObject) string {
+	prompt = strings.ReplaceAll(prompt, languageTemplateKey, string(req.Body.Language))
+	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", defaultELOScore))
+
+	return prompt
 }
 
-func extractCode(markdown string) (string, string) {
-	regex := regexp.MustCompile("`{3}(.+?)\n(.+?)\n`{3}")
-	match := regex.FindStringSubmatch(markdown)
-	if len(match) >= 3 {
-		return match[1], match[2]
-	}
-	return "", ""
+func (h *Handler) createProblem(ctx context.Context, uuid string) error {
+	return h.entClient.Problem.Create().SetUUID(uuid).Exec(ctx)
+}
+
+func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) error {
+	return h.entClient.Problem.Update().Where(problem.UUID(uuid)).SetTitle(output.Title).SetCode(output.Code).Exec(ctx)
 }

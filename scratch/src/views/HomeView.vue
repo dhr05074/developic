@@ -16,6 +16,7 @@
         <textarea
           placeholder="Code"
           class="w-full h-full p-2 border border-gray-400"
+          style="font-family: Menlo, serif"
           v-model="targetCode"
         ></textarea>
       </div>
@@ -60,7 +61,6 @@ const generateProblem = async () => {
   const api = new DefaultApi(undefined, "http://15.165.21.53:3000", instance);
   const resp = await api.createProblem({
     language: "Go",
-    estimated_time: 10,
   });
 
   generating.value = true;
