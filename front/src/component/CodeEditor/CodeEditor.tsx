@@ -1,9 +1,18 @@
 import { useEffect, useRef } from "react";
 import { createTheme } from "@uiw/codemirror-themes";
 import { useCodeMirror } from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+
 import { tags as t } from "@lezer/highlight";
 import { useState } from "react";
+
+//theme
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+
+//lang
+import { javascript } from "@codemirror/lang-javascript";
+import { cpp } from "@codemirror/lang-cpp";
+import { StreamLanguage } from "@codemirror/language";
+// import { go } from "@codemirror/legacy-modes/mode/go";
 
 type PropsType = {
     code: string | undefined;
@@ -25,7 +34,8 @@ const samplecode = `
 function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
 
 };`;
-const extensions = [javascript({ jsx: true })];
+
+const extensions = [javascript({ jsx: true }), cpp()];
 
 //gutter : line 번호
 //caret : 깜빡이
@@ -74,6 +84,11 @@ export default function CodeEditor(props: PropsType) {
         extensions,
         value: atob(code),
         theme: myTheme,
+        height: "100%",
+        maxHeight: "80%",
+        width: "100%",
+        minWidth: "100px",
+        maxWidth: "100%",
     });
 
     useEffect(() => {
@@ -94,5 +109,5 @@ export default function CodeEditor(props: PropsType) {
         return null;
     }
 
-    return <div id="codeEditor" ref={editor} className="flex flex-wrap text-left" />;
+    return <div id="codeEditor" ref={editor} className="flex w-full flex-wrap overflow-y-auto text-left" />;
 }

@@ -24,33 +24,32 @@ export default function ProblemComponent() {
                 onMouseMove={handleMouseMove}
             >
                 {/* 고정 */}
-                <article className=" flex w-full  flex-col bg-Navy-900 p-6 text-left ">
-                    <h3 className="text-xl">{problem?.title ? problem?.title : "Add Two Numbers"}</h3>
+                <article className=" flex w-full  flex-col bg-Navy-800 p-6 text-left text-white ">
+                    <h3 className="text-xl">{problem?.name ? problem?.name : "Add Two Numbers"}</h3>
                     <MarkDown
                         markdown={
-                            problem?.background
-                                ? problem?.background
+                            problem?.name
+                                ? problem?.name
                                 : `You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.
 
 You may assume the two numbers do not contain any leading zero, except the number 0 itself.`
                         }
                     />
                 </article>
+                {/* <div
+                    role="presentation"
+                    id="resizeBar"
+                    onMouseDown={handleMouseDown}
+                    className="motion_basic h-full w-8 cursor-col-resize bg-Navy-800 hover:bg-Navy-300"
+                /> */}
                 <article className="flex w-full flex-row">
                     <div id="code" className=" flex h-full w-1/2 flex-auto bg-Navy-900 "></div>
-
                     <div
                         id="runner"
                         style={{ width: runnerWidth }}
                         ref={runner}
                         className="flex h-full flex-none bg-Navy-900 "
                     >
-                        <div
-                            role="presentation"
-                            id="resizeBar"
-                            onMouseDown={handleMouseDown}
-                            className="motion_basic h-full w-4 cursor-col-resize bg-Navy-800 hover:bg-Navy-300"
-                        />
                         <CodeEditor code={problem?.code} />
                     </div>
                 </article>

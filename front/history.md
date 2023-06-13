@@ -184,3 +184,9 @@
 -   v0.0.0:41
 -   problem 페이지 nav바 디자인 적용
 -   v0.0.0:42
+
+## 6/13
+
+-   codeEditor overflow 버그 개선
+-   resizable 제거
+-   v0.0.0:43
