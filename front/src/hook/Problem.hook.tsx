@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
-import { languageState, difficultState, problemIdState, problemState } from "../recoil/problem.recoil";
+import { problemIdState, problemState, editorInCode } from "../recoil/problem.recoil";
 import { ProgrammingLanguage } from "api/api";
 
 // recoil로 변경
@@ -14,11 +14,17 @@ const useProblem = () => {
 
     const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
+    const [editorCode, setEditorCode] = useRecoilState(editorInCode);
     const [searchParams] = useSearchParams();
     const getDifficulty = Number(searchParams.get("difficulty"));
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
+    const initEditor = () => {
+        setEditorCode(problem?.code);
+        console.log("initEditor", editorCode);
+    };
     const initProblem = () => {
+        console.log("initProblem");
         if (problemId) {
             api.getProblem(problemId, {
                 cancelToken: new CancelToken(function executor(c) {
@@ -49,18 +55,12 @@ const useProblem = () => {
             const p_data = await api.getProblem(problemId);
             if (p_data) {
                 setProblem(p_data.data);
+                setEditorCode(p_data.data.code);
                 clearInterval(interval);
             }
         }, 3000);
     };
     // didMount 대용
-
-    useEffect(() => {
-        createProblem().then(async (r: string) => {
-            getProblemData(r);
-        });
-    }, [problem]);
-
     useEffect(() => {
         return () => {
             console.log("problem hook unmount");
@@ -74,6 +74,8 @@ const useProblem = () => {
         initProblem,
         problemId,
         problem,
+        editorInCode,
+        initEditor,
         // getProblemState,
     };
 };

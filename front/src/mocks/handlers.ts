@@ -58,12 +58,14 @@ export default [
      */
     rest.post(`${apiUrl}/problems`, async (req, res, ctx) => {
         console.log("msw post problems : ", req.body);
-        onCreateProblem();
         // return res(ctx.status(404), ctx.json(null));
         return res(ctx.status(200), ctx.json(createProblem));
     }),
     rest.get(`${apiUrl}/problems/:requestId`, async (req, res, ctx) => {
         const { requestId } = req.params;
+        console.log("get ID", requestId);
+        await onCreateProblem();
+
         return res(ctx.status(200), ctx.json(getProblem));
     }),
 ];

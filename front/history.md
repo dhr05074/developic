@@ -190,3 +190,5 @@
 -   codeEditor overflow 버그 개선
 -   resizable 제거
 -   v0.0.0:43
+-   problem.hook useEffect 문제 해결하면서 생긴 사이드 이펙트 제거
+-   v0.0.0:44

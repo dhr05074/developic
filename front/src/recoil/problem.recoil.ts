@@ -28,6 +28,10 @@ export const problemState = atom<Problem | null>({
     key: "problem",
     default: null,
 });
+export const editorInCode = atom<string | undefined>({
+    key: "editorInCode",
+    default: undefined,
+});
 
 // recoil에서 비동기를 사용하려면 suspence를 사용해야한다.
 // export const setProblemId = selector({

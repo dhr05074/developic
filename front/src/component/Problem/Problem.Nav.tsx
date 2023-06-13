@@ -1,9 +1,11 @@
 import Button from "../Button/Function.Button";
 import SelectComponent from "../Select/Select";
 import useSelectComponent from "@/hook/SelectComponent.hook";
+import useProblem from "@/hook/Problem.hook";
 
 function ProblemNav() {
     const { languages, difficultList, setLang, setDifficulty, selectOptoin } = useSelectComponent();
+    const { initEditor } = useProblem();
     return (
         <section id="problem_nav" className="flex w-full flex-row items-center justify-between bg-Navy-800 px-6 py-2">
             <article id="problem_nav_options" className=" relative flex h-10 w-52 flex-row">
@@ -21,7 +23,7 @@ function ProblemNav() {
                 />
             </article>
             <article id="problem_nav_buttons" className="flex flex-row gap-3">
-                <Button name="Reset" type="line" size="small" />
+                <Button name="Reset" type="line" size="small" func={initEditor} />
                 <Button name="Submit" type="full" size="small" />
             </article>
         </section>

@@ -6,16 +6,16 @@ import { tags as t } from "@lezer/highlight";
 import { useState } from "react";
 
 //theme
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 //lang
 import { javascript } from "@codemirror/lang-javascript";
 import { cpp } from "@codemirror/lang-cpp";
 import { StreamLanguage } from "@codemirror/language";
+import { RecoilState } from "recoil";
 // import { go } from "@codemirror/legacy-modes/mode/go";
 
 type PropsType = {
-    code: string | undefined;
+    code: RecoilState<string | undefined> | string;
 };
 
 const samplecode = `
@@ -35,6 +35,7 @@ function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | nul
 
 };`;
 
+//분기점 만들기 - js,go,cpp
 const extensions = [javascript({ jsx: true }), cpp()];
 
 //gutter : line 번호
@@ -75,14 +76,15 @@ const myTheme = createTheme({
 });
 
 export default function CodeEditor(props: PropsType) {
-    const [code, setCode] = useState("");
+    const [code, setCode] = useState<RecoilState<string | undefined> | string>();
 
     const editor = useRef<HTMLDivElement>(null);
-
+    console.log(code?.toString);
+    // atob()
     const { setContainer } = useCodeMirror({
         container: editor.current,
         extensions,
-        value: atob(code),
+        value: "",
         theme: myTheme,
         height: "100%",
         maxHeight: "80%",
@@ -99,6 +101,7 @@ export default function CodeEditor(props: PropsType) {
 
     useEffect(() => {
         if (props.code) {
+            console.log("props.code", props.code);
             setCode(props.code);
         } else {
             setCode(btoa(samplecode));

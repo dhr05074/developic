@@ -16,7 +16,6 @@
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@lezer/highlight": "^1.1.4",
-        "@uiw/codemirror-theme-vscode": "^4.21.3",
         "@uiw/codemirror-themes": "^4.19.11",
         "@uiw/react-codemirror": "^4.19.11",
         "@yarnpkg/plugin-pnp": "^4.0.0-rc.43",

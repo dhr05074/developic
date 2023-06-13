@@ -1,17 +1,18 @@
 import { useRef, useEffect } from "react";
 import MarkDown from "@/component/Resizable/MarkDown";
 import useResizable from "@/hook/resizable.hook";
-import useProblem from "../../hook/Problem.hook";
+import useProblem from "@/hook/Problem.hook";
 import CodeEditor from "../CodeEditor/CodeEditor";
 
 export default function ProblemComponent() {
-    const { problem } = useProblem();
+    const { editorInCode, problem } = useProblem();
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseDown, handleMouseUp, runnerWidth } = useResizable();
 
     useEffect(() => {
         getRef(runner, body);
+        console.log("editorInCode", editorInCode, "code", problem?.code);
     }, []);
     return (
         <div id="CodeEditor" className="App h-full w-full">
@@ -50,7 +51,7 @@ You may assume the two numbers do not contain any leading zero, except the numbe
                         ref={runner}
                         className="flex h-full flex-none bg-Navy-900 "
                     >
-                        <CodeEditor code={problem?.code} />
+                        <CodeEditor code={editorInCode} />
                     </div>
                 </article>
                 {/* 움직임 */}

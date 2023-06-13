@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 function StepperComponent() {
     const { StepperList, endStep } = useStepper();
-    const { problemId, problem } = useProblem();
+    const { problemId, problem, createProblem, getProblemData } = useProblem();
 
     // if (step === 1) {
     //     stepButton = "문제 풀러가기";
@@ -18,6 +18,16 @@ function StepperComponent() {
         invisible: "opacity-0 invisible",
     };
     useEffect(() => {
+        //여기 문제
+        if (!problem) {
+            createProblem().then(async (r: string) => {
+                getProblemData(r);
+            });
+        }
+    }, [problem]);
+
+    useEffect(() => {
+        console.log("useEffect2");
         console.log(problem, StepperList.comp.step);
 
         if (StepperList.comp.step === "loading") {
