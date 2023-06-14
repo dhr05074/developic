@@ -33,9 +33,25 @@ func (pc *ProblemCreate) SetCode(s string) *ProblemCreate {
 	return pc
 }
 
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableCode(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetCode(*s)
+	}
+	return pc
+}
+
 // SetTitle sets the "title" field.
 func (pc *ProblemCreate) SetTitle(s string) *ProblemCreate {
 	pc.mutation.SetTitle(s)
+	return pc
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableTitle(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetTitle(*s)
+	}
 	return pc
 }
 
@@ -215,12 +231,6 @@ func (pc *ProblemCreate) defaults() {
 func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`ent: missing required field "Problem.uuid"`)}
-	}
-	if _, ok := pc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Problem.code"`)}
-	}
-	if _, ok := pc.mutation.Title(); !ok {
-		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Problem.title"`)}
 	}
 	if _, ok := pc.mutation.Language(); !ok {
 		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Problem.language"`)}

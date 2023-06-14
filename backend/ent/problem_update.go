@@ -41,9 +41,37 @@ func (pu *ProblemUpdate) SetCode(s string) *ProblemUpdate {
 	return pu
 }
 
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableCode(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetCode(*s)
+	}
+	return pu
+}
+
+// ClearCode clears the value of the "code" field.
+func (pu *ProblemUpdate) ClearCode() *ProblemUpdate {
+	pu.mutation.ClearCode()
+	return pu
+}
+
 // SetTitle sets the "title" field.
 func (pu *ProblemUpdate) SetTitle(s string) *ProblemUpdate {
 	pu.mutation.SetTitle(s)
+	return pu
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableTitle(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetTitle(*s)
+	}
+	return pu
+}
+
+// ClearTitle clears the value of the "title" field.
+func (pu *ProblemUpdate) ClearTitle() *ProblemUpdate {
+	pu.mutation.ClearTitle()
 	return pu
 }
 
@@ -275,8 +303,14 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Code(); ok {
 		_spec.SetField(problem.FieldCode, field.TypeString, value)
 	}
+	if pu.mutation.CodeCleared() {
+		_spec.ClearField(problem.FieldCode, field.TypeString)
+	}
 	if value, ok := pu.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
+	}
+	if pu.mutation.TitleCleared() {
+		_spec.ClearField(problem.FieldTitle, field.TypeString)
 	}
 	if value, ok := pu.mutation.Language(); ok {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
@@ -394,9 +428,37 @@ func (puo *ProblemUpdateOne) SetCode(s string) *ProblemUpdateOne {
 	return puo
 }
 
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableCode(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetCode(*s)
+	}
+	return puo
+}
+
+// ClearCode clears the value of the "code" field.
+func (puo *ProblemUpdateOne) ClearCode() *ProblemUpdateOne {
+	puo.mutation.ClearCode()
+	return puo
+}
+
 // SetTitle sets the "title" field.
 func (puo *ProblemUpdateOne) SetTitle(s string) *ProblemUpdateOne {
 	puo.mutation.SetTitle(s)
+	return puo
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableTitle(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetTitle(*s)
+	}
+	return puo
+}
+
+// ClearTitle clears the value of the "title" field.
+func (puo *ProblemUpdateOne) ClearTitle() *ProblemUpdateOne {
+	puo.mutation.ClearTitle()
 	return puo
 }
 
@@ -658,8 +720,14 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if value, ok := puo.mutation.Code(); ok {
 		_spec.SetField(problem.FieldCode, field.TypeString, value)
 	}
+	if puo.mutation.CodeCleared() {
+		_spec.ClearField(problem.FieldCode, field.TypeString)
+	}
 	if value, ok := puo.mutation.Title(); ok {
 		_spec.SetField(problem.FieldTitle, field.TypeString, value)
+	}
+	if puo.mutation.TitleCleared() {
+		_spec.ClearField(problem.FieldTitle, field.TypeString)
 	}
 	if value, ok := puo.mutation.Language(); ok {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
