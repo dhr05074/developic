@@ -197,3 +197,5 @@
 
 -   problem localstorage 적용
 -   v0.0.0:45
+-   reset 버튼 기능 제작
+-   v0.0.0:46

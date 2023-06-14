@@ -29,7 +29,7 @@ export const problemState = atom<Problem | null>({
     default: null,
     effects: [
         ({ setSelf, onSet }) => {
-            const savedData = localStorage.getItem("problem");
+            const savedData = localStorage.getItem(problemState.key);
             // setSelf: atom 값을 설정 혹은 재설정
             if (savedData) setSelf(JSON.parse(savedData));
 
@@ -37,8 +37,8 @@ export const problemState = atom<Problem | null>({
             // setSelf에 의해서는 작동하지 않음
             onSet((newValue, _, isReset) => {
                 isReset
-                    ? localStorage.removeItem("problem")
-                    : localStorage.setItem("problem", JSON.stringify(newValue));
+                    ? localStorage.removeItem(problemState.key)
+                    : localStorage.setItem(problemState.key, JSON.stringify(newValue));
             });
         },
     ],

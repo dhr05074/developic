@@ -1,40 +1,25 @@
-import { useEffect, useRef } from "react";
-import { createTheme } from "@uiw/codemirror-themes";
-import { useCodeMirror } from "@uiw/react-codemirror";
+import React, { useEffect, useRef } from "react";
 
 import { tags as t } from "@lezer/highlight";
 import { useState } from "react";
+//recoil
+import { editorInCode } from "@/recoil/problem.recoil";
+import { RecoilState, useRecoilState } from "recoil";
 
-//theme
+//codemirror
+import { createTheme } from "@uiw/codemirror-themes";
 
-//lang
+import { useCodeMirror } from "@uiw/react-codemirror";
+
 import { javascript } from "@codemirror/lang-javascript";
 import { cpp } from "@codemirror/lang-cpp";
 import { StreamLanguage } from "@codemirror/language";
-import { RecoilState, useRecoilState } from "recoil";
-import { editorInCode } from "@/recoil/problem.recoil";
+import { ViewUpdate } from "@codemirror/view";
 // import { go } from "@codemirror/legacy-modes/mode/go";
-
+import useProblem from "@/hook/Problem.hook";
 type PropsType = {
     code: string | undefined;
 };
-
-const samplecode = `
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     val: number
- *     next: ListNode | null
- *     constructor(val?: number, next?: ListNode | null) {
- *         this.val = (val===undefined ? 0 : val)
- *         this.next = (next===undefined ? null : next)
- *     }
- * }
- */
-
-function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
-
-};`;
 
 //분기점 만들기 - js,go,cpp
 const extensions = [javascript({ jsx: true }), cpp()];
@@ -77,40 +62,35 @@ const myTheme = createTheme({
 });
 
 export default function CodeEditor(props: PropsType) {
-    const [code, setCode] = useState("");
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
-
     const editor = useRef<HTMLDivElement>(null);
-    console.log(code);
-    // atob()
-    const { setContainer } = useCodeMirror({
+    const onChange = React.useCallback((value: string, viewUpdate: ViewUpdate) => {
+        setEditorCode(value);
+        // const state = viewUpdate.state.toJSON(stateFields); // history 저장.
+        // localStorage.setItem("myEditorState", JSON.stringify(state));
+    }, []);
+
+    const codeMirror = useCodeMirror({
         container: editor.current,
         extensions,
-        value: props.code ? atob(props.code) : "",
+        value: editorCode ? editorCode : "",
         theme: myTheme,
         height: "100%",
         maxHeight: "80%",
         width: "100%",
         minWidth: "100px",
         maxWidth: "100%",
+        onChange: onChange,
     });
 
     useEffect(() => {
         if (editor.current) {
-            setContainer(editor.current);
+            codeMirror.setContainer(editor.current);
         }
     }, [editor.current]);
     useEffect(() => {
-        console.log("editorCode change", editorCode);
+        console.log("editorCode change");
     }, [editorCode]);
-
-    useEffect(() => {
-        if (props.code) {
-            setCode(props.code);
-        } else {
-            console.log("codeEdior : no props", props.code);
-        }
-    }, []);
 
     if (!editor) {
         return null;

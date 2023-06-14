@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
@@ -15,13 +15,16 @@ const useProblem = () => {
     const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
+    const [isCodeReset, setIsCodeReset] = useState(false);
     const [searchParams] = useSearchParams();
     const getDifficulty = Number(searchParams.get("difficulty"));
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
     const initEditor = () => {
         console.log("problem.hook ");
-        setEditorCode(problem?.code);
+        const code = problem?.code;
+        if (code) setEditorCode(atob(code));
+        setIsCodeReset(!isCodeReset);
     };
     const initProblem = () => {
         console.log("initProblem");
@@ -57,7 +60,7 @@ const useProblem = () => {
             if (p_data) {
                 console.log("getProblemData End!!", p_data);
                 setProblem(p_data.data);
-                setEditorCode(p_data.data.code);
+                setEditorCode(atob(p_data.data.code));
                 clearInterval(interval);
             }
         }, 3000);
@@ -70,6 +73,7 @@ const useProblem = () => {
         problemId,
         problem,
         editorCode,
+        isCodeReset,
         initEditor,
         // getProblemState,
     };
