@@ -2,14 +2,21 @@ package handler
 
 import (
 	"code-connect/gateway"
-	"code-connect/pkg/ai"
 	"code-connect/problem"
 	"context"
 )
 
 type StrictHandler struct {
-	gptClient      ai.GPTClient
 	problemHandler *problem.Handler
+}
+
+func (s *StrictHandler) GetMe(ctx context.Context, request gateway.GetMeRequestObject) (gateway.GetMeResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewStrictHandler(problemHandler *problem.Handler) *StrictHandler {
+	return &StrictHandler{problemHandler: problemHandler}
 }
 
 func (s *StrictHandler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
