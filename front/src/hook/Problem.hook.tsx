@@ -20,8 +20,8 @@ const useProblem = () => {
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
     const initEditor = () => {
+        console.log("problem.hook ");
         setEditorCode(problem?.code);
-        console.log("initEditor", editorCode);
     };
     const initProblem = () => {
         console.log("initProblem");
@@ -52,21 +52,16 @@ const useProblem = () => {
             return false;
         }
         const interval = setInterval(async () => {
+            console.log("problem interval");
             const p_data = await api.getProblem(problemId);
             if (p_data) {
+                console.log("getProblemData End!!", p_data);
                 setProblem(p_data.data);
                 setEditorCode(p_data.data.code);
                 clearInterval(interval);
             }
         }, 3000);
     };
-    // didMount 대용
-    useEffect(() => {
-        return () => {
-            console.log("problem hook unmount");
-            initProblem();
-        };
-    }, []);
 
     return {
         createProblem,
@@ -74,7 +69,7 @@ const useProblem = () => {
         initProblem,
         problemId,
         problem,
-        editorInCode,
+        editorCode,
         initEditor,
         // getProblemState,
     };

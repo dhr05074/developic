@@ -11,11 +11,12 @@ import { useState } from "react";
 import { javascript } from "@codemirror/lang-javascript";
 import { cpp } from "@codemirror/lang-cpp";
 import { StreamLanguage } from "@codemirror/language";
-import { RecoilState } from "recoil";
+import { RecoilState, useRecoilState } from "recoil";
+import { editorInCode } from "@/recoil/problem.recoil";
 // import { go } from "@codemirror/legacy-modes/mode/go";
 
 type PropsType = {
-    code: RecoilState<string | undefined> | string;
+    code: string | undefined;
 };
 
 const samplecode = `
@@ -76,15 +77,16 @@ const myTheme = createTheme({
 });
 
 export default function CodeEditor(props: PropsType) {
-    const [code, setCode] = useState<RecoilState<string | undefined> | string>();
+    const [code, setCode] = useState("");
+    const [editorCode, setEditorCode] = useRecoilState(editorInCode);
 
     const editor = useRef<HTMLDivElement>(null);
-    console.log(code?.toString);
+    console.log(code);
     // atob()
     const { setContainer } = useCodeMirror({
         container: editor.current,
         extensions,
-        value: "",
+        value: props.code ? atob(props.code) : "",
         theme: myTheme,
         height: "100%",
         maxHeight: "80%",
@@ -98,13 +100,15 @@ export default function CodeEditor(props: PropsType) {
             setContainer(editor.current);
         }
     }, [editor.current]);
+    useEffect(() => {
+        console.log("editorCode change", editorCode);
+    }, [editorCode]);
 
     useEffect(() => {
         if (props.code) {
-            console.log("props.code", props.code);
             setCode(props.code);
         } else {
-            setCode(btoa(samplecode));
+            console.log("codeEdior : no props", props.code);
         }
     }, []);
 

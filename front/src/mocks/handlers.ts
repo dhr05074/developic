@@ -9,14 +9,12 @@ const createProblem: RequestProblem202Response = {
     problem_id: "problem_id",
 };
 
-const getProblem = {
-    problem: {
-        problem_id: "",
-        title: "",
-        background: "",
-        code: "",
-        estimated_time: 0,
-    },
+let problem = {
+    problem_id: "",
+    title: "",
+    background: "",
+    code: "",
+    estimated_time: 0,
 };
 
 const code = `
@@ -37,7 +35,7 @@ function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | nul
 };`;
 const onCreateProblem = () => {
     setTimeout(() => {
-        getProblem.problem = {
+        problem = {
             problem_id: "123",
             title: "Add Two Numbers",
             background: `<p class="has-line-data" data-line-start="3" data-line-end="4">You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.</p>
@@ -58,14 +56,18 @@ export default [
      */
     rest.post(`${apiUrl}/problems`, async (req, res, ctx) => {
         console.log("msw post problems : ", req.body);
-        // return res(ctx.status(404), ctx.json(null));
+
+        onCreateProblem();
         return res(ctx.status(200), ctx.json(createProblem));
     }),
     rest.get(`${apiUrl}/problems/:requestId`, async (req, res, ctx) => {
         const { requestId } = req.params;
         console.log("get ID", requestId);
         await onCreateProblem();
-
-        return res(ctx.status(200), ctx.json(getProblem));
+        if (problem.problem_id) {
+            return res(ctx.status(200), ctx.json(problem));
+        } else {
+            return res(ctx.status(409), ctx.json("아직 문제 생성 안됌."));
+        }
     }),
 ];

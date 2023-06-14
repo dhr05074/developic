@@ -5,14 +5,17 @@ import useProblem from "@/hook/Problem.hook";
 import CodeEditor from "../CodeEditor/CodeEditor";
 
 export default function ProblemComponent() {
-    const { editorInCode, problem } = useProblem();
+    const { problem, initProblem } = useProblem();
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseDown, handleMouseUp, runnerWidth } = useResizable();
 
     useEffect(() => {
         getRef(runner, body);
-        console.log("editorInCode", editorInCode, "code", problem?.code);
+        console.log("code", problem);
+        return () => {
+            initProblem();
+        };
     }, []);
     return (
         <div id="CodeEditor" className="App h-full w-full">
@@ -51,7 +54,7 @@ You may assume the two numbers do not contain any leading zero, except the numbe
                         ref={runner}
                         className="flex h-full flex-none bg-Navy-900 "
                     >
-                        <CodeEditor code={editorInCode} />
+                        <CodeEditor code={problem?.code} />
                     </div>
                 </article>
                 {/* 움직임 */}
