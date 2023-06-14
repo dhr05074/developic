@@ -6,7 +6,7 @@ info:
 servers:
   - url: 'https://api.developic.kr'
 security:
-  - apiKey: []
+  - apiKey: [ ]
 components:
   securitySchemes:
     apiKey:
@@ -132,15 +132,29 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            required:
-              - error_code
-            properties:
-              error_code:
-                type: string
-                example: "sys_012"
+            $ref: "#/components/schemas/Error"
   schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: "오류 구분 코드입니다."
+          example: "4c4d3b2a"
+        message:
+          type: string
+          description: "상세한 오류 정보를 알려주는 메시지입니다."
+          example: "you don't have the permission to access this resource"
+    ELOScore:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 3000
+      description: Developic에서 유저의 실력을 가늠하는 ELO 점수입니다.
     ProgrammingLanguage:
       type: string
       description: Developic에서 사용할 프로그래밍 언어입니다.
@@ -213,6 +227,8 @@ paths:
               properties:
                 language:
                   $ref: "#/components/schemas/ProgrammingLanguage"
+                elo_score:
+                  $ref: "#/components/schemas/ELOScore"
       responses:
         202:
           description: 문제 생성 요청이 성공적으로 접수되었으며, 시스템에서 문제를 생성중인 상태입니다.
@@ -304,3 +320,18 @@ paths:
           $ref: "#/components/responses/200GetRecords"
         default:
           $ref: "#/components/responses/InternalServerError"
+  /me:
+    get:
+      operationId: getMe
+      responses:
+        200:
+          description: 유저 자신의 정보를 불러오는 데 성공한 경우입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  elo_score:
+                    $ref: "#/components/schemas/ELOScore"
+                required:
+                  - elo_score

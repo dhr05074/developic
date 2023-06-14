@@ -226,6 +226,16 @@ func CodeHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldCode, v))
 }
 
+// CodeIsNil applies the IsNil predicate on the "code" field.
+func CodeIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldCode))
+}
+
+// CodeNotNil applies the NotNil predicate on the "code" field.
+func CodeNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldCode))
+}
+
 // CodeEqualFold applies the EqualFold predicate on the "code" field.
 func CodeEqualFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEqualFold(FieldCode, v))
@@ -289,6 +299,16 @@ func TitleHasPrefix(v string) predicate.Problem {
 // TitleHasSuffix applies the HasSuffix predicate on the "title" field.
 func TitleHasSuffix(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldHasSuffix(FieldTitle, v))
+}
+
+// TitleIsNil applies the IsNil predicate on the "title" field.
+func TitleIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldTitle))
+}
+
+// TitleNotNil applies the NotNil predicate on the "title" field.
+func TitleNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldTitle))
 }
 
 // TitleEqualFold applies the EqualFold predicate on the "title" field.

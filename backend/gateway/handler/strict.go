@@ -13,13 +13,11 @@ type StrictHandler struct {
 }
 
 func (s *StrictHandler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.problemHandler.RequestProblem(ctx, request)
 }
 
 func (s *StrictHandler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.problemHandler.GetProblem(ctx, request)
 }
 
 func (s *StrictHandler) GetRecords(ctx context.Context, request gateway.GetRecordsRequestObject) (gateway.GetRecordsResponseObject, error) {
