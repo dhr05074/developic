@@ -96,6 +96,8 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return Output{}, err
 	}
 
+	h.log.Info(result)
+
 	var output Output
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
 		h.log.Errorw("failed to unmarshal result", "category", "json", "error", err)
@@ -120,11 +122,45 @@ func (h *Handler) createProblem(ctx context.Context, uuid string, language gatew
 }
 
 func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) error {
-	return h.entClient.Problem.Update().Where(problem.UUID(uuid)).SetTitle(output.Title).SetCode(output.Code).Exec(ctx)
+	tx, err := h.entClient.Tx(ctx)
+	if err != nil {
+		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
+		return err
+	}
+
+	p, err := tx.Problem.Query().Where(problem.UUID(uuid)).Only(ctx)
+	if err != nil {
+		h.log.Errorw("failed to get problem", "category", "db", "error", err)
+		return err
+	}
+
+	err = p.Update().SetTitle(output.Title).SetCode(output.Code).Exec(ctx)
+	if err != nil {
+		h.log.Errorw("failed to update problem", "category", "db", "error", err)
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	p, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
+	tx, err := h.entClient.Tx(ctx)
+	if err != nil {
+		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
+		return gateway.GetProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Message: ServerErrorMessage,
+			},
+			StatusCode: 500,
+		}, nil
+	}
+	p, err := tx.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404Response{}, nil
@@ -142,6 +178,16 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 	// 문제 생성 요청은 들어갔지만 아직 문제가 생성되지 않은 경우
 	if p.Code == "" || p.Title == "" {
 		return gateway.GetProblem409Response{}, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
+		return gateway.GetProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Message: ServerErrorMessage,
+			},
+			StatusCode: 500,
+		}, nil
 	}
 
 	return gateway.GetProblem200JSONResponse{

@@ -14,7 +14,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/sashabaranov/go-openai v1.9.4
+	github.com/sashabaranov/go-openai v1.10.1
 	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.24.0
 )

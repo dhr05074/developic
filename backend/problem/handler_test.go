@@ -34,13 +34,14 @@ func (s *ProblemHandlerTestSuite) TestWhenConcurrentlyAccessTheSameProblem_ThenF
 
 	id := nanoid.Must(8)
 	s.Require().NoError(s.hdl.createProblem(ctx, id, gateway.Go))
-	go func() {
-		s.Require().NoError(s.hdl.saveProblem(ctx, id, Output{
-			Title: "hi",
-			Code:  "21",
-		}))
-	}()
+
 	resp, err := s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
+	s.Require().NoError(err)
+	s.Require().NoError(s.hdl.saveProblem(ctx, id, Output{
+		Title: "hi",
+		Code:  "21",
+	}))
+	resp, err = s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
 	s.Require().NoError(err)
 
 	_, ok := resp.(gateway.GetProblem409Response)
