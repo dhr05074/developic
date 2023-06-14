@@ -621,7 +621,7 @@ type StrictServerInterface interface {
 type StrictHandlerFunc = runtime.StrictEchoHandlerFunc
 type StrictMiddlewareFunc = runtime.StrictEchoMiddlewareFunc
 
-func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictHandlerFunc) ServerInterface {
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
 	return &strictHandler{ssi: ssi, middlewares: middlewares}
 }
 

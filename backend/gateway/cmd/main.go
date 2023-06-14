@@ -37,7 +37,7 @@ func main() {
 	problemHandler := problem.NewHandler(kvStore, gptClient, entClient)
 
 	strictHandler := handler.NewStrictHandler(problemHandler)
-	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictHandlerFunc{})
+	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
 	l.Infow("starting server", "port", 3000)
@@ -52,8 +52,14 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 		l.Fatalf("failed to get swagger: %v", err)
 	}
 
+	swagger.Servers = nil
+
 	return oapimiddleware.OapiRequestValidatorWithOptions(swagger, &oapimiddleware.Options{
-		Options: openapi3filter.Options{},
+		Options: openapi3filter.Options{
+			AuthenticationFunc: func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
+				return nil
+			},
+		},
 	})
 }
 
