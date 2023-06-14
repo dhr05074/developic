@@ -2,7 +2,7 @@ import axios from "axios";
 import { DefaultApi } from "../../api/api";
 
 const instance = axios.create();
-const baseURL = "http://15.165.21.53:3000";
+const baseURL = "http://localhost:3000";
 const headers = { "Content-Type": `application/json` };
 
 type postProblemReturn = {

@@ -3,13 +3,17 @@ import SelectComponent from "@/component/Select/Select";
 import ButtonLink from "@/component/Button/Link.Button";
 import mainImage from "@/assets/images/main_image.svg";
 import useSelectComponent from "@/hook/SelectComponent.hook";
+import { useEffect } from "react";
 
 export default function Select() {
-    const { languages, difficultList, setLang, setDifficulty, selectOptoin } = useSelectComponent();
+    const { languages, difficultList, setLang, setDifficulty, initSelectOption, selectOptoin } = useSelectComponent();
     const buttonOption = {
         pathName: "/stepper",
         search: `?difficulty=${selectOptoin.defaultDifficulty}&language=${selectOptoin.currentLang}`,
     };
+    useEffect(() => {
+        initSelectOption();
+    }, []);
     return (
         <motion.div
             className="h-full w-full"

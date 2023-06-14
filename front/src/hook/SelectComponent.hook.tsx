@@ -5,6 +5,11 @@ const useSelectComponent = () => {
     const [difficultList, setDifficultList] = useRecoilState(difficultState);
     const [selectOptoin, setSelectOption] = useRecoilState(selectOptionState);
 
+    const initSelectOption = () => {
+        setLang("");
+        setDifficulty("");
+    };
+
     const setLang = (value: LanguageType) => {
         setSelectOption((prevState) => {
             return { ...prevState, currentLang: value };
@@ -22,6 +27,7 @@ const useSelectComponent = () => {
         selectOptoin,
         setLang,
         setDifficulty,
+        initSelectOption,
     };
 };
 

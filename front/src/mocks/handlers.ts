@@ -3,7 +3,7 @@ import { RequestProblem202Response, Problem } from "api/api";
 // src/mocks/handlers.js
 
 // problem
-const apiUrl = "http://15.165.21.53:3000";
+const apiUrl = "http://localhost:3000";
 
 const createProblem: RequestProblem202Response = {
     problem_id: "problem_id",
