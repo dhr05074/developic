@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3filter"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sashabaranov/go-openai"
@@ -39,6 +40,18 @@ func main() {
 	strictHandler := handler.NewStrictHandler(problemHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
+
+	driver := db.NewCachedEntDriver()
+	entClient := ent.NewClient(ent.Driver(driver))
+	defer func() {
+		if err := entClient.Close(); err != nil {
+			l.Fatalw("failed to close ent client", "err", err)
+		}
+	}()
+
+	if err := entClient.Schema.Create(entcache.Skip(context.Background())); err != nil {
+		l.Fatalw("failed creating schema resources", "err", err)
+	}
 
 	l.Infow("starting server", "port", 3000)
 	if err := app.Start(":3000"); err != nil {

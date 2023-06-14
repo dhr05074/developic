@@ -22,7 +22,7 @@ func (Record) Fields() []ent.Field {
 		field.Int("modularity").Default(0),
 		field.Int("efficiency").Default(0),
 		field.Int("testability").Default(0),
-		field.Int("maintainablity").Default(0),
+		field.Int("maintainability").Default(0),
 	}
 }
 
