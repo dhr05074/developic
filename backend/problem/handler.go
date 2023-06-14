@@ -128,7 +128,7 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) e
 		return err
 	}
 
-	p, err := tx.Problem.Query().Where(problem.UUID(uuid)).Only(ctx)
+	p, err := tx.Problem.Query().ForUpdate().Where(problem.UUID(uuid)).Only(ctx)
 	if err != nil {
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
 		return err
