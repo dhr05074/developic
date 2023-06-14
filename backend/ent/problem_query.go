@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -24,6 +25,7 @@ type ProblemQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.Problem
 	withRecords *RecordQuery
+	modifiers   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -383,6 +385,9 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -466,6 +471,9 @@ func (pq *ProblemQuery) loadRecords(ctx context.Context, query *RecordQuery, nod
 
 func (pq *ProblemQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	_spec.Node.Columns = pq.ctx.Fields
 	if len(pq.ctx.Fields) > 0 {
 		_spec.Unique = pq.ctx.Unique != nil && *pq.ctx.Unique
@@ -528,6 +536,9 @@ func (pq *ProblemQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if pq.ctx.Unique != nil && *pq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range pq.modifiers {
+		m(selector)
+	}
 	for _, p := range pq.predicates {
 		p(selector)
 	}
@@ -543,6 +554,32 @@ func (pq *ProblemQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// ForUpdate locks the selected rows against concurrent updates, and prevent them from being
+// updated, deleted or "selected ... for update" by other sessions, until the transaction is
+// either committed or rolled-back.
+func (pq *ProblemQuery) ForUpdate(opts ...sql.LockOption) *ProblemQuery {
+	if pq.driver.Dialect() == dialect.Postgres {
+		pq.Unique(false)
+	}
+	pq.modifiers = append(pq.modifiers, func(s *sql.Selector) {
+		s.ForUpdate(opts...)
+	})
+	return pq
+}
+
+// ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
+// on any rows that are read. Other sessions can read the rows, but cannot modify them
+// until your transaction commits.
+func (pq *ProblemQuery) ForShare(opts ...sql.LockOption) *ProblemQuery {
+	if pq.driver.Dialect() == dialect.Postgres {
+		pq.Unique(false)
+	}
+	pq.modifiers = append(pq.modifiers, func(s *sql.Selector) {
+		s.ForShare(opts...)
+	})
+	return pq
 }
 
 // ProblemGroupBy is the group-by builder for Problem entities.
