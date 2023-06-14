@@ -4,17 +4,9 @@ import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
 import { motion } from "framer-motion";
 
-type StepTypes = "idle" | "loading" | "complete";
-type StepperStyle = {
-    [component: StepTypes]: StepTypes;
-    idle: string;
-    loading: string;
-    complete: string;
-};
-
 function StepperComponent() {
-    const { StepperList, stepperStateChanger } = useStepper();
-    const { problemId, problem, getProblemData } = useProblem();
+    const { StepperList, endStep } = useStepper();
+    const { problemId, problem } = useProblem();
 
     // if (step === 1) {
     //     stepButton = "문제 풀러가기";
@@ -23,51 +15,26 @@ function StepperComponent() {
         idle: "border-gray-300 bg-gray-100 text-gray-900",
         loading: "border-Navy-500 bg-Navy-600 text-white",
         complete: "border-green-300 bg-green-50 text-green-700",
-        inviserble: "opacity-0 invisible",
+        invisible: "opacity-0 invisible",
     };
-    const stepChanger = (selectStep?: StepType) => {
-        const timer = (step: StepType, time: number) => {
-            setTimeout(() => {
-                if (step === "lang") {
-                    if (problemId) {
-                        timer("api", 1000);
-                    }
-                }
-                if (step === "clear") {
-                    timer("end", 1000);
-                }
-                stepperStateChanger(step);
-            }, time);
-        };
-        if (selectStep) {
-            timer(selectStep, 1000);
-            return;
-        }
+    useEffect(() => {
+        console.log(problem, StepperList.comp.step);
 
-        timer("start", 1000);
-        timer("level", 2000);
-        timer("lang", 3000);
-    };
-    useEffect(() => {
-        if (problemId) {
-            console.log("problemId", problemId);
-            stepChanger();
-            getProblemData();
+        if (StepperList.comp.step === "loading") {
+            if (problem) {
+                endStep();
+            }
         }
-    }, [problemId]);
-    useEffect(() => {
-        if (problem) stepChanger("clear");
-    }, [problem]);
+    }, [problem, problemId, StepperList]);
     return (
         <motion.div
+            className="h-full w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <div
-                className={`motion_basic absolute flex h-full w-full flex-row items-center justify-center bg-Navy-800 `}
-            >
+            <div className={`motion_basic flex h-full w-full flex-row items-center justify-center bg-Navy-900 `}>
                 <ol className="w-72 space-y-4">
                     {Object.entries(StepperList).map(([key, value]) => (
                         <li key={key}>

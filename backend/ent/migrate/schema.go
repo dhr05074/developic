@@ -12,8 +12,8 @@ var (
 	ProblemsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeString, Unique: true},
-		{Name: "code", Type: field.TypeString, Size: 2147483647},
-		{Name: "title", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "language", Type: field.TypeString},
 		{Name: "difficulty", Type: field.TypeInt, Default: 1500},
 		{Name: "readability", Type: field.TypeInt, Default: 0},

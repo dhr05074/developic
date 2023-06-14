@@ -1,4 +1,4 @@
-export const apiErrorHandler = (error) => {
+export const apiErrorHandler = (error: any) => {
     if (error.response) {
         // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답했습니다.
         console.log(error.response.data);

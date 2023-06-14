@@ -4,23 +4,24 @@ export default {
     theme: {
         fontFamily: {
             Pretendard: ["Pretendard"],
+            D2Coding: ["D2Coding"],
         },
         colors: {
             coco: {
                 green_500: "#B9FF47",
                 yellow_500: "#FFEF51",
                 red_500: "#FF0D64",
-                blue_500: "3AA0FF",
+                blue_500: "#3AA0FF",
             },
             Navy: {
-                50: "#E6E5EC",
-                100: "#CECCD9",
-                200: "#B5B2C7",
-                300: "#9D99B4",
-                400: "#8480A1",
-                500: "#6B668E",
-                600: "#534C7B",
-                700: "#3A3369",
+                50: "#E9E8EA",
+                100: "#D2D2D6",
+                200: "#BCBBC1",
+                300: "#A5A4AD",
+                400: "#8F8D98",
+                500: "#797784",
+                600: "#62606F",
+                700: "#4C495B",
                 800: "#353346",
                 900: "#1F1C32",
             },

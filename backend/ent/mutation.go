@@ -233,9 +233,22 @@ func (m *ProblemMutation) OldCode(ctx context.Context) (v string, err error) {
 	return oldValue.Code, nil
 }
 
+// ClearCode clears the value of the "code" field.
+func (m *ProblemMutation) ClearCode() {
+	m.code = nil
+	m.clearedFields[problem.FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the "code" field was cleared in this mutation.
+func (m *ProblemMutation) CodeCleared() bool {
+	_, ok := m.clearedFields[problem.FieldCode]
+	return ok
+}
+
 // ResetCode resets all changes to the "code" field.
 func (m *ProblemMutation) ResetCode() {
 	m.code = nil
+	delete(m.clearedFields, problem.FieldCode)
 }
 
 // SetTitle sets the "title" field.
@@ -269,9 +282,22 @@ func (m *ProblemMutation) OldTitle(ctx context.Context) (v string, err error) {
 	return oldValue.Title, nil
 }
 
+// ClearTitle clears the value of the "title" field.
+func (m *ProblemMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[problem.FieldTitle] = struct{}{}
+}
+
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *ProblemMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[problem.FieldTitle]
+	return ok
+}
+
 // ResetTitle resets all changes to the "title" field.
 func (m *ProblemMutation) ResetTitle() {
 	m.title = nil
+	delete(m.clearedFields, problem.FieldTitle)
 }
 
 // SetLanguage sets the "language" field.
@@ -1005,7 +1031,14 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ProblemMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(problem.FieldCode) {
+		fields = append(fields, problem.FieldCode)
+	}
+	if m.FieldCleared(problem.FieldTitle) {
+		fields = append(fields, problem.FieldTitle)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1018,6 +1051,14 @@ func (m *ProblemMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ProblemMutation) ClearField(name string) error {
+	switch name {
+	case problem.FieldCode:
+		m.ClearCode()
+		return nil
+	case problem.FieldTitle:
+		m.ClearTitle()
+		return nil
+	}
 	return fmt.Errorf("unknown Problem nullable field %s", name)
 }
 

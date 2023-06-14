@@ -14,7 +14,7 @@ func NewSSMClient(client *ssm.Client) *SSMClient {
 	return &SSMClient{client: client}
 }
 
-func (c *SSMClient) GetParameter(ctx context.Context, name string) (string, error) {
+func (c *SSMClient) Get(ctx context.Context, name string) (string, error) {
 	result, err := c.client.GetParameter(ctx, &ssm.GetParameterInput{
 		Name: &name,
 	})

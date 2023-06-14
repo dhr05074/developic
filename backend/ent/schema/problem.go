@@ -17,8 +17,8 @@ func (Problem) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique().StructTag("-"),
 		field.String("uuid").Unique().StructTag("id"),
-		field.Text("code"),
-		field.String("title"),
+		field.Text("code").Optional(),
+		field.String("title").Optional(),
 		field.String("language").GoType(gateway.ProgrammingLanguage("")),
 		field.Int("difficulty").Min(0).Max(3000).Default(1500),
 		field.Int("readability").Default(0),

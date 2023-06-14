@@ -131,3 +131,56 @@
 
 -   서스펜스 제거하고 stepper화면 따로 라우팅하여 구현
 -   v0.0.0:28
+-   디자인시스템 적용
+-   메인화면 제작 중
+-   v0.0.0:29
+
+### 5/27
+
+-   select box 제작
+-   v0.0.0:30
+-   select box에 대응하는 버튼 제작
+-   v0.0.0:31
+
+### 5/30
+
+-   codeEditor, markdown 개선
+-   v0.0.0:32
+
+### 6/6
+
+-   typeError 전부 제거!
+-   v0.0.0:33
+-   select 클릭 안되는 부분 개선
+-   color 디자인 시스템 적용.
+-   v0.0.0:34
+-   button 디자인 시스템 적용
+-   v0.0.0:35
+-   stepper 버그 제거
+-   api cancel 추가
+-   v0.0.0:36
+
+### 6/9
+
+-   iconfont component 제작
+-   profile icon 추가
+-   v0.0.0:37
+-   problem nav top 추가
+-   button function 제작 중.
+-   v0.0.0:38
+
+### 6/10
+
+-   openapi 변경 사항 적용
+-   problem.hook 리팩토링
+-   v0.0.0:39
+
+### 6/11
+
+-   logo, favicon,profile 변경
+-   iconify 제거
+-   v0.0.0:40
+-   styled component 이용하여 button 제작
+-   v0.0.0:41
+-   problem 페이지 nav바 디자인 적용
+-   v0.0.0:42
