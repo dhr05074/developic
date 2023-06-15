@@ -16,7 +16,7 @@ func init() {
 	problemFields := schema.Problem{}.Fields()
 	_ = problemFields
 	// problemDescDifficulty is the schema descriptor for difficulty field.
-	problemDescDifficulty := problemFields[5].Descriptor()
+	problemDescDifficulty := problemFields[6].Descriptor()
 	// problem.DefaultDifficulty holds the default value on creation for the difficulty field.
 	problem.DefaultDifficulty = problemDescDifficulty.Default.(int)
 	// problem.DifficultyValidator is a validator for the "difficulty" field. It is called by the builders before save.
@@ -36,23 +36,23 @@ func init() {
 		}
 	}()
 	// problemDescReadability is the schema descriptor for readability field.
-	problemDescReadability := problemFields[6].Descriptor()
+	problemDescReadability := problemFields[7].Descriptor()
 	// problem.DefaultReadability holds the default value on creation for the readability field.
 	problem.DefaultReadability = problemDescReadability.Default.(int)
 	// problemDescModularity is the schema descriptor for modularity field.
-	problemDescModularity := problemFields[7].Descriptor()
+	problemDescModularity := problemFields[8].Descriptor()
 	// problem.DefaultModularity holds the default value on creation for the modularity field.
 	problem.DefaultModularity = problemDescModularity.Default.(int)
 	// problemDescEfficiency is the schema descriptor for efficiency field.
-	problemDescEfficiency := problemFields[8].Descriptor()
+	problemDescEfficiency := problemFields[9].Descriptor()
 	// problem.DefaultEfficiency holds the default value on creation for the efficiency field.
 	problem.DefaultEfficiency = problemDescEfficiency.Default.(int)
 	// problemDescTestability is the schema descriptor for testability field.
-	problemDescTestability := problemFields[9].Descriptor()
+	problemDescTestability := problemFields[10].Descriptor()
 	// problem.DefaultTestability holds the default value on creation for the testability field.
 	problem.DefaultTestability = problemDescTestability.Default.(int)
 	// problemDescMaintainablity is the schema descriptor for maintainablity field.
-	problemDescMaintainablity := problemFields[10].Descriptor()
+	problemDescMaintainablity := problemFields[11].Descriptor()
 	// problem.DefaultMaintainablity holds the default value on creation for the maintainablity field.
 	problem.DefaultMaintainablity = problemDescMaintainablity.Default.(int)
 	recordFields := schema.Record{}.Fields()

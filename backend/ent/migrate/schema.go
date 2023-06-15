@@ -15,6 +15,7 @@ var (
 		{Name: "code", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "language", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "difficulty", Type: field.TypeInt, Default: 1500},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
 		{Name: "modularity", Type: field.TypeInt, Default: 0},

@@ -41,6 +41,7 @@ type ProblemMutation struct {
 	code              *string
 	title             *string
 	language          *gateway.ProgrammingLanguage
+	description       *string
 	difficulty        *int
 	adddifficulty     *int
 	readability       *int
@@ -334,6 +335,55 @@ func (m *ProblemMutation) OldLanguage(ctx context.Context) (v gateway.Programmin
 // ResetLanguage resets all changes to the "language" field.
 func (m *ProblemMutation) ResetLanguage() {
 	m.language = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *ProblemMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *ProblemMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *ProblemMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[problem.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *ProblemMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[problem.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *ProblemMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, problem.FieldDescription)
 }
 
 // SetDifficulty sets the "difficulty" field.
@@ -760,7 +810,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.uuid != nil {
 		fields = append(fields, problem.FieldUUID)
 	}
@@ -772,6 +822,9 @@ func (m *ProblemMutation) Fields() []string {
 	}
 	if m.language != nil {
 		fields = append(fields, problem.FieldLanguage)
+	}
+	if m.description != nil {
+		fields = append(fields, problem.FieldDescription)
 	}
 	if m.difficulty != nil {
 		fields = append(fields, problem.FieldDifficulty)
@@ -807,6 +860,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case problem.FieldLanguage:
 		return m.Language()
+	case problem.FieldDescription:
+		return m.Description()
 	case problem.FieldDifficulty:
 		return m.Difficulty()
 	case problem.FieldReadability:
@@ -836,6 +891,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case problem.FieldLanguage:
 		return m.OldLanguage(ctx)
+	case problem.FieldDescription:
+		return m.OldDescription(ctx)
 	case problem.FieldDifficulty:
 		return m.OldDifficulty(ctx)
 	case problem.FieldReadability:
@@ -884,6 +941,13 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLanguage(v)
+		return nil
+	case problem.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
 		return nil
 	case problem.FieldDifficulty:
 		v, ok := value.(int)
@@ -1038,6 +1102,9 @@ func (m *ProblemMutation) ClearedFields() []string {
 	if m.FieldCleared(problem.FieldTitle) {
 		fields = append(fields, problem.FieldTitle)
 	}
+	if m.FieldCleared(problem.FieldDescription) {
+		fields = append(fields, problem.FieldDescription)
+	}
 	return fields
 }
 
@@ -1058,6 +1125,9 @@ func (m *ProblemMutation) ClearField(name string) error {
 	case problem.FieldTitle:
 		m.ClearTitle()
 		return nil
+	case problem.FieldDescription:
+		m.ClearDescription()
+		return nil
 	}
 	return fmt.Errorf("unknown Problem nullable field %s", name)
 }
@@ -1077,6 +1147,9 @@ func (m *ProblemMutation) ResetField(name string) error {
 		return nil
 	case problem.FieldLanguage:
 		m.ResetLanguage()
+		return nil
+	case problem.FieldDescription:
+		m.ResetDescription()
 		return nil
 	case problem.FieldDifficulty:
 		m.ResetDifficulty()

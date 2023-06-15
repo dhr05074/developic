@@ -20,6 +20,8 @@ const (
 	FieldTitle = "title"
 	// FieldLanguage holds the string denoting the language field in the database.
 	FieldLanguage = "language"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldDifficulty holds the string denoting the difficulty field in the database.
 	FieldDifficulty = "difficulty"
 	// FieldReadability holds the string denoting the readability field in the database.
@@ -50,6 +52,7 @@ var Columns = []string{
 	FieldCode,
 	FieldTitle,
 	FieldLanguage,
+	FieldDescription,
 	FieldDifficulty,
 	FieldReadability,
 	FieldModularity,
@@ -117,6 +120,11 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 // ByLanguage orders the results by the language field.
 func ByLanguage(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLanguage, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
 // ByDifficulty orders the results by the difficulty field.

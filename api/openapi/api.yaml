@@ -171,6 +171,12 @@ components:
           $ref: "#/components/schemas/ProblemID"
         name:
           $ref: "#/components/schemas/ProblemName"
+        description:
+          type: string
+          description: 문제의 자세한 설명입니다.
+          example: |
+            문제 설명입니다.
+            이 문제는 이렇게 풀면 됩니다.
         code:
           $ref: "#/components/schemas/Code"
       required:

@@ -81,6 +81,26 @@ func (pu *ProblemUpdate) SetLanguage(gl gateway.ProgrammingLanguage) *ProblemUpd
 	return pu
 }
 
+// SetDescription sets the "description" field.
+func (pu *ProblemUpdate) SetDescription(s string) *ProblemUpdate {
+	pu.mutation.SetDescription(s)
+	return pu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableDescription(s *string) *ProblemUpdate {
+	if s != nil {
+		pu.SetDescription(*s)
+	}
+	return pu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (pu *ProblemUpdate) ClearDescription() *ProblemUpdate {
+	pu.mutation.ClearDescription()
+	return pu
+}
+
 // SetDifficulty sets the "difficulty" field.
 func (pu *ProblemUpdate) SetDifficulty(i int) *ProblemUpdate {
 	pu.mutation.ResetDifficulty()
@@ -315,6 +335,12 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Language(); ok {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
 	}
+	if value, ok := pu.mutation.Description(); ok {
+		_spec.SetField(problem.FieldDescription, field.TypeString, value)
+	}
+	if pu.mutation.DescriptionCleared() {
+		_spec.ClearField(problem.FieldDescription, field.TypeString)
+	}
 	if value, ok := pu.mutation.Difficulty(); ok {
 		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)
 	}
@@ -465,6 +491,26 @@ func (puo *ProblemUpdateOne) ClearTitle() *ProblemUpdateOne {
 // SetLanguage sets the "language" field.
 func (puo *ProblemUpdateOne) SetLanguage(gl gateway.ProgrammingLanguage) *ProblemUpdateOne {
 	puo.mutation.SetLanguage(gl)
+	return puo
+}
+
+// SetDescription sets the "description" field.
+func (puo *ProblemUpdateOne) SetDescription(s string) *ProblemUpdateOne {
+	puo.mutation.SetDescription(s)
+	return puo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableDescription(s *string) *ProblemUpdateOne {
+	if s != nil {
+		puo.SetDescription(*s)
+	}
+	return puo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (puo *ProblemUpdateOne) ClearDescription() *ProblemUpdateOne {
+	puo.mutation.ClearDescription()
 	return puo
 }
 
@@ -731,6 +777,12 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if value, ok := puo.mutation.Language(); ok {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Description(); ok {
+		_spec.SetField(problem.FieldDescription, field.TypeString, value)
+	}
+	if puo.mutation.DescriptionCleared() {
+		_spec.ClearField(problem.FieldDescription, field.TypeString)
 	}
 	if value, ok := puo.mutation.Difficulty(); ok {
 		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)

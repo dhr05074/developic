@@ -76,6 +76,11 @@ func Language(v gateway.ProgrammingLanguage) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldLanguage, vc))
 }
 
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDescription, v))
+}
+
 // Difficulty applies equality check predicate on the "difficulty" field. It's identical to DifficultyEQ.
 func Difficulty(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldDifficulty, v))
@@ -403,6 +408,81 @@ func LanguageEqualFold(v gateway.ProgrammingLanguage) predicate.Problem {
 func LanguageContainsFold(v gateway.ProgrammingLanguage) predicate.Problem {
 	vc := string(v)
 	return predicate.Problem(sql.FieldContainsFold(FieldLanguage, vc))
+}
+
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldDescription, v))
+}
+
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldDescription, v))
+}
+
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldDescription, vs...))
+}
+
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldDescription, vs...))
+}
+
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldDescription, v))
+}
+
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldDescription, v))
+}
+
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldDescription, v))
+}
+
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldDescription, v))
+}
+
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContains(FieldDescription, v))
+}
+
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasPrefix(FieldDescription, v))
+}
+
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldHasSuffix(FieldDescription, v))
+}
+
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Problem {
+	return predicate.Problem(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Problem {
+	return predicate.Problem(sql.FieldNotNull(FieldDescription))
+}
+
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldEqualFold(FieldDescription, v))
+}
+
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.Problem {
+	return predicate.Problem(sql.FieldContainsFold(FieldDescription, v))
 }
 
 // DifficultyEQ applies the EQ predicate on the "difficulty" field.

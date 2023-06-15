@@ -25,6 +25,8 @@ type Problem struct {
 	Title string `json:"title,omitempty"`
 	// Language holds the value of the "language" field.
 	Language gateway.ProgrammingLanguage `json:"language,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Difficulty holds the value of the "difficulty" field.
 	Difficulty int `json:"difficulty,omitempty"`
 	// Readability holds the value of the "readability" field.
@@ -68,7 +70,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldID, problem.FieldDifficulty, problem.FieldReadability, problem.FieldModularity, problem.FieldEfficiency, problem.FieldTestability, problem.FieldMaintainablity:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldCode, problem.FieldTitle, problem.FieldLanguage:
+		case problem.FieldUUID, problem.FieldCode, problem.FieldTitle, problem.FieldLanguage, problem.FieldDescription:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -114,6 +116,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field language", values[i])
 			} else if value.Valid {
 				pr.Language = gateway.ProgrammingLanguage(value.String)
+			}
+		case problem.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				pr.Description = value.String
 			}
 		case problem.FieldDifficulty:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -203,6 +211,9 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("language=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Language))
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(pr.Description)
 	builder.WriteString(", ")
 	builder.WriteString("difficulty=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Difficulty))

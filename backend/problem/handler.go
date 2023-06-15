@@ -7,6 +7,7 @@ import (
 	"code-connect/pkg/ai"
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
+	"code-connect/pkg/str"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -29,8 +30,9 @@ func NewHandler(paramClient store.KV, gptClient ai.GPTClient, entClient *ent.Cli
 }
 
 type Output struct {
-	Title string `json:"title"`
-	Code  string `json:"code"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Code        string `json:"code"`
 }
 
 const (
@@ -96,14 +98,20 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return Output{}, err
 	}
 
-	h.log.Info(result)
-
 	var output Output
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
-		h.log.Errorw("failed to unmarshal result", "category", "json", "error", err)
+		h.log.Errorw("failed to unmarshal result", "category", "internal", "error", err)
 		return Output{}, err
 	}
 
+	h.gptClient.AddPrompt("Give me the code")
+	output.Code, err = h.gptClient.Complete(ctx)
+	if err != nil {
+		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
+		return Output{}, err
+	}
+
+	output.Code = str.ExtractCodeBlocksFromMarkdown(output.Code)[0]
 	encoder := base64.StdEncoding
 	output.Code = encoder.EncodeToString([]byte(output.Code))
 
@@ -134,7 +142,7 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) e
 		return err
 	}
 
-	err = p.Update().SetTitle(output.Title).SetCode(output.Code).Exec(ctx)
+	err = p.Update().SetTitle(output.Title).SetDescription(output.Description).SetCode(output.Code).Exec(ctx)
 	if err != nil {
 		h.log.Errorw("failed to update problem", "category", "db", "error", err)
 		return err

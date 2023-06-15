@@ -61,6 +61,20 @@ func (pc *ProblemCreate) SetLanguage(gl gateway.ProgrammingLanguage) *ProblemCre
 	return pc
 }
 
+// SetDescription sets the "description" field.
+func (pc *ProblemCreate) SetDescription(s string) *ProblemCreate {
+	pc.mutation.SetDescription(s)
+	return pc
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableDescription(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetDescription(*s)
+	}
+	return pc
+}
+
 // SetDifficulty sets the "difficulty" field.
 func (pc *ProblemCreate) SetDifficulty(i int) *ProblemCreate {
 	pc.mutation.SetDifficulty(i)
@@ -305,6 +319,10 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Language(); ok {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
 		_node.Language = value
+	}
+	if value, ok := pc.mutation.Description(); ok {
+		_spec.SetField(problem.FieldDescription, field.TypeString, value)
+		_node.Description = value
 	}
 	if value, ok := pc.mutation.Difficulty(); ok {
 		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)
