@@ -31,7 +31,7 @@ func (o *OpenAI) ClearContext() {
 
 func (o *OpenAI) Complete(ctx context.Context) (answer string, err error) {
 	response, err := o.openaiClient.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-		Model:       openai.GPT3Dot5Turbo,
+		Model:       openai.GPT3Dot5Turbo0613,
 		Temperature: 0.8,
 		Messages:    o.messages,
 	})

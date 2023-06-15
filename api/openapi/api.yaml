@@ -75,7 +75,7 @@ components:
                     problem_id:
                       $ref: "#/components/schemas/ProblemID"
                     problem_name:
-                      $ref: "#/components/schemas/ProblemName"
+                      $ref: "#/components/schemas/ProblemTitle"
                     score:
                       $ref: "#/components/schemas/RecordScore"
     200GetRecord:
@@ -169,8 +169,8 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/ProblemID"
-        name:
-          $ref: "#/components/schemas/ProblemName"
+        title:
+          $ref: "#/components/schemas/ProblemTitle"
         description:
           type: string
           description: 문제의 자세한 설명입니다.
@@ -181,14 +181,15 @@ components:
           $ref: "#/components/schemas/Code"
       required:
         - id
-        - name
+        - title
+        - description
         - code
     ProblemID:
       type: string
       description: Developic에서 출제한 문제의 고유 ID입니다.
       example: 1a2b3c4d
       maxLength: 8
-    ProblemName:
+    ProblemTitle:
       type: string
       description: Developic에서 출제한 문제의 타이틀입니다.
       example: 중첩된 If문 없애기

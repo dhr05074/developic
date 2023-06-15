@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ariga.io/entcache"
 	"code-connect/ent"
 	"code-connect/gateway"
 	"code-connect/gateway/handler"
@@ -40,18 +41,6 @@ func main() {
 	strictHandler := handler.NewStrictHandler(problemHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
-
-	driver := db.NewCachedEntDriver()
-	entClient := ent.NewClient(ent.Driver(driver))
-	defer func() {
-		if err := entClient.Close(); err != nil {
-			l.Fatalw("failed to close ent client", "err", err)
-		}
-	}()
-
-	if err := entClient.Schema.Create(entcache.Skip(context.Background())); err != nil {
-		l.Fatalw("failed creating schema resources", "err", err)
-	}
 
 	l.Infow("starting server", "port", 3000)
 	if err := app.Start(":3000"); err != nil {
@@ -98,7 +87,7 @@ func mustInitGPTClient() ai.GPTClient {
 func mustInitEntClient(ctx context.Context) *ent.Client {
 	drv := db.NewCachedEntDriver()
 	client := ent.NewClient(ent.Driver(drv))
-	if err := client.Schema.Create(ctx); err != nil {
+	if err := client.Schema.Create(entcache.Skip(ctx)); err != nil {
 		l.Fatalf("failed creating schema resources: %v", err)
 	}
 	return client

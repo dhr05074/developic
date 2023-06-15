@@ -111,6 +111,8 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return Output{}, err
 	}
 
+	h.log.Infof("problem generated")
+
 	output.Code = str.ExtractCodeBlocksFromMarkdown(output.Code)[0]
 	encoder := base64.StdEncoding
 	output.Code = encoder.EncodeToString([]byte(output.Code))
@@ -200,9 +202,10 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 
 	return gateway.GetProblem200JSONResponse{
 		N200GetProblemJSONResponse: gateway.N200GetProblemJSONResponse{
-			Code: p.Code,
-			Id:   p.UUID,
-			Name: p.Title,
+			Code:        p.Code,
+			Id:          p.UUID,
+			Title:       p.Title,
+			Description: p.Description,
 		},
 	}, nil
 }
