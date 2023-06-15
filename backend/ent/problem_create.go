@@ -82,7 +82,7 @@ func (pc *ProblemCreate) SetDifficulty(i int) *ProblemCreate {
 }
 
 // SetNillableDifficulty sets the "difficulty" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableDifficulty(i *gateway.ELOScore) *ProblemCreate {
+func (pc *ProblemCreate) SetNillableDifficulty(i *int) *ProblemCreate {
 	if i != nil {
 		pc.SetDifficulty(*i)
 	}

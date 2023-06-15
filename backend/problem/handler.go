@@ -145,7 +145,13 @@ func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObj
 }
 
 func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
-	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(request.Body.EloScore).Exec(ctx)
+	var difficulty *int
+	if request.Body.EloScore != nil {
+		elo := int(*request.Body.EloScore)
+		difficulty = &elo
+	}
+
+	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
 }
 
 func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) error {
