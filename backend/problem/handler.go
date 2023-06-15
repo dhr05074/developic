@@ -8,6 +8,7 @@ import (
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
 	"code-connect/pkg/str"
+	"code-connect/schema/message"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -22,11 +23,23 @@ type Handler struct {
 	gptClient   ai.GPTClient
 	entClient   *ent.Client
 	log         *zap.SugaredLogger
+	reqeuestCh  chan message.ProblemMessage
 }
 
-func NewHandler(paramClient store.KV, gptClient ai.GPTClient, entClient *ent.Client) *Handler {
+func NewHandler(
+	paramClient store.KV,
+	gptClient ai.GPTClient,
+	entClient *ent.Client,
+	reqCh chan message.ProblemMessage,
+) *Handler {
 	l := log.NewZap().With("handler", "problem")
-	return &Handler{paramClient: paramClient, gptClient: gptClient, entClient: entClient, log: l}
+	return &Handler{
+		paramClient: paramClient,
+		gptClient:   gptClient,
+		entClient:   entClient,
+		log:         l,
+		reqeuestCh:  reqCh,
+	}
 }
 
 type Output struct {
@@ -51,7 +64,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 
 	// UUID만 담긴 문제 객체를 미리 생성한다.
 	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
-	if err := h.createProblem(ctx, problemID, request.Body.Language); err != nil {
+	if err := h.createProblem(ctx, problemID, request); err != nil {
 		h.log.Errorw("failed to create problem", "category", "db", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
@@ -73,6 +86,10 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 		if err := h.saveProblem(anotherCtx, problemID, output); err != nil {
 			h.log.Errorw("failed to save problem", "category", "db", "error", err)
 			return
+		}
+
+		h.reqeuestCh <- message.ProblemMessage{
+			ID: problemID,
 		}
 	}()
 
@@ -122,13 +139,13 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 
 func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObject) string {
 	prompt = strings.ReplaceAll(prompt, languageTemplateKey, string(req.Body.Language))
-	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", defaultELOScore))
+	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", req.Body.EloScore))
 
 	return prompt
 }
 
-func (h *Handler) createProblem(ctx context.Context, uuid string, language gateway.ProgrammingLanguage) error {
-	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(language).Exec(ctx)
+func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
+	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(request.Body.EloScore).Exec(ctx)
 }
 
 func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) error {

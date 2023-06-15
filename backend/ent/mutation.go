@@ -34,33 +34,29 @@ const (
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	uuid              *string
-	code              *string
-	title             *string
-	language          *gateway.ProgrammingLanguage
-	description       *string
-	difficulty        *int
-	adddifficulty     *int
-	readability       *int
-	addreadability    *int
-	modularity        *int
-	addmodularity     *int
-	efficiency        *int
-	addefficiency     *int
-	testability       *int
-	addtestability    *int
-	maintainablity    *int
-	addmaintainablity *int
-	clearedFields     map[string]struct{}
-	records           map[int]struct{}
-	removedrecords    map[int]struct{}
-	clearedrecords    bool
-	done              bool
-	oldValue          func(context.Context) (*Problem, error)
-	predicates        []predicate.Problem
+	op             Op
+	typ            string
+	id             *int
+	uuid           *string
+	code           *string
+	title          *string
+	language       *gateway.ProgrammingLanguage
+	description    *string
+	difficulty     *int
+	adddifficulty  *int
+	readability    *int
+	addreadability *int
+	robustness     *int
+	addrobustness  *int
+	efficiency     *int
+	addefficiency  *int
+	clearedFields  map[string]struct{}
+	records        map[int]struct{}
+	removedrecords map[int]struct{}
+	clearedrecords bool
+	done           bool
+	oldValue       func(context.Context) (*Problem, error)
+	predicates     []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -498,60 +494,60 @@ func (m *ProblemMutation) ResetReadability() {
 	m.addreadability = nil
 }
 
-// SetModularity sets the "modularity" field.
-func (m *ProblemMutation) SetModularity(i int) {
-	m.modularity = &i
-	m.addmodularity = nil
+// SetRobustness sets the "robustness" field.
+func (m *ProblemMutation) SetRobustness(i int) {
+	m.robustness = &i
+	m.addrobustness = nil
 }
 
-// Modularity returns the value of the "modularity" field in the mutation.
-func (m *ProblemMutation) Modularity() (r int, exists bool) {
-	v := m.modularity
+// Robustness returns the value of the "robustness" field in the mutation.
+func (m *ProblemMutation) Robustness() (r int, exists bool) {
+	v := m.robustness
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldModularity returns the old "modularity" field's value of the Problem entity.
+// OldRobustness returns the old "robustness" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldModularity(ctx context.Context) (v int, err error) {
+func (m *ProblemMutation) OldRobustness(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldModularity is only allowed on UpdateOne operations")
+		return v, errors.New("OldRobustness is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldModularity requires an ID field in the mutation")
+		return v, errors.New("OldRobustness requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldModularity: %w", err)
+		return v, fmt.Errorf("querying old value for OldRobustness: %w", err)
 	}
-	return oldValue.Modularity, nil
+	return oldValue.Robustness, nil
 }
 
-// AddModularity adds i to the "modularity" field.
-func (m *ProblemMutation) AddModularity(i int) {
-	if m.addmodularity != nil {
-		*m.addmodularity += i
+// AddRobustness adds i to the "robustness" field.
+func (m *ProblemMutation) AddRobustness(i int) {
+	if m.addrobustness != nil {
+		*m.addrobustness += i
 	} else {
-		m.addmodularity = &i
+		m.addrobustness = &i
 	}
 }
 
-// AddedModularity returns the value that was added to the "modularity" field in this mutation.
-func (m *ProblemMutation) AddedModularity() (r int, exists bool) {
-	v := m.addmodularity
+// AddedRobustness returns the value that was added to the "robustness" field in this mutation.
+func (m *ProblemMutation) AddedRobustness() (r int, exists bool) {
+	v := m.addrobustness
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetModularity resets all changes to the "modularity" field.
-func (m *ProblemMutation) ResetModularity() {
-	m.modularity = nil
-	m.addmodularity = nil
+// ResetRobustness resets all changes to the "robustness" field.
+func (m *ProblemMutation) ResetRobustness() {
+	m.robustness = nil
+	m.addrobustness = nil
 }
 
 // SetEfficiency sets the "efficiency" field.
@@ -608,118 +604,6 @@ func (m *ProblemMutation) AddedEfficiency() (r int, exists bool) {
 func (m *ProblemMutation) ResetEfficiency() {
 	m.efficiency = nil
 	m.addefficiency = nil
-}
-
-// SetTestability sets the "testability" field.
-func (m *ProblemMutation) SetTestability(i int) {
-	m.testability = &i
-	m.addtestability = nil
-}
-
-// Testability returns the value of the "testability" field in the mutation.
-func (m *ProblemMutation) Testability() (r int, exists bool) {
-	v := m.testability
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTestability returns the old "testability" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldTestability(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTestability is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTestability requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTestability: %w", err)
-	}
-	return oldValue.Testability, nil
-}
-
-// AddTestability adds i to the "testability" field.
-func (m *ProblemMutation) AddTestability(i int) {
-	if m.addtestability != nil {
-		*m.addtestability += i
-	} else {
-		m.addtestability = &i
-	}
-}
-
-// AddedTestability returns the value that was added to the "testability" field in this mutation.
-func (m *ProblemMutation) AddedTestability() (r int, exists bool) {
-	v := m.addtestability
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTestability resets all changes to the "testability" field.
-func (m *ProblemMutation) ResetTestability() {
-	m.testability = nil
-	m.addtestability = nil
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (m *ProblemMutation) SetMaintainablity(i int) {
-	m.maintainablity = &i
-	m.addmaintainablity = nil
-}
-
-// Maintainablity returns the value of the "maintainablity" field in the mutation.
-func (m *ProblemMutation) Maintainablity() (r int, exists bool) {
-	v := m.maintainablity
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMaintainablity returns the old "maintainablity" field's value of the Problem entity.
-// If the Problem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldMaintainablity(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMaintainablity is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMaintainablity requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMaintainablity: %w", err)
-	}
-	return oldValue.Maintainablity, nil
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (m *ProblemMutation) AddMaintainablity(i int) {
-	if m.addmaintainablity != nil {
-		*m.addmaintainablity += i
-	} else {
-		m.addmaintainablity = &i
-	}
-}
-
-// AddedMaintainablity returns the value that was added to the "maintainablity" field in this mutation.
-func (m *ProblemMutation) AddedMaintainablity() (r int, exists bool) {
-	v := m.addmaintainablity
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetMaintainablity resets all changes to the "maintainablity" field.
-func (m *ProblemMutation) ResetMaintainablity() {
-	m.maintainablity = nil
-	m.addmaintainablity = nil
 }
 
 // AddRecordIDs adds the "records" edge to the Record entity by ids.
@@ -810,7 +694,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 9)
 	if m.uuid != nil {
 		fields = append(fields, problem.FieldUUID)
 	}
@@ -832,17 +716,11 @@ func (m *ProblemMutation) Fields() []string {
 	if m.readability != nil {
 		fields = append(fields, problem.FieldReadability)
 	}
-	if m.modularity != nil {
-		fields = append(fields, problem.FieldModularity)
+	if m.robustness != nil {
+		fields = append(fields, problem.FieldRobustness)
 	}
 	if m.efficiency != nil {
 		fields = append(fields, problem.FieldEfficiency)
-	}
-	if m.testability != nil {
-		fields = append(fields, problem.FieldTestability)
-	}
-	if m.maintainablity != nil {
-		fields = append(fields, problem.FieldMaintainablity)
 	}
 	return fields
 }
@@ -866,14 +744,10 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.Difficulty()
 	case problem.FieldReadability:
 		return m.Readability()
-	case problem.FieldModularity:
-		return m.Modularity()
+	case problem.FieldRobustness:
+		return m.Robustness()
 	case problem.FieldEfficiency:
 		return m.Efficiency()
-	case problem.FieldTestability:
-		return m.Testability()
-	case problem.FieldMaintainablity:
-		return m.Maintainablity()
 	}
 	return nil, false
 }
@@ -897,14 +771,10 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDifficulty(ctx)
 	case problem.FieldReadability:
 		return m.OldReadability(ctx)
-	case problem.FieldModularity:
-		return m.OldModularity(ctx)
+	case problem.FieldRobustness:
+		return m.OldRobustness(ctx)
 	case problem.FieldEfficiency:
 		return m.OldEfficiency(ctx)
-	case problem.FieldTestability:
-		return m.OldTestability(ctx)
-	case problem.FieldMaintainablity:
-		return m.OldMaintainablity(ctx)
 	}
 	return nil, fmt.Errorf("unknown Problem field %s", name)
 }
@@ -963,12 +833,12 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReadability(v)
 		return nil
-	case problem.FieldModularity:
+	case problem.FieldRobustness:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetModularity(v)
+		m.SetRobustness(v)
 		return nil
 	case problem.FieldEfficiency:
 		v, ok := value.(int)
@@ -976,20 +846,6 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEfficiency(v)
-		return nil
-	case problem.FieldTestability:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTestability(v)
-		return nil
-	case problem.FieldMaintainablity:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMaintainablity(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
@@ -1005,17 +861,11 @@ func (m *ProblemMutation) AddedFields() []string {
 	if m.addreadability != nil {
 		fields = append(fields, problem.FieldReadability)
 	}
-	if m.addmodularity != nil {
-		fields = append(fields, problem.FieldModularity)
+	if m.addrobustness != nil {
+		fields = append(fields, problem.FieldRobustness)
 	}
 	if m.addefficiency != nil {
 		fields = append(fields, problem.FieldEfficiency)
-	}
-	if m.addtestability != nil {
-		fields = append(fields, problem.FieldTestability)
-	}
-	if m.addmaintainablity != nil {
-		fields = append(fields, problem.FieldMaintainablity)
 	}
 	return fields
 }
@@ -1029,14 +879,10 @@ func (m *ProblemMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedDifficulty()
 	case problem.FieldReadability:
 		return m.AddedReadability()
-	case problem.FieldModularity:
-		return m.AddedModularity()
+	case problem.FieldRobustness:
+		return m.AddedRobustness()
 	case problem.FieldEfficiency:
 		return m.AddedEfficiency()
-	case problem.FieldTestability:
-		return m.AddedTestability()
-	case problem.FieldMaintainablity:
-		return m.AddedMaintainablity()
 	}
 	return nil, false
 }
@@ -1060,12 +906,12 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddReadability(v)
 		return nil
-	case problem.FieldModularity:
+	case problem.FieldRobustness:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddModularity(v)
+		m.AddRobustness(v)
 		return nil
 	case problem.FieldEfficiency:
 		v, ok := value.(int)
@@ -1073,20 +919,6 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddEfficiency(v)
-		return nil
-	case problem.FieldTestability:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTestability(v)
-		return nil
-	case problem.FieldMaintainablity:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddMaintainablity(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Problem numeric field %s", name)
@@ -1157,17 +989,11 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldReadability:
 		m.ResetReadability()
 		return nil
-	case problem.FieldModularity:
-		m.ResetModularity()
+	case problem.FieldRobustness:
+		m.ResetRobustness()
 		return nil
 	case problem.FieldEfficiency:
 		m.ResetEfficiency()
-		return nil
-	case problem.FieldTestability:
-		m.ResetTestability()
-		return nil
-	case problem.FieldMaintainablity:
-		m.ResetMaintainablity()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
@@ -1260,29 +1086,25 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 // RecordMutation represents an operation that mutates the Record nodes in the graph.
 type RecordMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	uuid              *string
-	user_uuid         *string
-	code              *string
-	readability       *int
-	addreadability    *int
-	modularity        *int
-	addmodularity     *int
-	efficiency        *int
-	addefficiency     *int
-	testability       *int
-	addtestability    *int
-	maintainablity    *int
-	addmaintainablity *int
-	clearedFields     map[string]struct{}
-	problem           map[int]struct{}
-	removedproblem    map[int]struct{}
-	clearedproblem    bool
-	done              bool
-	oldValue          func(context.Context) (*Record, error)
-	predicates        []predicate.Record
+	op             Op
+	typ            string
+	id             *int
+	uuid           *string
+	user_uuid      *string
+	code           *string
+	readability    *int
+	addreadability *int
+	robustness     *int
+	addrobustness  *int
+	efficiency     *int
+	addefficiency  *int
+	clearedFields  map[string]struct{}
+	problem        map[int]struct{}
+	removedproblem map[int]struct{}
+	clearedproblem bool
+	done           bool
+	oldValue       func(context.Context) (*Record, error)
+	predicates     []predicate.Record
 }
 
 var _ ent.Mutation = (*RecordMutation)(nil)
@@ -1553,60 +1375,60 @@ func (m *RecordMutation) ResetReadability() {
 	m.addreadability = nil
 }
 
-// SetModularity sets the "modularity" field.
-func (m *RecordMutation) SetModularity(i int) {
-	m.modularity = &i
-	m.addmodularity = nil
+// SetRobustness sets the "robustness" field.
+func (m *RecordMutation) SetRobustness(i int) {
+	m.robustness = &i
+	m.addrobustness = nil
 }
 
-// Modularity returns the value of the "modularity" field in the mutation.
-func (m *RecordMutation) Modularity() (r int, exists bool) {
-	v := m.modularity
+// Robustness returns the value of the "robustness" field in the mutation.
+func (m *RecordMutation) Robustness() (r int, exists bool) {
+	v := m.robustness
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldModularity returns the old "modularity" field's value of the Record entity.
+// OldRobustness returns the old "robustness" field's value of the Record entity.
 // If the Record object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RecordMutation) OldModularity(ctx context.Context) (v int, err error) {
+func (m *RecordMutation) OldRobustness(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldModularity is only allowed on UpdateOne operations")
+		return v, errors.New("OldRobustness is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldModularity requires an ID field in the mutation")
+		return v, errors.New("OldRobustness requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldModularity: %w", err)
+		return v, fmt.Errorf("querying old value for OldRobustness: %w", err)
 	}
-	return oldValue.Modularity, nil
+	return oldValue.Robustness, nil
 }
 
-// AddModularity adds i to the "modularity" field.
-func (m *RecordMutation) AddModularity(i int) {
-	if m.addmodularity != nil {
-		*m.addmodularity += i
+// AddRobustness adds i to the "robustness" field.
+func (m *RecordMutation) AddRobustness(i int) {
+	if m.addrobustness != nil {
+		*m.addrobustness += i
 	} else {
-		m.addmodularity = &i
+		m.addrobustness = &i
 	}
 }
 
-// AddedModularity returns the value that was added to the "modularity" field in this mutation.
-func (m *RecordMutation) AddedModularity() (r int, exists bool) {
-	v := m.addmodularity
+// AddedRobustness returns the value that was added to the "robustness" field in this mutation.
+func (m *RecordMutation) AddedRobustness() (r int, exists bool) {
+	v := m.addrobustness
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetModularity resets all changes to the "modularity" field.
-func (m *RecordMutation) ResetModularity() {
-	m.modularity = nil
-	m.addmodularity = nil
+// ResetRobustness resets all changes to the "robustness" field.
+func (m *RecordMutation) ResetRobustness() {
+	m.robustness = nil
+	m.addrobustness = nil
 }
 
 // SetEfficiency sets the "efficiency" field.
@@ -1663,118 +1485,6 @@ func (m *RecordMutation) AddedEfficiency() (r int, exists bool) {
 func (m *RecordMutation) ResetEfficiency() {
 	m.efficiency = nil
 	m.addefficiency = nil
-}
-
-// SetTestability sets the "testability" field.
-func (m *RecordMutation) SetTestability(i int) {
-	m.testability = &i
-	m.addtestability = nil
-}
-
-// Testability returns the value of the "testability" field in the mutation.
-func (m *RecordMutation) Testability() (r int, exists bool) {
-	v := m.testability
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTestability returns the old "testability" field's value of the Record entity.
-// If the Record object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RecordMutation) OldTestability(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTestability is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTestability requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTestability: %w", err)
-	}
-	return oldValue.Testability, nil
-}
-
-// AddTestability adds i to the "testability" field.
-func (m *RecordMutation) AddTestability(i int) {
-	if m.addtestability != nil {
-		*m.addtestability += i
-	} else {
-		m.addtestability = &i
-	}
-}
-
-// AddedTestability returns the value that was added to the "testability" field in this mutation.
-func (m *RecordMutation) AddedTestability() (r int, exists bool) {
-	v := m.addtestability
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTestability resets all changes to the "testability" field.
-func (m *RecordMutation) ResetTestability() {
-	m.testability = nil
-	m.addtestability = nil
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (m *RecordMutation) SetMaintainablity(i int) {
-	m.maintainablity = &i
-	m.addmaintainablity = nil
-}
-
-// Maintainablity returns the value of the "maintainablity" field in the mutation.
-func (m *RecordMutation) Maintainablity() (r int, exists bool) {
-	v := m.maintainablity
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMaintainablity returns the old "maintainablity" field's value of the Record entity.
-// If the Record object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RecordMutation) OldMaintainablity(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMaintainablity is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMaintainablity requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMaintainablity: %w", err)
-	}
-	return oldValue.Maintainablity, nil
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (m *RecordMutation) AddMaintainablity(i int) {
-	if m.addmaintainablity != nil {
-		*m.addmaintainablity += i
-	} else {
-		m.addmaintainablity = &i
-	}
-}
-
-// AddedMaintainablity returns the value that was added to the "maintainablity" field in this mutation.
-func (m *RecordMutation) AddedMaintainablity() (r int, exists bool) {
-	v := m.addmaintainablity
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetMaintainablity resets all changes to the "maintainablity" field.
-func (m *RecordMutation) ResetMaintainablity() {
-	m.maintainablity = nil
-	m.addmaintainablity = nil
 }
 
 // AddProblemIDs adds the "problem" edge to the Problem entity by ids.
@@ -1865,7 +1575,7 @@ func (m *RecordMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RecordMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 6)
 	if m.uuid != nil {
 		fields = append(fields, record.FieldUUID)
 	}
@@ -1878,17 +1588,11 @@ func (m *RecordMutation) Fields() []string {
 	if m.readability != nil {
 		fields = append(fields, record.FieldReadability)
 	}
-	if m.modularity != nil {
-		fields = append(fields, record.FieldModularity)
+	if m.robustness != nil {
+		fields = append(fields, record.FieldRobustness)
 	}
 	if m.efficiency != nil {
 		fields = append(fields, record.FieldEfficiency)
-	}
-	if m.testability != nil {
-		fields = append(fields, record.FieldTestability)
-	}
-	if m.maintainablity != nil {
-		fields = append(fields, record.FieldMaintainablity)
 	}
 	return fields
 }
@@ -1906,14 +1610,10 @@ func (m *RecordMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case record.FieldReadability:
 		return m.Readability()
-	case record.FieldModularity:
-		return m.Modularity()
+	case record.FieldRobustness:
+		return m.Robustness()
 	case record.FieldEfficiency:
 		return m.Efficiency()
-	case record.FieldTestability:
-		return m.Testability()
-	case record.FieldMaintainablity:
-		return m.Maintainablity()
 	}
 	return nil, false
 }
@@ -1931,14 +1631,10 @@ func (m *RecordMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldCode(ctx)
 	case record.FieldReadability:
 		return m.OldReadability(ctx)
-	case record.FieldModularity:
-		return m.OldModularity(ctx)
+	case record.FieldRobustness:
+		return m.OldRobustness(ctx)
 	case record.FieldEfficiency:
 		return m.OldEfficiency(ctx)
-	case record.FieldTestability:
-		return m.OldTestability(ctx)
-	case record.FieldMaintainablity:
-		return m.OldMaintainablity(ctx)
 	}
 	return nil, fmt.Errorf("unknown Record field %s", name)
 }
@@ -1976,12 +1672,12 @@ func (m *RecordMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReadability(v)
 		return nil
-	case record.FieldModularity:
+	case record.FieldRobustness:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetModularity(v)
+		m.SetRobustness(v)
 		return nil
 	case record.FieldEfficiency:
 		v, ok := value.(int)
@@ -1989,20 +1685,6 @@ func (m *RecordMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEfficiency(v)
-		return nil
-	case record.FieldTestability:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTestability(v)
-		return nil
-	case record.FieldMaintainablity:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMaintainablity(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Record field %s", name)
@@ -2015,17 +1697,11 @@ func (m *RecordMutation) AddedFields() []string {
 	if m.addreadability != nil {
 		fields = append(fields, record.FieldReadability)
 	}
-	if m.addmodularity != nil {
-		fields = append(fields, record.FieldModularity)
+	if m.addrobustness != nil {
+		fields = append(fields, record.FieldRobustness)
 	}
 	if m.addefficiency != nil {
 		fields = append(fields, record.FieldEfficiency)
-	}
-	if m.addtestability != nil {
-		fields = append(fields, record.FieldTestability)
-	}
-	if m.addmaintainablity != nil {
-		fields = append(fields, record.FieldMaintainablity)
 	}
 	return fields
 }
@@ -2037,14 +1713,10 @@ func (m *RecordMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case record.FieldReadability:
 		return m.AddedReadability()
-	case record.FieldModularity:
-		return m.AddedModularity()
+	case record.FieldRobustness:
+		return m.AddedRobustness()
 	case record.FieldEfficiency:
 		return m.AddedEfficiency()
-	case record.FieldTestability:
-		return m.AddedTestability()
-	case record.FieldMaintainablity:
-		return m.AddedMaintainablity()
 	}
 	return nil, false
 }
@@ -2061,12 +1733,12 @@ func (m *RecordMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddReadability(v)
 		return nil
-	case record.FieldModularity:
+	case record.FieldRobustness:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddModularity(v)
+		m.AddRobustness(v)
 		return nil
 	case record.FieldEfficiency:
 		v, ok := value.(int)
@@ -2074,20 +1746,6 @@ func (m *RecordMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddEfficiency(v)
-		return nil
-	case record.FieldTestability:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTestability(v)
-		return nil
-	case record.FieldMaintainablity:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddMaintainablity(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Record numeric field %s", name)
@@ -2128,17 +1786,11 @@ func (m *RecordMutation) ResetField(name string) error {
 	case record.FieldReadability:
 		m.ResetReadability()
 		return nil
-	case record.FieldModularity:
-		m.ResetModularity()
+	case record.FieldRobustness:
+		m.ResetRobustness()
 		return nil
 	case record.FieldEfficiency:
 		m.ResetEfficiency()
-		return nil
-	case record.FieldTestability:
-		m.ResetTestability()
-		return nil
-	case record.FieldMaintainablity:
-		m.ResetMaintainablity()
 		return nil
 	}
 	return fmt.Errorf("unknown Record field %s", name)

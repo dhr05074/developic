@@ -11,6 +11,8 @@ import (
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
 	"code-connect/problem"
+	"code-connect/schema/message"
+	"code-connect/worker/score"
 	"context"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
@@ -36,7 +38,24 @@ func main() {
 	gptClient := mustInitGPTClient()
 	entClient := mustInitEntClient(ctx)
 
-	problemHandler := problem.NewHandler(kvStore, gptClient, entClient)
+	reqCh := make(chan message.ProblemMessage)
+	subCh := make(chan message.ProblemMessage)
+
+	w := score.NewScoreWorker(score.NewScoreWorkerParams{
+		ParamClient: kvStore,
+		EntClient:   entClient,
+		GptClient:   gptClient,
+		ProblemCh:   reqCh,
+		SubmitCh:    subCh,
+	})
+
+	go func() {
+		if err := w.Run(ctx); err != nil {
+			l.Fatalw("failed to run score worker", "err", err)
+		}
+	}()
+
+	problemHandler := problem.NewHandler(kvStore, gptClient, entClient, reqCh)
 
 	strictHandler := handler.NewStrictHandler(problemHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})

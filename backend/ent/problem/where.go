@@ -91,24 +91,14 @@ func Readability(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldReadability, v))
 }
 
-// Modularity applies equality check predicate on the "modularity" field. It's identical to ModularityEQ.
-func Modularity(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldModularity, v))
+// Robustness applies equality check predicate on the "robustness" field. It's identical to RobustnessEQ.
+func Robustness(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldRobustness, v))
 }
 
 // Efficiency applies equality check predicate on the "efficiency" field. It's identical to EfficiencyEQ.
 func Efficiency(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldEfficiency, v))
-}
-
-// Testability applies equality check predicate on the "testability" field. It's identical to TestabilityEQ.
-func Testability(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldTestability, v))
-}
-
-// Maintainablity applies equality check predicate on the "maintainablity" field. It's identical to MaintainablityEQ.
-func Maintainablity(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldMaintainablity, v))
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.
@@ -565,44 +555,44 @@ func ReadabilityLTE(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldReadability, v))
 }
 
-// ModularityEQ applies the EQ predicate on the "modularity" field.
-func ModularityEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldModularity, v))
+// RobustnessEQ applies the EQ predicate on the "robustness" field.
+func RobustnessEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldRobustness, v))
 }
 
-// ModularityNEQ applies the NEQ predicate on the "modularity" field.
-func ModularityNEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldModularity, v))
+// RobustnessNEQ applies the NEQ predicate on the "robustness" field.
+func RobustnessNEQ(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldRobustness, v))
 }
 
-// ModularityIn applies the In predicate on the "modularity" field.
-func ModularityIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldModularity, vs...))
+// RobustnessIn applies the In predicate on the "robustness" field.
+func RobustnessIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldRobustness, vs...))
 }
 
-// ModularityNotIn applies the NotIn predicate on the "modularity" field.
-func ModularityNotIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldModularity, vs...))
+// RobustnessNotIn applies the NotIn predicate on the "robustness" field.
+func RobustnessNotIn(vs ...int) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldRobustness, vs...))
 }
 
-// ModularityGT applies the GT predicate on the "modularity" field.
-func ModularityGT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldModularity, v))
+// RobustnessGT applies the GT predicate on the "robustness" field.
+func RobustnessGT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldRobustness, v))
 }
 
-// ModularityGTE applies the GTE predicate on the "modularity" field.
-func ModularityGTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldModularity, v))
+// RobustnessGTE applies the GTE predicate on the "robustness" field.
+func RobustnessGTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldRobustness, v))
 }
 
-// ModularityLT applies the LT predicate on the "modularity" field.
-func ModularityLT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldModularity, v))
+// RobustnessLT applies the LT predicate on the "robustness" field.
+func RobustnessLT(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldRobustness, v))
 }
 
-// ModularityLTE applies the LTE predicate on the "modularity" field.
-func ModularityLTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldModularity, v))
+// RobustnessLTE applies the LTE predicate on the "robustness" field.
+func RobustnessLTE(v int) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldRobustness, v))
 }
 
 // EfficiencyEQ applies the EQ predicate on the "efficiency" field.
@@ -643,86 +633,6 @@ func EfficiencyLT(v int) predicate.Problem {
 // EfficiencyLTE applies the LTE predicate on the "efficiency" field.
 func EfficiencyLTE(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldEfficiency, v))
-}
-
-// TestabilityEQ applies the EQ predicate on the "testability" field.
-func TestabilityEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldTestability, v))
-}
-
-// TestabilityNEQ applies the NEQ predicate on the "testability" field.
-func TestabilityNEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldTestability, v))
-}
-
-// TestabilityIn applies the In predicate on the "testability" field.
-func TestabilityIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldTestability, vs...))
-}
-
-// TestabilityNotIn applies the NotIn predicate on the "testability" field.
-func TestabilityNotIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldTestability, vs...))
-}
-
-// TestabilityGT applies the GT predicate on the "testability" field.
-func TestabilityGT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldTestability, v))
-}
-
-// TestabilityGTE applies the GTE predicate on the "testability" field.
-func TestabilityGTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldTestability, v))
-}
-
-// TestabilityLT applies the LT predicate on the "testability" field.
-func TestabilityLT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldTestability, v))
-}
-
-// TestabilityLTE applies the LTE predicate on the "testability" field.
-func TestabilityLTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldTestability, v))
-}
-
-// MaintainablityEQ applies the EQ predicate on the "maintainablity" field.
-func MaintainablityEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldMaintainablity, v))
-}
-
-// MaintainablityNEQ applies the NEQ predicate on the "maintainablity" field.
-func MaintainablityNEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldMaintainablity, v))
-}
-
-// MaintainablityIn applies the In predicate on the "maintainablity" field.
-func MaintainablityIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldMaintainablity, vs...))
-}
-
-// MaintainablityNotIn applies the NotIn predicate on the "maintainablity" field.
-func MaintainablityNotIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldMaintainablity, vs...))
-}
-
-// MaintainablityGT applies the GT predicate on the "maintainablity" field.
-func MaintainablityGT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldMaintainablity, v))
-}
-
-// MaintainablityGTE applies the GTE predicate on the "maintainablity" field.
-func MaintainablityGTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldMaintainablity, v))
-}
-
-// MaintainablityLT applies the LT predicate on the "maintainablity" field.
-func MaintainablityLT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldMaintainablity, v))
-}
-
-// MaintainablityLTE applies the LTE predicate on the "maintainablity" field.
-func MaintainablityLTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldMaintainablity, v))
 }
 
 // HasRecords applies the HasEdge predicate on the "records" edge.

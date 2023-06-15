@@ -20,14 +20,10 @@ const (
 	FieldCode = "code"
 	// FieldReadability holds the string denoting the readability field in the database.
 	FieldReadability = "readability"
-	// FieldModularity holds the string denoting the modularity field in the database.
-	FieldModularity = "modularity"
+	// FieldRobustness holds the string denoting the robustness field in the database.
+	FieldRobustness = "robustness"
 	// FieldEfficiency holds the string denoting the efficiency field in the database.
 	FieldEfficiency = "efficiency"
-	// FieldTestability holds the string denoting the testability field in the database.
-	FieldTestability = "testability"
-	// FieldMaintainablity holds the string denoting the maintainablity field in the database.
-	FieldMaintainablity = "maintainablity"
 	// EdgeProblem holds the string denoting the problem edge name in mutations.
 	EdgeProblem = "problem"
 	// Table holds the table name of the record in the database.
@@ -46,10 +42,8 @@ var Columns = []string{
 	FieldUserUUID,
 	FieldCode,
 	FieldReadability,
-	FieldModularity,
+	FieldRobustness,
 	FieldEfficiency,
-	FieldTestability,
-	FieldMaintainablity,
 }
 
 var (
@@ -71,14 +65,10 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultReadability holds the default value on creation for the "readability" field.
 	DefaultReadability int
-	// DefaultModularity holds the default value on creation for the "modularity" field.
-	DefaultModularity int
+	// DefaultRobustness holds the default value on creation for the "robustness" field.
+	DefaultRobustness int
 	// DefaultEfficiency holds the default value on creation for the "efficiency" field.
 	DefaultEfficiency int
-	// DefaultTestability holds the default value on creation for the "testability" field.
-	DefaultTestability int
-	// DefaultMaintainablity holds the default value on creation for the "maintainablity" field.
-	DefaultMaintainablity int
 )
 
 // OrderOption defines the ordering options for the Record queries.
@@ -109,24 +99,14 @@ func ByReadability(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReadability, opts...).ToFunc()
 }
 
-// ByModularity orders the results by the modularity field.
-func ByModularity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldModularity, opts...).ToFunc()
+// ByRobustness orders the results by the robustness field.
+func ByRobustness(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRobustness, opts...).ToFunc()
 }
 
 // ByEfficiency orders the results by the efficiency field.
 func ByEfficiency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEfficiency, opts...).ToFunc()
-}
-
-// ByTestability orders the results by the testability field.
-func ByTestability(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTestability, opts...).ToFunc()
-}
-
-// ByMaintainablity orders the results by the maintainablity field.
-func ByMaintainablity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMaintainablity, opts...).ToFunc()
 }
 
 // ByProblemCount orders the results by problem count.

@@ -3,98 +3,84 @@ package score
 import (
 	"code-connect/ent"
 	"code-connect/ent/problem"
-	"code-connect/ent/record"
 	"code-connect/pkg/ai"
-	"code-connect/pkg/aws"
 	"code-connect/pkg/log"
+	"code-connect/pkg/store"
 	"code-connect/schema/message"
 	"context"
 	"encoding/base64"
+	"encoding/json"
+	"strings"
+)
+
+const (
+	scorePromptKey = "/prompts/score"
+	replaceKey     = "{CODE}"
 )
 
 type ScoreWorker struct {
-	ssmClient *aws.SSMClient
-	entClient *ent.Client
-	problemCh chan message.ProblemMessage
-	submitCh  chan message.ProblemMessage
-	gptClient *ai.OpenAI
-	checkList map[string]string
+	entClient   *ent.Client
+	paramClient store.KV
+	problemCh   chan message.ProblemMessage
+	submitCh    chan message.ProblemMessage
+	gptClient   ai.GPTClient
+	propt       string
+}
+
+type ScoreResult struct {
+	Efficiency  int `json:"efficiency"`
+	Robustness  int `json:"robustness"`
+	Readability int `json:"readability"`
 }
 
 type NewScoreWorkerParams struct {
-	SSMClient *aws.SSMClient
-	EntClient *ent.Client
-	GptClient *ai.OpenAI
-	ProblemCh chan message.ProblemMessage
-	SubmitCh  chan message.ProblemMessage
+	ParamClient store.KV
+	EntClient   *ent.Client
+	GptClient   ai.GPTClient
+	ProblemCh   chan message.ProblemMessage
+	SubmitCh    chan message.ProblemMessage
 }
 
 func NewScoreWorker(params NewScoreWorkerParams) *ScoreWorker {
 	return &ScoreWorker{
-		ssmClient: params.SSMClient,
-		entClient: params.EntClient,
-		problemCh: params.ProblemCh,
-		submitCh:  params.SubmitCh,
-		gptClient: params.GptClient,
-		checkList: make(map[string]string),
+		paramClient: params.ParamClient,
+		entClient:   params.EntClient,
+		problemCh:   params.ProblemCh,
+		submitCh:    params.SubmitCh,
+		gptClient:   params.GptClient,
 	}
 }
 
 func (s *ScoreWorker) initialize(ctx context.Context) error {
-	readability, err := s.ssmClient.GetParameter(ctx, "/prompts/problem/evaluating/readability")
+	prompt, err := s.paramClient.Get(ctx, scorePromptKey)
 	if err != nil {
 		return err
 	}
 
-	s.checkList["readability"] = readability
-
-	efficiency, err := s.ssmClient.GetParameter(ctx, "/prompts/problem/evaluating/efficiency")
-	if err != nil {
-		return err
-	}
-
-	s.checkList["efficiency"] = efficiency
-
-	modularity, err := s.ssmClient.GetParameter(ctx, "/prompts/problem/evaluating/modularity")
-	if err != nil {
-		return err
-	}
-
-	s.checkList["modularity"] = modularity
-
-	testability, err := s.ssmClient.GetParameter(ctx, "/prompts/problem/evaluating/testability")
-	if err != nil {
-		return err
-	}
-
-	s.checkList["testability"] = testability
-
-	maintainability, err := s.ssmClient.GetParameter(ctx, "/prompts/problem/evaluating/maintainability")
-	if err != nil {
-		return err
-	}
-
-	s.checkList["maintainability"] = maintainability
+	s.propt = prompt
 
 	return nil
 }
 
-func (s *ScoreWorker) handlingCode(ctx context.Context, code string) {
-	basePrompt := "Given a piece of code and a checklist, please generate a list of all the checklist items that the code meets.\n\nCode : " + code +
-		"\n\nCheckList :"
+func (s *ScoreWorker) handlingCode(ctx context.Context, code string) (*ScoreResult, error) {
+	prompt := strings.Replace(s.propt, replaceKey, code, 1)
 
-	for _, v := range s.checkList {
-		prompt := basePrompt + v
-		s.gptClient.AddPrompt(prompt)
+	s.gptClient.AddPrompt(prompt)
 
-		answer, err := s.gptClient.Complete(ctx)
-		if err != nil {
-			log.NewZap().Error(err.Error())
-			break
-		}
-
-		log.NewZap().Info(answer)
+	result, err := s.gptClient.Complete(ctx)
+	if err != nil {
+		log.NewZap().Error(err.Error())
+		return nil, err
 	}
+
+	var scoreResult ScoreResult
+	err = json.Unmarshal([]byte(result), &scoreResult)
+	if err != nil {
+		log.NewZap().Error(err.Error())
+		return nil, err
+	}
+
+	return &scoreResult, nil
 }
 
 func (s *ScoreWorker) Run(ctx context.Context) (err error) {
@@ -113,19 +99,30 @@ func (s *ScoreWorker) Run(ctx context.Context) (err error) {
 			}
 
 			code, _ := base64.StdEncoding.DecodeString(p.Code)
-			s.handlingCode(ctx, string(code))
-
-			//p.Update().SetModularity().SetMaintainablity().SetReadability().SetTestability().SetEfficiency().Save(ctx)
-
-		case msg := <-s.submitCh:
-			r, err := s.entClient.Record.Query().Where(record.UUID(msg.ID)).Only(ctx)
+			result, err := s.handlingCode(ctx, string(code))
 			if err != nil {
-				log.NewZap().Error(err.Error())
 				continue
 			}
 
-			code, _ := base64.StdEncoding.DecodeString(r.Code)
-			s.handlingCode(ctx, string(code))
+			if err := p.Update().
+				SetRobustness(result.Robustness).
+				SetEfficiency(result.Efficiency).
+				SetReadability(result.Readability).
+				Exec(ctx); err != nil {
+				log.NewZap().Error(err.Error())
+				continue
+			}
+			log.NewZap().Info("Scored Problem Successfully")
+
+		case <-s.submitCh:
+			//r, err := s.entClient.Record.Query().Where(record.UUID(msg.ID)).Only(ctx)
+			//if err != nil {
+			//	log.NewZap().Error(err.Error())
+			//	continue
+			//}
+			//
+			//code, _ := base64.StdEncoding.DecodeString(r.Code)
+			//s.handlingCode(ctx, string(code))
 
 		case <-ctx.Done():
 			return nil
