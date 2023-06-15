@@ -19,10 +19,8 @@ func (Record) Fields() []ent.Field {
 		field.String("user_uuid"),
 		field.Text("code"),
 		field.Int("readability").Default(0),
-		field.Int("modularity").Default(0),
+		field.Int("robustness").Default(0),
 		field.Int("efficiency").Default(0),
-		field.Int("testability").Default(0),
-		field.Int("maintainability").Default(0),
 	}
 }
 

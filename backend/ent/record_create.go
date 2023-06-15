@@ -52,16 +52,16 @@ func (rc *RecordCreate) SetNillableReadability(i *int) *RecordCreate {
 	return rc
 }
 
-// SetModularity sets the "modularity" field.
-func (rc *RecordCreate) SetModularity(i int) *RecordCreate {
-	rc.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (rc *RecordCreate) SetRobustness(i int) *RecordCreate {
+	rc.mutation.SetRobustness(i)
 	return rc
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (rc *RecordCreate) SetNillableModularity(i *int) *RecordCreate {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (rc *RecordCreate) SetNillableRobustness(i *int) *RecordCreate {
 	if i != nil {
-		rc.SetModularity(*i)
+		rc.SetRobustness(*i)
 	}
 	return rc
 }
@@ -76,34 +76,6 @@ func (rc *RecordCreate) SetEfficiency(i int) *RecordCreate {
 func (rc *RecordCreate) SetNillableEfficiency(i *int) *RecordCreate {
 	if i != nil {
 		rc.SetEfficiency(*i)
-	}
-	return rc
-}
-
-// SetTestability sets the "testability" field.
-func (rc *RecordCreate) SetTestability(i int) *RecordCreate {
-	rc.mutation.SetTestability(i)
-	return rc
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (rc *RecordCreate) SetNillableTestability(i *int) *RecordCreate {
-	if i != nil {
-		rc.SetTestability(*i)
-	}
-	return rc
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (rc *RecordCreate) SetMaintainablity(i int) *RecordCreate {
-	rc.mutation.SetMaintainablity(i)
-	return rc
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (rc *RecordCreate) SetNillableMaintainablity(i *int) *RecordCreate {
-	if i != nil {
-		rc.SetMaintainablity(*i)
 	}
 	return rc
 }
@@ -168,21 +140,13 @@ func (rc *RecordCreate) defaults() {
 		v := record.DefaultReadability
 		rc.mutation.SetReadability(v)
 	}
-	if _, ok := rc.mutation.Modularity(); !ok {
-		v := record.DefaultModularity
-		rc.mutation.SetModularity(v)
+	if _, ok := rc.mutation.Robustness(); !ok {
+		v := record.DefaultRobustness
+		rc.mutation.SetRobustness(v)
 	}
 	if _, ok := rc.mutation.Efficiency(); !ok {
 		v := record.DefaultEfficiency
 		rc.mutation.SetEfficiency(v)
-	}
-	if _, ok := rc.mutation.Testability(); !ok {
-		v := record.DefaultTestability
-		rc.mutation.SetTestability(v)
-	}
-	if _, ok := rc.mutation.Maintainablity(); !ok {
-		v := record.DefaultMaintainablity
-		rc.mutation.SetMaintainablity(v)
 	}
 }
 
@@ -200,17 +164,11 @@ func (rc *RecordCreate) check() error {
 	if _, ok := rc.mutation.Readability(); !ok {
 		return &ValidationError{Name: "readability", err: errors.New(`ent: missing required field "Record.readability"`)}
 	}
-	if _, ok := rc.mutation.Modularity(); !ok {
-		return &ValidationError{Name: "modularity", err: errors.New(`ent: missing required field "Record.modularity"`)}
+	if _, ok := rc.mutation.Robustness(); !ok {
+		return &ValidationError{Name: "robustness", err: errors.New(`ent: missing required field "Record.robustness"`)}
 	}
 	if _, ok := rc.mutation.Efficiency(); !ok {
 		return &ValidationError{Name: "efficiency", err: errors.New(`ent: missing required field "Record.efficiency"`)}
-	}
-	if _, ok := rc.mutation.Testability(); !ok {
-		return &ValidationError{Name: "testability", err: errors.New(`ent: missing required field "Record.testability"`)}
-	}
-	if _, ok := rc.mutation.Maintainablity(); !ok {
-		return &ValidationError{Name: "maintainablity", err: errors.New(`ent: missing required field "Record.maintainablity"`)}
 	}
 	if len(rc.mutation.ProblemIDs()) == 0 {
 		return &ValidationError{Name: "problem", err: errors.New(`ent: missing required edge "Record.problem"`)}
@@ -263,21 +221,13 @@ func (rc *RecordCreate) createSpec() (*Record, *sqlgraph.CreateSpec) {
 		_spec.SetField(record.FieldReadability, field.TypeInt, value)
 		_node.Readability = value
 	}
-	if value, ok := rc.mutation.Modularity(); ok {
-		_spec.SetField(record.FieldModularity, field.TypeInt, value)
-		_node.Modularity = value
+	if value, ok := rc.mutation.Robustness(); ok {
+		_spec.SetField(record.FieldRobustness, field.TypeInt, value)
+		_node.Robustness = value
 	}
 	if value, ok := rc.mutation.Efficiency(); ok {
 		_spec.SetField(record.FieldEfficiency, field.TypeInt, value)
 		_node.Efficiency = value
-	}
-	if value, ok := rc.mutation.Testability(); ok {
-		_spec.SetField(record.FieldTestability, field.TypeInt, value)
-		_node.Testability = value
-	}
-	if value, ok := rc.mutation.Maintainablity(); ok {
-		_spec.SetField(record.FieldMaintainablity, field.TypeInt, value)
-		_node.Maintainablity = value
 	}
 	if nodes := rc.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

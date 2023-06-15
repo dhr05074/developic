@@ -67,24 +67,24 @@ func (ru *RecordUpdate) AddReadability(i int) *RecordUpdate {
 	return ru
 }
 
-// SetModularity sets the "modularity" field.
-func (ru *RecordUpdate) SetModularity(i int) *RecordUpdate {
-	ru.mutation.ResetModularity()
-	ru.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (ru *RecordUpdate) SetRobustness(i int) *RecordUpdate {
+	ru.mutation.ResetRobustness()
+	ru.mutation.SetRobustness(i)
 	return ru
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableModularity(i *int) *RecordUpdate {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (ru *RecordUpdate) SetNillableRobustness(i *int) *RecordUpdate {
 	if i != nil {
-		ru.SetModularity(*i)
+		ru.SetRobustness(*i)
 	}
 	return ru
 }
 
-// AddModularity adds i to the "modularity" field.
-func (ru *RecordUpdate) AddModularity(i int) *RecordUpdate {
-	ru.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (ru *RecordUpdate) AddRobustness(i int) *RecordUpdate {
+	ru.mutation.AddRobustness(i)
 	return ru
 }
 
@@ -106,48 +106,6 @@ func (ru *RecordUpdate) SetNillableEfficiency(i *int) *RecordUpdate {
 // AddEfficiency adds i to the "efficiency" field.
 func (ru *RecordUpdate) AddEfficiency(i int) *RecordUpdate {
 	ru.mutation.AddEfficiency(i)
-	return ru
-}
-
-// SetTestability sets the "testability" field.
-func (ru *RecordUpdate) SetTestability(i int) *RecordUpdate {
-	ru.mutation.ResetTestability()
-	ru.mutation.SetTestability(i)
-	return ru
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableTestability(i *int) *RecordUpdate {
-	if i != nil {
-		ru.SetTestability(*i)
-	}
-	return ru
-}
-
-// AddTestability adds i to the "testability" field.
-func (ru *RecordUpdate) AddTestability(i int) *RecordUpdate {
-	ru.mutation.AddTestability(i)
-	return ru
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (ru *RecordUpdate) SetMaintainablity(i int) *RecordUpdate {
-	ru.mutation.ResetMaintainablity()
-	ru.mutation.SetMaintainablity(i)
-	return ru
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableMaintainablity(i *int) *RecordUpdate {
-	if i != nil {
-		ru.SetMaintainablity(*i)
-	}
-	return ru
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (ru *RecordUpdate) AddMaintainablity(i int) *RecordUpdate {
-	ru.mutation.AddMaintainablity(i)
 	return ru
 }
 
@@ -243,29 +201,17 @@ func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.AddedReadability(); ok {
 		_spec.AddField(record.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := ru.mutation.Modularity(); ok {
-		_spec.SetField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ru.mutation.Robustness(); ok {
+		_spec.SetField(record.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := ru.mutation.AddedModularity(); ok {
-		_spec.AddField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ru.mutation.AddedRobustness(); ok {
+		_spec.AddField(record.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := ru.mutation.Efficiency(); ok {
 		_spec.SetField(record.FieldEfficiency, field.TypeInt, value)
 	}
 	if value, ok := ru.mutation.AddedEfficiency(); ok {
 		_spec.AddField(record.FieldEfficiency, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.Testability(); ok {
-		_spec.SetField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.AddedTestability(); ok {
-		_spec.AddField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.Maintainablity(); ok {
-		_spec.SetField(record.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(record.FieldMaintainablity, field.TypeInt, value)
 	}
 	if ru.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -371,24 +317,24 @@ func (ruo *RecordUpdateOne) AddReadability(i int) *RecordUpdateOne {
 	return ruo
 }
 
-// SetModularity sets the "modularity" field.
-func (ruo *RecordUpdateOne) SetModularity(i int) *RecordUpdateOne {
-	ruo.mutation.ResetModularity()
-	ruo.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (ruo *RecordUpdateOne) SetRobustness(i int) *RecordUpdateOne {
+	ruo.mutation.ResetRobustness()
+	ruo.mutation.SetRobustness(i)
 	return ruo
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableModularity(i *int) *RecordUpdateOne {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (ruo *RecordUpdateOne) SetNillableRobustness(i *int) *RecordUpdateOne {
 	if i != nil {
-		ruo.SetModularity(*i)
+		ruo.SetRobustness(*i)
 	}
 	return ruo
 }
 
-// AddModularity adds i to the "modularity" field.
-func (ruo *RecordUpdateOne) AddModularity(i int) *RecordUpdateOne {
-	ruo.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (ruo *RecordUpdateOne) AddRobustness(i int) *RecordUpdateOne {
+	ruo.mutation.AddRobustness(i)
 	return ruo
 }
 
@@ -410,48 +356,6 @@ func (ruo *RecordUpdateOne) SetNillableEfficiency(i *int) *RecordUpdateOne {
 // AddEfficiency adds i to the "efficiency" field.
 func (ruo *RecordUpdateOne) AddEfficiency(i int) *RecordUpdateOne {
 	ruo.mutation.AddEfficiency(i)
-	return ruo
-}
-
-// SetTestability sets the "testability" field.
-func (ruo *RecordUpdateOne) SetTestability(i int) *RecordUpdateOne {
-	ruo.mutation.ResetTestability()
-	ruo.mutation.SetTestability(i)
-	return ruo
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableTestability(i *int) *RecordUpdateOne {
-	if i != nil {
-		ruo.SetTestability(*i)
-	}
-	return ruo
-}
-
-// AddTestability adds i to the "testability" field.
-func (ruo *RecordUpdateOne) AddTestability(i int) *RecordUpdateOne {
-	ruo.mutation.AddTestability(i)
-	return ruo
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (ruo *RecordUpdateOne) SetMaintainablity(i int) *RecordUpdateOne {
-	ruo.mutation.ResetMaintainablity()
-	ruo.mutation.SetMaintainablity(i)
-	return ruo
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableMaintainablity(i *int) *RecordUpdateOne {
-	if i != nil {
-		ruo.SetMaintainablity(*i)
-	}
-	return ruo
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (ruo *RecordUpdateOne) AddMaintainablity(i int) *RecordUpdateOne {
-	ruo.mutation.AddMaintainablity(i)
 	return ruo
 }
 
@@ -577,29 +481,17 @@ func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err err
 	if value, ok := ruo.mutation.AddedReadability(); ok {
 		_spec.AddField(record.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := ruo.mutation.Modularity(); ok {
-		_spec.SetField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ruo.mutation.Robustness(); ok {
+		_spec.SetField(record.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := ruo.mutation.AddedModularity(); ok {
-		_spec.AddField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ruo.mutation.AddedRobustness(); ok {
+		_spec.AddField(record.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := ruo.mutation.Efficiency(); ok {
 		_spec.SetField(record.FieldEfficiency, field.TypeInt, value)
 	}
 	if value, ok := ruo.mutation.AddedEfficiency(); ok {
 		_spec.AddField(record.FieldEfficiency, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.Testability(); ok {
-		_spec.SetField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.AddedTestability(); ok {
-		_spec.AddField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.Maintainablity(); ok {
-		_spec.SetField(record.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(record.FieldMaintainablity, field.TypeInt, value)
 	}
 	if ruo.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{

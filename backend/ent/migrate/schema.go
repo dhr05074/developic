@@ -18,10 +18,8 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "difficulty", Type: field.TypeInt, Default: 1500},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
-		{Name: "modularity", Type: field.TypeInt, Default: 0},
+		{Name: "robustness", Type: field.TypeInt, Default: 0},
 		{Name: "efficiency", Type: field.TypeInt, Default: 0},
-		{Name: "testability", Type: field.TypeInt, Default: 0},
-		{Name: "maintainablity", Type: field.TypeInt, Default: 0},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -36,10 +34,8 @@ var (
 		{Name: "user_uuid", Type: field.TypeString},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
-		{Name: "modularity", Type: field.TypeInt, Default: 0},
+		{Name: "robustness", Type: field.TypeInt, Default: 0},
 		{Name: "efficiency", Type: field.TypeInt, Default: 0},
-		{Name: "testability", Type: field.TypeInt, Default: 0},
-		{Name: "maintainablity", Type: field.TypeInt, Default: 0},
 	}
 	// RecordsTable holds the schema information for the "records" table.
 	RecordsTable = &schema.Table{

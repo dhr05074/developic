@@ -143,24 +143,24 @@ func (pu *ProblemUpdate) AddReadability(i int) *ProblemUpdate {
 	return pu
 }
 
-// SetModularity sets the "modularity" field.
-func (pu *ProblemUpdate) SetModularity(i int) *ProblemUpdate {
-	pu.mutation.ResetModularity()
-	pu.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (pu *ProblemUpdate) SetRobustness(i int) *ProblemUpdate {
+	pu.mutation.ResetRobustness()
+	pu.mutation.SetRobustness(i)
 	return pu
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableModularity(i *int) *ProblemUpdate {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableRobustness(i *int) *ProblemUpdate {
 	if i != nil {
-		pu.SetModularity(*i)
+		pu.SetRobustness(*i)
 	}
 	return pu
 }
 
-// AddModularity adds i to the "modularity" field.
-func (pu *ProblemUpdate) AddModularity(i int) *ProblemUpdate {
-	pu.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (pu *ProblemUpdate) AddRobustness(i int) *ProblemUpdate {
+	pu.mutation.AddRobustness(i)
 	return pu
 }
 
@@ -182,48 +182,6 @@ func (pu *ProblemUpdate) SetNillableEfficiency(i *int) *ProblemUpdate {
 // AddEfficiency adds i to the "efficiency" field.
 func (pu *ProblemUpdate) AddEfficiency(i int) *ProblemUpdate {
 	pu.mutation.AddEfficiency(i)
-	return pu
-}
-
-// SetTestability sets the "testability" field.
-func (pu *ProblemUpdate) SetTestability(i int) *ProblemUpdate {
-	pu.mutation.ResetTestability()
-	pu.mutation.SetTestability(i)
-	return pu
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableTestability(i *int) *ProblemUpdate {
-	if i != nil {
-		pu.SetTestability(*i)
-	}
-	return pu
-}
-
-// AddTestability adds i to the "testability" field.
-func (pu *ProblemUpdate) AddTestability(i int) *ProblemUpdate {
-	pu.mutation.AddTestability(i)
-	return pu
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (pu *ProblemUpdate) SetMaintainablity(i int) *ProblemUpdate {
-	pu.mutation.ResetMaintainablity()
-	pu.mutation.SetMaintainablity(i)
-	return pu
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableMaintainablity(i *int) *ProblemUpdate {
-	if i != nil {
-		pu.SetMaintainablity(*i)
-	}
-	return pu
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (pu *ProblemUpdate) AddMaintainablity(i int) *ProblemUpdate {
-	pu.mutation.AddMaintainablity(i)
 	return pu
 }
 
@@ -353,29 +311,17 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.AddedReadability(); ok {
 		_spec.AddField(problem.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := pu.mutation.Modularity(); ok {
-		_spec.SetField(problem.FieldModularity, field.TypeInt, value)
+	if value, ok := pu.mutation.Robustness(); ok {
+		_spec.SetField(problem.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := pu.mutation.AddedModularity(); ok {
-		_spec.AddField(problem.FieldModularity, field.TypeInt, value)
+	if value, ok := pu.mutation.AddedRobustness(); ok {
+		_spec.AddField(problem.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := pu.mutation.Efficiency(); ok {
 		_spec.SetField(problem.FieldEfficiency, field.TypeInt, value)
 	}
 	if value, ok := pu.mutation.AddedEfficiency(); ok {
 		_spec.AddField(problem.FieldEfficiency, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.Testability(); ok {
-		_spec.SetField(problem.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.AddedTestability(); ok {
-		_spec.AddField(problem.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.Maintainablity(); ok {
-		_spec.SetField(problem.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(problem.FieldMaintainablity, field.TypeInt, value)
 	}
 	if pu.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -556,24 +502,24 @@ func (puo *ProblemUpdateOne) AddReadability(i int) *ProblemUpdateOne {
 	return puo
 }
 
-// SetModularity sets the "modularity" field.
-func (puo *ProblemUpdateOne) SetModularity(i int) *ProblemUpdateOne {
-	puo.mutation.ResetModularity()
-	puo.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (puo *ProblemUpdateOne) SetRobustness(i int) *ProblemUpdateOne {
+	puo.mutation.ResetRobustness()
+	puo.mutation.SetRobustness(i)
 	return puo
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableModularity(i *int) *ProblemUpdateOne {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableRobustness(i *int) *ProblemUpdateOne {
 	if i != nil {
-		puo.SetModularity(*i)
+		puo.SetRobustness(*i)
 	}
 	return puo
 }
 
-// AddModularity adds i to the "modularity" field.
-func (puo *ProblemUpdateOne) AddModularity(i int) *ProblemUpdateOne {
-	puo.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (puo *ProblemUpdateOne) AddRobustness(i int) *ProblemUpdateOne {
+	puo.mutation.AddRobustness(i)
 	return puo
 }
 
@@ -595,48 +541,6 @@ func (puo *ProblemUpdateOne) SetNillableEfficiency(i *int) *ProblemUpdateOne {
 // AddEfficiency adds i to the "efficiency" field.
 func (puo *ProblemUpdateOne) AddEfficiency(i int) *ProblemUpdateOne {
 	puo.mutation.AddEfficiency(i)
-	return puo
-}
-
-// SetTestability sets the "testability" field.
-func (puo *ProblemUpdateOne) SetTestability(i int) *ProblemUpdateOne {
-	puo.mutation.ResetTestability()
-	puo.mutation.SetTestability(i)
-	return puo
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableTestability(i *int) *ProblemUpdateOne {
-	if i != nil {
-		puo.SetTestability(*i)
-	}
-	return puo
-}
-
-// AddTestability adds i to the "testability" field.
-func (puo *ProblemUpdateOne) AddTestability(i int) *ProblemUpdateOne {
-	puo.mutation.AddTestability(i)
-	return puo
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (puo *ProblemUpdateOne) SetMaintainablity(i int) *ProblemUpdateOne {
-	puo.mutation.ResetMaintainablity()
-	puo.mutation.SetMaintainablity(i)
-	return puo
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableMaintainablity(i *int) *ProblemUpdateOne {
-	if i != nil {
-		puo.SetMaintainablity(*i)
-	}
-	return puo
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (puo *ProblemUpdateOne) AddMaintainablity(i int) *ProblemUpdateOne {
-	puo.mutation.AddMaintainablity(i)
 	return puo
 }
 
@@ -796,29 +700,17 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if value, ok := puo.mutation.AddedReadability(); ok {
 		_spec.AddField(problem.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := puo.mutation.Modularity(); ok {
-		_spec.SetField(problem.FieldModularity, field.TypeInt, value)
+	if value, ok := puo.mutation.Robustness(); ok {
+		_spec.SetField(problem.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := puo.mutation.AddedModularity(); ok {
-		_spec.AddField(problem.FieldModularity, field.TypeInt, value)
+	if value, ok := puo.mutation.AddedRobustness(); ok {
+		_spec.AddField(problem.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := puo.mutation.Efficiency(); ok {
 		_spec.SetField(problem.FieldEfficiency, field.TypeInt, value)
 	}
 	if value, ok := puo.mutation.AddedEfficiency(); ok {
 		_spec.AddField(problem.FieldEfficiency, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.Testability(); ok {
-		_spec.SetField(problem.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.AddedTestability(); ok {
-		_spec.AddField(problem.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.Maintainablity(); ok {
-		_spec.SetField(problem.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(problem.FieldMaintainablity, field.TypeInt, value)
 	}
 	if puo.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
