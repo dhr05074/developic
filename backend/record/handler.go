@@ -115,9 +115,9 @@ func (s *Handler) GetRecords(ctx context.Context, request gateway.GetRecordsRequ
 		}, err
 	}
 
-	res := make([]gateway.Record, len(records))
+	recs := make([]gateway.Record, len(records))
 	for i, re := range records {
-		res[i] = gateway.Record{
+		recs[i] = gateway.Record{
 			Code:         re.Code,
 			Efficiency:   gateway.Score(re.Efficiency),
 			Id:           re.UUID,
@@ -130,13 +130,13 @@ func (s *Handler) GetRecords(ctx context.Context, request gateway.GetRecordsRequ
 
 	return gateway.GetRecords200JSONResponse{
 		N200GetRecordsJSONResponse: gateway.N200GetRecordsJSONResponse{
-			Records: res,
+			Records: recs,
 		},
 	}, nil
 }
 
 func (s *Handler) GetRecord(ctx context.Context, request gateway.GetRecordRequestObject) (gateway.GetRecordResponseObject, error) {
-	re, err := s.entClient.Record.Query().Where(record.UUID(request.Id)).WithProblem().Only(ctx)
+	rec, err := s.entClient.Record.Query().Where(record.UUID(request.Id)).WithProblem().Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetRecorddefaultJSONResponse{
@@ -156,13 +156,13 @@ func (s *Handler) GetRecord(ctx context.Context, request gateway.GetRecordReques
 
 	return gateway.GetRecord200JSONResponse{
 		N200GetRecordJSONResponse: gateway.N200GetRecordJSONResponse{
-			Code:         re.Code,
-			Efficiency:   gateway.Score(re.Efficiency),
-			Id:           re.UUID,
-			ProblemId:    re.Edges.Problem.UUID,
-			ProblemTitle: re.Edges.Problem.Title,
-			Readability:  gateway.Score(re.Readability),
-			Robustness:   gateway.Score(re.Robustness),
+			Code:         rec.Code,
+			Efficiency:   gateway.Score(rec.Efficiency),
+			Id:           rec.UUID,
+			ProblemId:    rec.Edges.Problem.UUID,
+			ProblemTitle: rec.Edges.Problem.Title,
+			Readability:  gateway.Score(rec.Readability),
+			Robustness:   gateway.Score(rec.Robustness),
 		},
 	}, nil
 }
