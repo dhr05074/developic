@@ -404,7 +404,7 @@ func HasProblem() predicate.Record {
 	return predicate.Record(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, ProblemTable, ProblemPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

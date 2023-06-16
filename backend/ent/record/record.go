@@ -28,11 +28,13 @@ const (
 	EdgeProblem = "problem"
 	// Table holds the table name of the record in the database.
 	Table = "records"
-	// ProblemTable is the table that holds the problem relation/edge. The primary key declared below.
-	ProblemTable = "problem_records"
+	// ProblemTable is the table that holds the problem relation/edge.
+	ProblemTable = "records"
 	// ProblemInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemInverseTable = "problems"
+	// ProblemColumn is the table column denoting the problem relation/edge.
+	ProblemColumn = "problem_records"
 )
 
 // Columns holds all SQL columns for record fields.
@@ -46,11 +48,11 @@ var Columns = []string{
 	FieldEfficiency,
 }
 
-var (
-	// ProblemPrimaryKey and ProblemColumn2 are the table columns denoting the
-	// primary key for the problem relation (M2M).
-	ProblemPrimaryKey = []string{"problem_id", "record_id"}
-)
+// ForeignKeys holds the SQL foreign-keys that are owned by the "records"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"problem_records",
+}
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -59,10 +61,17 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
 
 var (
+	// DefaultUserUUID holds the default value on creation for the "user_uuid" field.
+	DefaultUserUUID string
 	// DefaultReadability holds the default value on creation for the "readability" field.
 	DefaultReadability int
 	// DefaultRobustness holds the default value on creation for the "robustness" field.
@@ -109,23 +118,16 @@ func ByEfficiency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEfficiency, opts...).ToFunc()
 }
 
-// ByProblemCount orders the results by problem count.
-func ByProblemCount(opts ...sql.OrderTermOption) OrderOption {
+// ByProblemField orders the results by problem field.
+func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newProblemStep(), opts...)
-	}
-}
-
-// ByProblem orders the results by problem terms.
-func ByProblem(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newProblemStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, ProblemTable, ProblemPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
 	)
 }

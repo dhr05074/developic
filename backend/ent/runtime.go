@@ -49,6 +49,10 @@ func init() {
 	problem.DefaultEfficiency = problemDescEfficiency.Default.(int)
 	recordFields := schema.Record{}.Fields()
 	_ = recordFields
+	// recordDescUserUUID is the schema descriptor for user_uuid field.
+	recordDescUserUUID := recordFields[2].Descriptor()
+	// record.DefaultUserUUID holds the default value on creation for the user_uuid field.
+	record.DefaultUserUUID = recordDescUserUUID.Default.(string)
 	// recordDescReadability is the schema descriptor for readability field.
 	recordDescReadability := recordFields[4].Descriptor()
 	// record.DefaultReadability holds the default value on creation for the readability field.

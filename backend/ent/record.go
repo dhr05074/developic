@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"code-connect/ent/problem"
 	"code-connect/ent/record"
 	"fmt"
 	"strings"
@@ -30,23 +31,28 @@ type Record struct {
 	Efficiency int `json:"efficiency,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RecordQuery when eager-loading is set.
-	Edges        RecordEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges           RecordEdges `json:"edges"`
+	problem_records *int
+	selectValues    sql.SelectValues
 }
 
 // RecordEdges holds the relations/edges for other nodes in the graph.
 type RecordEdges struct {
 	// Problem holds the value of the problem edge.
-	Problem []*Problem `json:"problem,omitempty"`
+	Problem *Problem `json:"problem,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // ProblemOrErr returns the Problem value or an error if the edge
-// was not loaded in eager-loading.
-func (e RecordEdges) ProblemOrErr() ([]*Problem, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RecordEdges) ProblemOrErr() (*Problem, error) {
 	if e.loadedTypes[0] {
+		if e.Problem == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: problem.Label}
+		}
 		return e.Problem, nil
 	}
 	return nil, &NotLoadedError{edge: "problem"}
@@ -61,6 +67,8 @@ func (*Record) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case record.FieldUUID, record.FieldUserUUID, record.FieldCode:
 			values[i] = new(sql.NullString)
+		case record.ForeignKeys[0]: // problem_records
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -117,6 +125,13 @@ func (r *Record) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field efficiency", values[i])
 			} else if value.Valid {
 				r.Efficiency = int(value.Int64)
+			}
+		case record.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field problem_records", value)
+			} else if value.Valid {
+				r.problem_records = new(int)
+				*r.problem_records = int(value.Int64)
 			}
 		default:
 			r.selectValues.Set(columns[i], values[i])

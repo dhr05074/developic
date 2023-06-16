@@ -34,11 +34,13 @@ const (
 	EdgeRecords = "records"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
-	// RecordsTable is the table that holds the records relation/edge. The primary key declared below.
-	RecordsTable = "problem_records"
+	// RecordsTable is the table that holds the records relation/edge.
+	RecordsTable = "records"
 	// RecordsInverseTable is the table name for the Record entity.
 	// It exists in this package in order to avoid circular dependency with the "record" package.
 	RecordsInverseTable = "records"
+	// RecordsColumn is the table column denoting the records relation/edge.
+	RecordsColumn = "problem_records"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -54,12 +56,6 @@ var Columns = []string{
 	FieldRobustness,
 	FieldEfficiency,
 }
-
-var (
-	// RecordsPrimaryKey and RecordsColumn2 are the table columns denoting the
-	// primary key for the records relation (M2M).
-	RecordsPrimaryKey = []string{"problem_id", "record_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -154,6 +150,6 @@ func newRecordsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RecordsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, RecordsTable, RecordsPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, RecordsTable, RecordsColumn),
 	)
 }

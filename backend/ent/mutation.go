@@ -1099,8 +1099,7 @@ type RecordMutation struct {
 	efficiency     *int
 	addefficiency  *int
 	clearedFields  map[string]struct{}
-	problem        map[int]struct{}
-	removedproblem map[int]struct{}
+	problem        *int
 	clearedproblem bool
 	done           bool
 	oldValue       func(context.Context) (*Record, error)
@@ -1487,14 +1486,9 @@ func (m *RecordMutation) ResetEfficiency() {
 	m.addefficiency = nil
 }
 
-// AddProblemIDs adds the "problem" edge to the Problem entity by ids.
-func (m *RecordMutation) AddProblemIDs(ids ...int) {
-	if m.problem == nil {
-		m.problem = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.problem[ids[i]] = struct{}{}
-	}
+// SetProblemID sets the "problem" edge to the Problem entity by id.
+func (m *RecordMutation) SetProblemID(id int) {
+	m.problem = &id
 }
 
 // ClearProblem clears the "problem" edge to the Problem entity.
@@ -1507,29 +1501,20 @@ func (m *RecordMutation) ProblemCleared() bool {
 	return m.clearedproblem
 }
 
-// RemoveProblemIDs removes the "problem" edge to the Problem entity by IDs.
-func (m *RecordMutation) RemoveProblemIDs(ids ...int) {
-	if m.removedproblem == nil {
-		m.removedproblem = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.problem, ids[i])
-		m.removedproblem[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedProblem returns the removed IDs of the "problem" edge to the Problem entity.
-func (m *RecordMutation) RemovedProblemIDs() (ids []int) {
-	for id := range m.removedproblem {
-		ids = append(ids, id)
+// ProblemID returns the "problem" edge ID in the mutation.
+func (m *RecordMutation) ProblemID() (id int, exists bool) {
+	if m.problem != nil {
+		return *m.problem, true
 	}
 	return
 }
 
 // ProblemIDs returns the "problem" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProblemID instead. It exists only for internal usage by the builders.
 func (m *RecordMutation) ProblemIDs() (ids []int) {
-	for id := range m.problem {
-		ids = append(ids, id)
+	if id := m.problem; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -1538,7 +1523,6 @@ func (m *RecordMutation) ProblemIDs() (ids []int) {
 func (m *RecordMutation) ResetProblem() {
 	m.problem = nil
 	m.clearedproblem = false
-	m.removedproblem = nil
 }
 
 // Where appends a list predicates to the RecordMutation builder.
@@ -1810,11 +1794,9 @@ func (m *RecordMutation) AddedEdges() []string {
 func (m *RecordMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case record.EdgeProblem:
-		ids := make([]ent.Value, 0, len(m.problem))
-		for id := range m.problem {
-			ids = append(ids, id)
+		if id := m.problem; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -1822,23 +1804,12 @@ func (m *RecordMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RecordMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedproblem != nil {
-		edges = append(edges, record.EdgeProblem)
-	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RecordMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case record.EdgeProblem:
-		ids := make([]ent.Value, 0, len(m.removedproblem))
-		for id := range m.removedproblem {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
@@ -1865,6 +1836,9 @@ func (m *RecordMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *RecordMutation) ClearEdge(name string) error {
 	switch name {
+	case record.EdgeProblem:
+		m.ClearProblem()
+		return nil
 	}
 	return fmt.Errorf("unknown Record unique edge %s", name)
 }

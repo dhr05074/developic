@@ -325,10 +325,10 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),
@@ -338,10 +338,10 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := pu.mutation.RemovedRecordsIDs(); len(nodes) > 0 && !pu.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),
@@ -354,10 +354,10 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := pu.mutation.RecordsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),
@@ -714,10 +714,10 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if puo.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),
@@ -727,10 +727,10 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if nodes := puo.mutation.RemovedRecordsIDs(); len(nodes) > 0 && !puo.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),
@@ -743,10 +743,10 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if nodes := puo.mutation.RecordsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),

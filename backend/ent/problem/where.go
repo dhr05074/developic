@@ -640,7 +640,7 @@ func HasRecords() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, RecordsTable, RecordsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, RecordsTable, RecordsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

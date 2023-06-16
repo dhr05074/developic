@@ -32,6 +32,14 @@ func (rc *RecordCreate) SetUserUUID(s string) *RecordCreate {
 	return rc
 }
 
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (rc *RecordCreate) SetNillableUserUUID(s *string) *RecordCreate {
+	if s != nil {
+		rc.SetUserUUID(*s)
+	}
+	return rc
+}
+
 // SetCode sets the "code" field.
 func (rc *RecordCreate) SetCode(s string) *RecordCreate {
 	rc.mutation.SetCode(s)
@@ -86,19 +94,15 @@ func (rc *RecordCreate) SetID(i int) *RecordCreate {
 	return rc
 }
 
-// AddProblemIDs adds the "problem" edge to the Problem entity by IDs.
-func (rc *RecordCreate) AddProblemIDs(ids ...int) *RecordCreate {
-	rc.mutation.AddProblemIDs(ids...)
+// SetProblemID sets the "problem" edge to the Problem entity by ID.
+func (rc *RecordCreate) SetProblemID(id int) *RecordCreate {
+	rc.mutation.SetProblemID(id)
 	return rc
 }
 
-// AddProblem adds the "problem" edges to the Problem entity.
-func (rc *RecordCreate) AddProblem(p ...*Problem) *RecordCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return rc.AddProblemIDs(ids...)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (rc *RecordCreate) SetProblem(p *Problem) *RecordCreate {
+	return rc.SetProblemID(p.ID)
 }
 
 // Mutation returns the RecordMutation object of the builder.
@@ -136,6 +140,10 @@ func (rc *RecordCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (rc *RecordCreate) defaults() {
+	if _, ok := rc.mutation.UserUUID(); !ok {
+		v := record.DefaultUserUUID
+		rc.mutation.SetUserUUID(v)
+	}
 	if _, ok := rc.mutation.Readability(); !ok {
 		v := record.DefaultReadability
 		rc.mutation.SetReadability(v)
@@ -170,7 +178,7 @@ func (rc *RecordCreate) check() error {
 	if _, ok := rc.mutation.Efficiency(); !ok {
 		return &ValidationError{Name: "efficiency", err: errors.New(`ent: missing required field "Record.efficiency"`)}
 	}
-	if len(rc.mutation.ProblemIDs()) == 0 {
+	if _, ok := rc.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem", err: errors.New(`ent: missing required edge "Record.problem"`)}
 	}
 	return nil
@@ -231,10 +239,10 @@ func (rc *RecordCreate) createSpec() (*Record, *sqlgraph.CreateSpec) {
 	}
 	if nodes := rc.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -243,6 +251,7 @@ func (rc *RecordCreate) createSpec() (*Record, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.problem_records = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
