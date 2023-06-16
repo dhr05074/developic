@@ -3,6 +3,7 @@ package score
 import (
 	"code-connect/ent"
 	"code-connect/ent/problem"
+	"code-connect/ent/record"
 	"code-connect/pkg/ai"
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
@@ -114,16 +115,25 @@ func (s *ScoreWorker) Run(ctx context.Context) (err error) {
 			}
 			log.NewZap().Info("Scored Problem Successfully")
 
-		case <-s.submitCh:
-			//r, err := s.entClient.Record.Query().Where(record.UUID(msg.ID)).Only(ctx)
-			//if err != nil {
-			//	log.NewZap().Error(err.Error())
-			//	continue
-			//}
-			//
-			//code, _ := base64.StdEncoding.DecodeString(r.Code)
-			//s.handlingCode(ctx, string(code))
+		case msg := <-s.submitCh:
+			r, err := s.entClient.Record.Query().Where(record.UUID(msg.ID)).Only(ctx)
+			if err != nil {
+				log.NewZap().Error(err.Error())
+				continue
+			}
 
+			code, _ := base64.StdEncoding.DecodeString(r.Code)
+			result, err := s.handlingCode(ctx, string(code))
+			if err != nil {
+				continue
+			}
+
+			if err := r.Update().SetRobustness(result.Robustness).SetEfficiency(result.Efficiency).SetReadability(result.Readability).Exec(ctx); err != nil {
+				log.NewZap().Error(err.Error())
+				continue
+			}
+
+			log.NewZap().Info("Scored Record Successfully")
 		case <-ctx.Done():
 			return nil
 		}
