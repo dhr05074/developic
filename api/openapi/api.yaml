@@ -11,7 +11,7 @@ components:
   securitySchemes:
     apiKey:
       type: apiKey
-      name: X-API-KEY
+      name: Authorization
       in: header
   requestBodies:
     SubmitCode:
