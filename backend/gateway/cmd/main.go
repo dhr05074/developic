@@ -11,6 +11,7 @@ import (
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
 	"code-connect/problem"
+	"code-connect/record"
 	"code-connect/schema/message"
 	"code-connect/worker/score"
 	"context"
@@ -56,8 +57,13 @@ func main() {
 	}()
 
 	problemHandler := problem.NewHandler(kvStore, gptClient, entClient, reqCh)
+	recordHandler := record.NewHandler(record.NewHandlerParams{
+		ParamClient: kvStore,
+		EntClient:   entClient,
+		SubmitCh:    subCh,
+	})
 
-	strictHandler := handler.NewStrictHandler(problemHandler)
+	strictHandler := handler.NewStrictHandler(problemHandler, recordHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 

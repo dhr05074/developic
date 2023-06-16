@@ -3,8 +3,8 @@ package record
 import (
 	"code-connect/ent"
 	"code-connect/ent/problem"
+	"code-connect/ent/record"
 	"code-connect/gateway"
-	"code-connect/pkg/ai"
 	"code-connect/pkg/store"
 	"code-connect/schema/message"
 	"context"
@@ -14,7 +14,6 @@ import (
 
 type Handler struct {
 	paramClient store.KV
-	gptClient   ai.GPTClient
 	entClient   *ent.Client
 	log         *zap.SugaredLogger
 	submitCh    chan message.ProblemMessage
@@ -22,7 +21,6 @@ type Handler struct {
 
 type NewHandlerParams struct {
 	ParamClient store.KV
-	GptClient   ai.GPTClient
 	EntClient   *ent.Client
 	SubmitCh    chan message.ProblemMessage
 }
@@ -30,7 +28,6 @@ type NewHandlerParams struct {
 func NewHandler(params NewHandlerParams) *Handler {
 	return &Handler{
 		paramClient: params.ParamClient,
-		gptClient:   params.GptClient,
 		entClient:   params.EntClient,
 		submitCh:    params.SubmitCh,
 	}
@@ -67,7 +64,7 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 
 	id := nanoid.Must(8)
 
-	err = tx.Record.Create().SetUUID(id).AddProblem(p).SetCode(request.Body.Code).Exec(ctx)
+	err = tx.Record.Create().SetUUID(id).SetProblem(p).SetCode(request.Body.Code).Exec(ctx)
 	if err != nil {
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
@@ -90,15 +87,82 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 		ID: id,
 	}
 
-	return gateway.SubmitSolution202JSONResponse{}, nil
+	return gateway.SubmitSolution202JSONResponse{
+		N202SubmitJSONResponse: gateway.N202SubmitJSONResponse{
+			RecordId: id,
+		},
+	}, nil
 }
 
 func (s *Handler) GetRecords(ctx context.Context, request gateway.GetRecordsRequestObject) (gateway.GetRecordsResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	page := 1
+	if request.Params.Page != nil {
+		page = int(*request.Params.Page)
+	}
+
+	limit := 10
+	if request.Params.Limit != nil {
+		limit = int(*request.Params.Limit)
+	}
+
+	records, err := s.entClient.Record.Query().Where(record.HasProblem()).WithProblem().Offset((page - 1) * limit).Limit(limit).All(ctx)
+	if err != nil {
+		return gateway.GetRecordsdefaultJSONResponse{
+			Body: gateway.Error{
+				Message: err.Error(),
+			},
+			StatusCode: 500,
+		}, err
+	}
+
+	res := make([]gateway.Record, len(records))
+	for i, re := range records {
+		res[i] = gateway.Record{
+			Code:         re.Code,
+			Efficiency:   gateway.Score(re.Efficiency),
+			Id:           re.UUID,
+			ProblemId:    re.Edges.Problem.UUID,
+			ProblemTitle: re.Edges.Problem.Title,
+			Readability:  gateway.Score(re.Readability),
+			Robustness:   gateway.Score(re.Robustness),
+		}
+	}
+
+	return gateway.GetRecords200JSONResponse{
+		N200GetRecordsJSONResponse: gateway.N200GetRecordsJSONResponse{
+			Records: res,
+		},
+	}, nil
 }
 
 func (s *Handler) GetRecord(ctx context.Context, request gateway.GetRecordRequestObject) (gateway.GetRecordResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	re, err := s.entClient.Record.Query().Where(record.UUID(request.Id)).WithProblem().Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return gateway.GetRecorddefaultJSONResponse{
+				Body: gateway.Error{
+					Message: err.Error(),
+				},
+				StatusCode: 404,
+			}, err
+		}
+		return gateway.GetRecorddefaultJSONResponse{
+			Body: gateway.Error{
+				Message: err.Error(),
+			},
+			StatusCode: 500,
+		}, err
+	}
+
+	return gateway.GetRecord200JSONResponse{
+		N200GetRecordJSONResponse: gateway.N200GetRecordJSONResponse{
+			Code:         re.Code,
+			Efficiency:   gateway.Score(re.Efficiency),
+			Id:           re.UUID,
+			ProblemId:    re.Edges.Problem.UUID,
+			ProblemTitle: re.Edges.Problem.Title,
+			Readability:  gateway.Score(re.Readability),
+			Robustness:   gateway.Score(re.Robustness),
+		},
+	}, nil
 }

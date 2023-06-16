@@ -310,7 +310,7 @@ func (c *ProblemClient) QueryRecords(pr *Problem) *RecordQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(record.Table, record.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, problem.RecordsTable, problem.RecordsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.RecordsTable, problem.RecordsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -444,7 +444,7 @@ func (c *RecordClient) QueryProblem(r *Record) *ProblemQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(record.Table, record.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, record.ProblemTable, record.ProblemPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, record.ProblemTable, record.ProblemColumn),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil

@@ -109,19 +109,15 @@ func (ru *RecordUpdate) AddEfficiency(i int) *RecordUpdate {
 	return ru
 }
 
-// AddProblemIDs adds the "problem" edge to the Problem entity by IDs.
-func (ru *RecordUpdate) AddProblemIDs(ids ...int) *RecordUpdate {
-	ru.mutation.AddProblemIDs(ids...)
+// SetProblemID sets the "problem" edge to the Problem entity by ID.
+func (ru *RecordUpdate) SetProblemID(id int) *RecordUpdate {
+	ru.mutation.SetProblemID(id)
 	return ru
 }
 
-// AddProblem adds the "problem" edges to the Problem entity.
-func (ru *RecordUpdate) AddProblem(p ...*Problem) *RecordUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ru.AddProblemIDs(ids...)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (ru *RecordUpdate) SetProblem(p *Problem) *RecordUpdate {
+	return ru.SetProblemID(p.ID)
 }
 
 // Mutation returns the RecordMutation object of the builder.
@@ -129,25 +125,10 @@ func (ru *RecordUpdate) Mutation() *RecordMutation {
 	return ru.mutation
 }
 
-// ClearProblem clears all "problem" edges to the Problem entity.
+// ClearProblem clears the "problem" edge to the Problem entity.
 func (ru *RecordUpdate) ClearProblem() *RecordUpdate {
 	ru.mutation.ClearProblem()
 	return ru
-}
-
-// RemoveProblemIDs removes the "problem" edge to Problem entities by IDs.
-func (ru *RecordUpdate) RemoveProblemIDs(ids ...int) *RecordUpdate {
-	ru.mutation.RemoveProblemIDs(ids...)
-	return ru
-}
-
-// RemoveProblem removes "problem" edges to Problem entities.
-func (ru *RecordUpdate) RemoveProblem(p ...*Problem) *RecordUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ru.RemoveProblemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -177,7 +158,18 @@ func (ru *RecordUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ru *RecordUpdate) check() error {
+	if _, ok := ru.mutation.ProblemID(); ru.mutation.ProblemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Record.problem"`)
+	}
+	return nil
+}
+
 func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := ru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(record.Table, record.Columns, sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -215,39 +207,23 @@ func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ru.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ru.mutation.RemovedProblemIDs(); len(nodes) > 0 && !ru.mutation.ProblemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := ru.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -359,19 +335,15 @@ func (ruo *RecordUpdateOne) AddEfficiency(i int) *RecordUpdateOne {
 	return ruo
 }
 
-// AddProblemIDs adds the "problem" edge to the Problem entity by IDs.
-func (ruo *RecordUpdateOne) AddProblemIDs(ids ...int) *RecordUpdateOne {
-	ruo.mutation.AddProblemIDs(ids...)
+// SetProblemID sets the "problem" edge to the Problem entity by ID.
+func (ruo *RecordUpdateOne) SetProblemID(id int) *RecordUpdateOne {
+	ruo.mutation.SetProblemID(id)
 	return ruo
 }
 
-// AddProblem adds the "problem" edges to the Problem entity.
-func (ruo *RecordUpdateOne) AddProblem(p ...*Problem) *RecordUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ruo.AddProblemIDs(ids...)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (ruo *RecordUpdateOne) SetProblem(p *Problem) *RecordUpdateOne {
+	return ruo.SetProblemID(p.ID)
 }
 
 // Mutation returns the RecordMutation object of the builder.
@@ -379,25 +351,10 @@ func (ruo *RecordUpdateOne) Mutation() *RecordMutation {
 	return ruo.mutation
 }
 
-// ClearProblem clears all "problem" edges to the Problem entity.
+// ClearProblem clears the "problem" edge to the Problem entity.
 func (ruo *RecordUpdateOne) ClearProblem() *RecordUpdateOne {
 	ruo.mutation.ClearProblem()
 	return ruo
-}
-
-// RemoveProblemIDs removes the "problem" edge to Problem entities by IDs.
-func (ruo *RecordUpdateOne) RemoveProblemIDs(ids ...int) *RecordUpdateOne {
-	ruo.mutation.RemoveProblemIDs(ids...)
-	return ruo
-}
-
-// RemoveProblem removes "problem" edges to Problem entities.
-func (ruo *RecordUpdateOne) RemoveProblem(p ...*Problem) *RecordUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ruo.RemoveProblemIDs(ids...)
 }
 
 // Where appends a list predicates to the RecordUpdate builder.
@@ -440,7 +397,18 @@ func (ruo *RecordUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ruo *RecordUpdateOne) check() error {
+	if _, ok := ruo.mutation.ProblemID(); ruo.mutation.ProblemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Record.problem"`)
+	}
+	return nil
+}
+
 func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err error) {
+	if err := ruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(record.Table, record.Columns, sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt))
 	id, ok := ruo.mutation.ID()
 	if !ok {
@@ -495,39 +463,23 @@ func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err err
 	}
 	if ruo.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ruo.mutation.RemovedProblemIDs(); len(nodes) > 0 && !ruo.mutation.ProblemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := ruo.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),

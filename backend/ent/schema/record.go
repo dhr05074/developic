@@ -27,6 +27,6 @@ func (Record) Fields() []ent.Field {
 // Edges of the Record.
 func (Record) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("problem", Problem.Type).Ref("records").Required(),
+		edge.From("problem", Problem.Type).Ref("records").Unique().Required(),
 	}
 }

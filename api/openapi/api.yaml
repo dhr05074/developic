@@ -43,10 +43,10 @@ components:
             type: object
             additionalProperties: false
             properties:
-              report_id:
+              record_id:
                 $ref: "#/components/schemas/RecordID"
             required:
-              - report_id
+              - record_id
     200GetRecords:
       description: 성공적으로 채점 결과를 조회한 경우입니다.
       content:
@@ -62,71 +62,13 @@ components:
                 minItems: 0
                 maxItems: 100
                 items:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - id
-                    - problem_id
-                    - problem_name
-                    - score
-                  properties:
-                    id:
-                      $ref: "#/components/schemas/RecordID"
-                    problem_id:
-                      $ref: "#/components/schemas/ProblemID"
-                    problem_name:
-                      $ref: "#/components/schemas/ProblemTitle"
-                    score:
-                      $ref: "#/components/schemas/RecordScore"
+                  $ref: "#/components/schemas/Record"
     200GetRecord:
       description: 채점 보고서가 생성되었으며, 성공적으로 조회한 상태입니다.
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            required:
-              - id
-              - problem
-              - user_code
-              - result
-            properties:
-              id:
-                $ref: "#/components/schemas/RecordID"
-              problem:
-                $ref: "#/components/schemas/Problem"
-              user_code:
-                $ref: "#/components/schemas/Code"
-              result:
-                type: object
-                additionalProperties: false
-                required:
-                  - score
-                  - sub_score
-                properties:
-                  score:
-                    type: integer
-                    description: 채점 결과의 총점입니다. 100점 만점입니다.
-                  sub_score:
-                    type: object
-                    additionalProperties: false
-                    properties:
-                      readability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      modularity:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      efficiency:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      testability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      maintainability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                    required:
-                      - readability
-                      - modularity
-                      - efficiency
-                      - testability
-                      - maintainability
+            $ref: "#/components/schemas/Record"
     InternalServerError:
       description: 내부 서버 오류입니다. 오류 코드와 함께 반환됩니다.
       content:
@@ -198,15 +140,32 @@ components:
       description: Developic에서 생성된 결과 보고서의 고유 ID입니다.
       example: 1a2b3c4d
       maxLength: 8
-    SucceedCheckListItems:
-      type: array
-      description: 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-      minItems: 0
-      maxItems: 20
-      items:
-        type: integer
-        format: int32
-    RecordScore:
+    Record:
+      type: object
+      required:
+        - id
+        - problem_id
+        - problem_title
+        - efficiency
+        - readability
+        - robustness
+        - code
+      properties:
+        id:
+          $ref: "#/components/schemas/RecordID"
+        problem_id:
+          $ref: "#/components/schemas/ProblemID"
+        problem_title:
+          $ref: "#/components/schemas/ProblemTitle"
+        efficiency:
+          $ref: "#/components/schemas/Score"
+        readability:
+          $ref: "#/components/schemas/Score"
+        robustness:
+          $ref: "#/components/schemas/Score"
+        code:
+          $ref: "#/components/schemas/Code"
+    Score:
       type: integer
       format: int32
       description: 결과 보고서에서 사용자가 취득한 총점입니다.
