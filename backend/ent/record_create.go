@@ -32,6 +32,14 @@ func (rc *RecordCreate) SetUserUUID(s string) *RecordCreate {
 	return rc
 }
 
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (rc *RecordCreate) SetNillableUserUUID(s *string) *RecordCreate {
+	if s != nil {
+		rc.SetUserUUID(*s)
+	}
+	return rc
+}
+
 // SetCode sets the "code" field.
 func (rc *RecordCreate) SetCode(s string) *RecordCreate {
 	rc.mutation.SetCode(s)
@@ -132,6 +140,10 @@ func (rc *RecordCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (rc *RecordCreate) defaults() {
+	if _, ok := rc.mutation.UserUUID(); !ok {
+		v := record.DefaultUserUUID
+		rc.mutation.SetUserUUID(v)
+	}
 	if _, ok := rc.mutation.Readability(); !ok {
 		v := record.DefaultReadability
 		rc.mutation.SetReadability(v)

@@ -16,7 +16,7 @@ func (Record) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique().StructTag("-"),
 		field.String("uuid").Unique().StructTag("id"),
-		field.String("user_uuid"),
+		field.String("user_uuid").Default("test"),
 		field.Text("code"),
 		field.Int("readability").Default(0),
 		field.Int("robustness").Default(0),

@@ -40,6 +40,14 @@ func (ru *RecordUpdate) SetUserUUID(s string) *RecordUpdate {
 	return ru
 }
 
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (ru *RecordUpdate) SetNillableUserUUID(s *string) *RecordUpdate {
+	if s != nil {
+		ru.SetUserUUID(*s)
+	}
+	return ru
+}
+
 // SetCode sets the "code" field.
 func (ru *RecordUpdate) SetCode(s string) *RecordUpdate {
 	ru.mutation.SetCode(s)
@@ -263,6 +271,14 @@ func (ruo *RecordUpdateOne) SetUUID(s string) *RecordUpdateOne {
 // SetUserUUID sets the "user_uuid" field.
 func (ruo *RecordUpdateOne) SetUserUUID(s string) *RecordUpdateOne {
 	ruo.mutation.SetUserUUID(s)
+	return ruo
+}
+
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (ruo *RecordUpdateOne) SetNillableUserUUID(s *string) *RecordUpdateOne {
+	if s != nil {
+		ruo.SetUserUUID(*s)
+	}
 	return ruo
 }
 

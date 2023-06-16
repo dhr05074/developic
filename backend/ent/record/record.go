@@ -70,6 +70,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultUserUUID holds the default value on creation for the "user_uuid" field.
+	DefaultUserUUID string
 	// DefaultReadability holds the default value on creation for the "readability" field.
 	DefaultReadability int
 	// DefaultRobustness holds the default value on creation for the "robustness" field.

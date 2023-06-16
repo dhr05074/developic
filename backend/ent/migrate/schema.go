@@ -31,7 +31,7 @@ var (
 	RecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeString, Unique: true},
-		{Name: "user_uuid", Type: field.TypeString},
+		{Name: "user_uuid", Type: field.TypeString, Default: "test"},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
 		{Name: "robustness", Type: field.TypeInt, Default: 0},
