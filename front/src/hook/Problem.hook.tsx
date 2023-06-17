@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
 import { problemIdState, problemState, editorInCode } from "../recoil/problem.recoil";
-import { ProgrammingLanguage } from "api/api";
+import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
 
 // recoil로 변경
 // const problemId = "";
@@ -11,9 +11,10 @@ import { ProgrammingLanguage } from "api/api";
 const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
-
+    const navigate = useNavigate();
     const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
+    // 에디터 내부 코드
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
     const [isCodeReset, setIsCodeReset] = useState(false);
     const [searchParams] = useSearchParams();
@@ -21,7 +22,7 @@ const useProblem = () => {
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
     const initEditor = () => {
-        console.log("problem.hook ");
+        console.log("initEditor ");
         const code = problem?.code;
         if (code) setEditorCode(atob(code));
         setIsCodeReset(!isCodeReset);
@@ -66,6 +67,23 @@ const useProblem = () => {
         }, 3000);
     };
 
+    const onClickSubmit = () => {
+        console.log(problem?.id);
+        // problemId = null이다 조치해야함.
+        const submit = {
+            problem_id: problemId,
+            code: editorCode,
+        } as SubmitSolutionRequest;
+
+        api.submitSolution(submit)
+            .then(() => {
+                navigate("/result");
+            })
+            .catch((error) => {
+                console.error("onClickSubmit error", error);
+            });
+    };
+
     return {
         createProblem,
         getProblemData,
@@ -75,6 +93,7 @@ const useProblem = () => {
         editorCode,
         isCodeReset,
         initEditor,
+        onClickSubmit,
         // getProblemState,
     };
 };

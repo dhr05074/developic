@@ -209,3 +209,5 @@
 
 -   api 변경사항에 따라 msw 수정 & 추가
 -   v0.0.0:49
+-   profile, result router 적용
+-   v0.0.0:50

@@ -17,4 +17,4 @@ type LanguageType =
     | "swift"
     | "";
 type difficultyType = "Hard" | "Normal" | "Easy" | "";
-type IconType = "profile";
+type IconType = "profile" | "profile_active";

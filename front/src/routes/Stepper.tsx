@@ -27,9 +27,6 @@ function StepperComponent() {
     }, [problem]);
 
     useEffect(() => {
-        console.log("useEffect2");
-        console.log(problem, StepperList.comp.step);
-
         if (StepperList.comp.step === "loading") {
             if (problem) {
                 endStep();

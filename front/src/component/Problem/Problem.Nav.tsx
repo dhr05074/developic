@@ -5,7 +5,8 @@ import useProblem from "@/hook/Problem.hook";
 
 function ProblemNav() {
     const { languages, difficultList, setLang, setDifficulty, selectOptoin } = useSelectComponent();
-    const { initEditor } = useProblem();
+    const { initEditor, onClickSubmit } = useProblem();
+
     return (
         <section id="problem_nav" className="flex w-full flex-row items-center justify-between bg-Navy-800 px-6 py-2">
             <article id="problem_nav_options" className=" relative flex h-10 w-52 flex-row">
@@ -24,7 +25,7 @@ function ProblemNav() {
             </article>
             <article id="problem_nav_buttons" className="flex flex-row gap-3">
                 <Button name="Reset" type="line" size="small" func={initEditor} />
-                <Button name="Submit" type="full" size="small" />
+                <Button name="Submit" type="full" size="small" func={onClickSubmit} />
             </article>
         </section>
     );

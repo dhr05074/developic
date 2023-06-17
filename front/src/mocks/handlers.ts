@@ -46,6 +46,8 @@ function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | nul
 
 };`;
 const onCreateProblem = () => {
+    console.log("문제 제출 시작");
+
     setTimeout(() => {
         problem = {
             problem_id: createProblem.problem_id,
@@ -58,6 +60,7 @@ const onCreateProblem = () => {
 };
 
 const onCreateRecord = async () => {
+    console.log("채점 시작");
     setTimeout(() => {
         record = {
             id: "record_id",
@@ -97,6 +100,7 @@ export default [
     rest.post(`${apiUrl}/submit`, (req, res, ctx) => {
         const { problem_id, code } = req.body as SubmitSolutionRequest;
         onCreateRecord(); // 채점 시작
+        console.log("problem_id : ", problem_id, "code : ", code);
         return res(
             ctx.status(200),
             ctx.json({
