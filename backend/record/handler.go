@@ -2,6 +2,7 @@ package record
 
 import (
 	"code-connect/ent"
+	"code-connect/ent/predicate"
 	"code-connect/ent/problem"
 	"code-connect/ent/record"
 	"code-connect/gateway"
@@ -64,7 +65,13 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 
 	id := nanoid.Must(8)
 
-	err = tx.Record.Create().SetUUID(id).SetProblem(p).SetCode(request.Body.Code).Exec(ctx)
+	createQuery := tx.Record.Create().SetUUID(id).SetProblem(p).SetCode(request.Body.Code)
+	username, ok := store.UsernameFromContext(ctx)
+	if ok && username != "" {
+		createQuery.SetUserUUID(username)
+	}
+
+	err = createQuery.Exec(ctx)
 	if err != nil {
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
@@ -105,7 +112,12 @@ func (s *Handler) GetRecords(ctx context.Context, request gateway.GetRecordsRequ
 		limit = int(*request.Params.Limit)
 	}
 
-	records, err := s.entClient.Record.Query().Where(record.HasProblem()).WithProblem().Offset((page - 1) * limit).Limit(limit).All(ctx)
+	predicates := []predicate.Record{record.HasProblem()}
+	if username, ok := store.UsernameFromContext(ctx); ok && username != "" {
+		predicates = append(predicates, record.UserUUID(username))
+	}
+
+	records, err := s.entClient.Record.Query().Where(predicates...).WithProblem().Offset((page - 1) * limit).Limit(limit).All(ctx)
 	if err != nil {
 		return gateway.GetRecordsdefaultJSONResponse{
 			Body: gateway.Error{

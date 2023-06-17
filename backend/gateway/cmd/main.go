@@ -101,7 +101,7 @@ func mustInitKVStore(ctx context.Context) store.KV {
 
 func mustInitGPTClient() ai.GPTClient {
 	apiToken, ok := os.LookupEnv("CHATGPT_API_KEY")
-	if !ok {
+	if !ok || apiToken == "" {
 		l.Fatal("CHATGPT_API_KEY is not set")
 	}
 	cli := ai.NewOpenAI(openai.NewClient(apiToken))
