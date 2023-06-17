@@ -26,89 +26,21 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError } from './base';
 /**
  * 
  * @export
- * @interface GetRecord200Response
+ * @interface GetMe200Response
  */
-export interface GetRecord200Response {
+export interface GetMe200Response {
     /**
-     * Developic에서 생성된 결과 보고서의 고유 ID입니다.
+     * Developic에서 사용되는 유저의 이름입니다.
      * @type {string}
-     * @memberof GetRecord200Response
+     * @memberof GetMe200Response
      */
-    'id': string;
+    'nickname': string;
     /**
-     * 
-     * @type {Problem}
-     * @memberof GetRecord200Response
-     */
-    'problem': Problem;
-    /**
-     * Developic에서 사용되는 코드 데이터입니다. 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다. 
-     * @type {string}
-     * @memberof GetRecord200Response
-     */
-    'user_code': string;
-    /**
-     * 
-     * @type {GetRecord200ResponseResult}
-     * @memberof GetRecord200Response
-     */
-    'result': GetRecord200ResponseResult;
-}
-/**
- * 
- * @export
- * @interface GetRecord200ResponseResult
- */
-export interface GetRecord200ResponseResult {
-    /**
-     * 채점 결과의 총점입니다. 100점 만점입니다.
+     * Developic에서 유저의 실력을 가늠하는 ELO 점수입니다.
      * @type {number}
-     * @memberof GetRecord200ResponseResult
+     * @memberof GetMe200Response
      */
-    'score': number;
-    /**
-     * 
-     * @type {GetRecord200ResponseResultSubScore}
-     * @memberof GetRecord200ResponseResult
-     */
-    'sub_score': GetRecord200ResponseResultSubScore;
-}
-/**
- * 
- * @export
- * @interface GetRecord200ResponseResultSubScore
- */
-export interface GetRecord200ResponseResultSubScore {
-    /**
-     * 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-     * @type {Array<number>}
-     * @memberof GetRecord200ResponseResultSubScore
-     */
-    'readability': Array<number>;
-    /**
-     * 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-     * @type {Array<number>}
-     * @memberof GetRecord200ResponseResultSubScore
-     */
-    'modularity': Array<number>;
-    /**
-     * 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-     * @type {Array<number>}
-     * @memberof GetRecord200ResponseResultSubScore
-     */
-    'efficiency': Array<number>;
-    /**
-     * 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-     * @type {Array<number>}
-     * @memberof GetRecord200ResponseResultSubScore
-     */
-    'testability': Array<number>;
-    /**
-     * 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-     * @type {Array<number>}
-     * @memberof GetRecord200ResponseResultSubScore
-     */
-    'maintainability': Array<number>;
+    'elo_score': number;
 }
 /**
  * 
@@ -118,41 +50,29 @@ export interface GetRecord200ResponseResultSubScore {
 export interface GetRecords200Response {
     /**
      * 
-     * @type {Array<GetRecords200ResponseRecordsInner>}
+     * @type {Array<Record>}
      * @memberof GetRecords200Response
      */
-    'records': Array<GetRecords200ResponseRecordsInner>;
+    'records': Array<Record>;
 }
 /**
  * 
  * @export
- * @interface GetRecords200ResponseRecordsInner
+ * @interface ModelError
  */
-export interface GetRecords200ResponseRecordsInner {
+export interface ModelError {
     /**
-     * Developic에서 생성된 결과 보고서의 고유 ID입니다.
+     * 오류 구분 코드입니다.
      * @type {string}
-     * @memberof GetRecords200ResponseRecordsInner
+     * @memberof ModelError
      */
-    'id': string;
+    'code': string;
     /**
-     * Developic에서 출제한 문제의 고유 ID입니다.
+     * 상세한 오류 정보를 알려주는 메시지입니다.
      * @type {string}
-     * @memberof GetRecords200ResponseRecordsInner
+     * @memberof ModelError
      */
-    'problem_id': string;
-    /**
-     * Developic에서 출제한 문제의 타이틀입니다.
-     * @type {string}
-     * @memberof GetRecords200ResponseRecordsInner
-     */
-    'problem_name': string;
-    /**
-     * 결과 보고서에서 사용자가 취득한 총점입니다.
-     * @type {number}
-     * @memberof GetRecords200ResponseRecordsInner
-     */
-    'score': number;
+    'message': string;
 }
 /**
  * 
@@ -171,7 +91,13 @@ export interface Problem {
      * @type {string}
      * @memberof Problem
      */
-    'name': string;
+    'title': string;
+    /**
+     * 문제의 자세한 설명입니다.
+     * @type {string}
+     * @memberof Problem
+     */
+    'description': string;
     /**
      * Developic에서 사용되는 코드 데이터입니다. 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다. 
      * @type {string}
@@ -197,6 +123,55 @@ export type ProgrammingLanguage = typeof ProgrammingLanguage[keyof typeof Progra
 /**
  * 
  * @export
+ * @interface Record
+ */
+export interface Record {
+    /**
+     * Developic에서 생성된 결과 보고서의 고유 ID입니다.
+     * @type {string}
+     * @memberof Record
+     */
+    'id': string;
+    /**
+     * Developic에서 출제한 문제의 고유 ID입니다.
+     * @type {string}
+     * @memberof Record
+     */
+    'problem_id': string;
+    /**
+     * Developic에서 출제한 문제의 타이틀입니다.
+     * @type {string}
+     * @memberof Record
+     */
+    'problem_title': string;
+    /**
+     * 결과 보고서에서 사용자가 취득한 총점입니다.
+     * @type {number}
+     * @memberof Record
+     */
+    'efficiency': number;
+    /**
+     * 결과 보고서에서 사용자가 취득한 총점입니다.
+     * @type {number}
+     * @memberof Record
+     */
+    'readability': number;
+    /**
+     * 결과 보고서에서 사용자가 취득한 총점입니다.
+     * @type {number}
+     * @memberof Record
+     */
+    'robustness': number;
+    /**
+     * Developic에서 사용되는 코드 데이터입니다. 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다. 
+     * @type {string}
+     * @memberof Record
+     */
+    'code': string;
+}
+/**
+ * 
+ * @export
  * @interface RequestProblem202Response
  */
 export interface RequestProblem202Response {
@@ -210,19 +185,6 @@ export interface RequestProblem202Response {
 /**
  * 
  * @export
- * @interface RequestProblemDefaultResponse
- */
-export interface RequestProblemDefaultResponse {
-    /**
-     * 
-     * @type {string}
-     * @memberof RequestProblemDefaultResponse
-     */
-    'error_code': string;
-}
-/**
- * 
- * @export
  * @interface RequestProblemRequest
  */
 export interface RequestProblemRequest {
@@ -232,6 +194,12 @@ export interface RequestProblemRequest {
      * @memberof RequestProblemRequest
      */
     'language': ProgrammingLanguage;
+    /**
+     * Developic에서 유저의 실력을 가늠하는 ELO 점수입니다.
+     * @type {number}
+     * @memberof RequestProblemRequest
+     */
+    'elo_score'?: number;
 }
 
 
@@ -246,7 +214,7 @@ export interface SubmitSolution202Response {
      * @type {string}
      * @memberof SubmitSolution202Response
      */
-    'report_id': string;
+    'record_id': string;
 }
 /**
  * 
@@ -276,6 +244,38 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMe: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication apiKey required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} id 문제 생성 시 발급받은 ID입니다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -297,7 +297,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication apiKey required
-            await setApiKeyToObject(localVarHeaderParameter, "X-API-KEY", configuration)
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
 
     
@@ -333,7 +333,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication apiKey required
-            await setApiKeyToObject(localVarHeaderParameter, "X-API-KEY", configuration)
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
 
     
@@ -367,7 +367,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication apiKey required
-            await setApiKeyToObject(localVarHeaderParameter, "X-API-KEY", configuration)
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
             if (page !== undefined) {
                 localVarQueryParameter['page'] = page;
@@ -408,7 +408,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication apiKey required
-            await setApiKeyToObject(localVarHeaderParameter, "X-API-KEY", configuration)
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
 
     
@@ -444,7 +444,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             // authentication apiKey required
-            await setApiKeyToObject(localVarHeaderParameter, "X-API-KEY", configuration)
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
 
     
@@ -472,6 +472,15 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMe(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetMe200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMe(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {string} id 문제 생성 시 발급받은 ID입니다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -486,7 +495,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getRecord(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetRecord200Response>> {
+        async getRecord(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Record>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getRecord(id, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -533,6 +542,14 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMe(options?: any): AxiosPromise<GetMe200Response> {
+            return localVarFp.getMe(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {string} id 문제 생성 시 발급받은 ID입니다.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -546,7 +563,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getRecord(id: string, options?: any): AxiosPromise<GetRecord200Response> {
+        getRecord(id: string, options?: any): AxiosPromise<Record> {
             return localVarFp.getRecord(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -587,6 +604,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  * @extends {BaseAPI}
  */
 export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public getMe(options?: AxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getMe(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @param {string} id 문제 생성 시 발급받은 ID입니다.

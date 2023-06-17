@@ -29,16 +29,8 @@ export default function ProblemComponent() {
             >
                 {/* 고정 */}
                 <article className=" flex w-full  flex-col bg-Navy-800 p-6 text-left text-white ">
-                    <h3 className="text-xl">{problem?.name ? problem?.name : "Add Two Numbers"}</h3>
-                    <MarkDown
-                        markdown={
-                            problem?.name
-                                ? problem?.name
-                                : `You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.
-
-You may assume the two numbers do not contain any leading zero, except the number 0 itself.`
-                        }
-                    />
+                    <h3 className="text-xl">{problem?.title ? problem?.title : "no title"}</h3>
+                    <MarkDown markdown={problem?.description ? problem.description : "no description"} />
                 </article>
                 {/* <div
                     role="presentation"
