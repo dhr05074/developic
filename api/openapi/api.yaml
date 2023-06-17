@@ -192,6 +192,7 @@ paths:
     post:
       operationId: requestProblem
       requestBody:
+        required: true
         content:
           application/json:
             schema:

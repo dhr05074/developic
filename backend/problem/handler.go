@@ -19,13 +19,25 @@ import (
 )
 
 const (
-	problemNotReadyCode    = "ProblemNotReady"
+	problemNotReadyCode = "ProblemNotReady"
+	problemNotFoundCode = "ProblemNotFound"
+)
+
+const (
 	problemNotReadyMessage = "문제가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요."
+	problemNotFoundMessage = "문제가 존재하지 않습니다. 문제 ID를 확인해주세요."
+	serverErrorMessage     = "일시적인 서버 오류입니다. 잠시 후에 다시 시도해주세요."
+)
+
+const (
+	generatingProblemPromptKey = "/prompts/problem/generating"
+	languageTemplateKey        = "{LANGUAGE}"
+	eloScoreTemplateKey        = "{ELO_SCORE}"
 )
 
 var serverErrResp = gateway.GetProblemdefaultJSONResponse{
 	Body: gateway.Error{
-		Message: ServerErrorMessage,
+		Message: serverErrorMessage,
 	},
 	StatusCode: 500,
 }
@@ -55,21 +67,11 @@ func NewHandler(
 	}
 }
 
-type Output struct {
+type GPTOutput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Code        string `json:"code"`
 }
-
-const (
-	generatingProblemPromptKey = "/prompts/problem/generating"
-	languageTemplateKey        = "{LANGUAGE}"
-	eloScoreTemplateKey        = "{ELO_SCORE}"
-)
-
-const (
-	ServerErrorMessage = "일시적인 서버 오류입니다. 잠시 후에 다시 시도해주세요."
-)
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
 	problemID := nanoid.Must(8)
@@ -80,7 +82,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 		h.log.Errorw("failed to create problem", "category", "db", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
-				Message: ServerErrorMessage,
+				Message: serverErrorMessage,
 			},
 			StatusCode: 500,
 		}, nil
@@ -111,11 +113,11 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
-func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (Output, error) {
+func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (GPTOutput, error) {
 	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
 	if err != nil {
 		h.log.Errorw("failed to get prompt", "category", "kv", "error", err)
-		return Output{}, err
+		return GPTOutput{}, err
 	}
 
 	prompt = h.injectData(prompt, request)
@@ -124,20 +126,20 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 	result, err := h.gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
-		return Output{}, err
+		return GPTOutput{}, err
 	}
 
-	var output Output
+	var output GPTOutput
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
 		h.log.Errorw("failed to unmarshal result", "category", "internal", "error", err)
-		return Output{}, err
+		return GPTOutput{}, err
 	}
 
 	h.gptClient.AddPrompt("Give me the code")
 	output.Code, err = h.gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
-		return Output{}, err
+		return GPTOutput{}, err
 	}
 
 	h.log.Infof("problem generated")
@@ -166,7 +168,7 @@ func (h *Handler) createProblem(ctx context.Context, uuid string, request gatewa
 	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
 }
 
-func (h *Handler) saveProblem(ctx context.Context, uuid string, output Output) error {
+func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput) error {
 	tx, err := h.entClient.Tx(ctx)
 	if err != nil {
 		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
@@ -205,8 +207,8 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
-				Code:    "ProblemNotFound",
-				Message: "문제가 존재하지 않습니다. 문제 ID를 확인해 주세요.",
+				Code:    problemNotFoundCode,
+				Message: problemNotFoundMessage,
 			}, nil
 		}
 
