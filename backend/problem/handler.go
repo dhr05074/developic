@@ -52,7 +52,6 @@ const (
 	generatingProblemPromptKey = "/prompts/problem/generating"
 	languageTemplateKey        = "{LANGUAGE}"
 	eloScoreTemplateKey        = "{ELO_SCORE}"
-	defaultELOScore            = 1500
 )
 
 const (

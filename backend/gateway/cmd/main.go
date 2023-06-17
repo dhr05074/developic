@@ -5,6 +5,7 @@ import (
 	"code-connect/ent"
 	"code-connect/gateway"
 	"code-connect/gateway/handler"
+	middleware2 "code-connect/gateway/middleware"
 	"code-connect/pkg/ai"
 	"code-connect/pkg/aws"
 	"code-connect/pkg/db"
@@ -15,7 +16,6 @@ import (
 	"code-connect/schema/message"
 	"code-connect/worker/score"
 	"context"
-	"errors"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -84,22 +84,7 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 
 	return oapimiddleware.OapiRequestValidatorWithOptions(swagger, &oapimiddleware.Options{
 		Options: openapi3filter.Options{
-			AuthenticationFunc: func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-				if input.SecuritySchemeName == "" {
-					return nil
-				}
-
-				username := input.RequestValidationInput.Request.Header.Get("Authorization")
-				if username == "" {
-					return errors.New("authorization header is empty")
-				}
-
-				echoCtx := oapimiddleware.GetEchoContext(ctx)
-				httpReq := echoCtx.Request()
-				echoCtx.SetRequest(httpReq.WithContext(store.WithUsername(httpReq.Context(), username)))
-
-				return nil
-			},
+			AuthenticationFunc: middleware2.Authenticate,
 		},
 	})
 }
