@@ -211,3 +211,5 @@
 -   v0.0.0:49
 -   profile, result router 적용
 -   v0.0.0:50
+-   result 페이지 완성
+-   v0.0.0:51

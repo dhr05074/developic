@@ -2,9 +2,9 @@ import styled from "styled-components";
 
 type PropsType = {
     func?: () => void;
+    name: string;
     type: "line" | "full";
     size: "large" | "medium" | "small";
-    name: string;
 };
 const Button = styled.button`
     background: #b9ff47;
