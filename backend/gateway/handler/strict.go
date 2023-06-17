@@ -4,17 +4,18 @@ import (
 	"code-connect/gateway"
 	"code-connect/problem"
 	"code-connect/record"
+	"code-connect/user"
 	"context"
 )
 
 type StrictHandler struct {
 	problemHandler *problem.Handler
 	recordHandler  *record.Handler
+	userHandler    *user.Handler
 }
 
 func (s *StrictHandler) GetMe(ctx context.Context, request gateway.GetMeRequestObject) (gateway.GetMeResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.userHandler.GetMe(ctx, request)
 }
 
 func NewStrictHandler(problemHandler *problem.Handler, recordHandler *record.Handler) *StrictHandler {
