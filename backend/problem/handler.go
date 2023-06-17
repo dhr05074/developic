@@ -18,6 +18,18 @@ import (
 	"strings"
 )
 
+const (
+	problemNotReadyCode    = "ProblemNotReady"
+	problemNotReadyMessage = "문제가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요."
+)
+
+var serverErrResp = gateway.GetProblemdefaultJSONResponse{
+	Body: gateway.Error{
+		Message: ServerErrorMessage,
+	},
+	StatusCode: 500,
+}
+
 type Handler struct {
 	paramClient store.KV
 	gptClient   ai.GPTClient
@@ -33,6 +45,7 @@ func NewHandler(
 	reqCh chan message.ProblemMessage,
 ) *Handler {
 	l := log.NewZap().With("handler", "problem")
+
 	return &Handler{
 		paramClient: paramClient,
 		gptClient:   gptClient,
@@ -185,13 +198,9 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 	tx, err := h.entClient.Tx(ctx)
 	if err != nil {
 		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
-		return gateway.GetProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Message: ServerErrorMessage,
-			},
-			StatusCode: 500,
-		}, nil
+		return serverErrResp, nil
 	}
+
 	p, err := tx.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -199,27 +208,21 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 		}
 
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
-		return gateway.GetProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Message: ServerErrorMessage,
-			},
-			StatusCode: 500,
-		}, nil
+		return serverErrResp, nil
 	}
 
 	// 문제 생성 요청은 들어갔지만 아직 문제가 생성되지 않은 경우
 	if p.Code == "" || p.Title == "" {
-		return gateway.GetProblem409Response{}, nil
+		return gateway.GetProblem409JSONResponse{
+			Code:    problemNotReadyCode,
+			Message: problemNotReadyMessage,
+		}, nil
 	}
 
 	if err := tx.Commit(); err != nil {
 		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
-		return gateway.GetProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Message: ServerErrorMessage,
-			},
-			StatusCode: 500,
-		}, nil
+
+		return serverErrResp, nil
 	}
 
 	return gateway.GetProblem200JSONResponse{
