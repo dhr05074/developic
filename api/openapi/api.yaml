@@ -234,6 +234,13 @@ paths:
           $ref: "#/components/responses/200GetProblem"
         404:
           description: 존재하지 않는 문제 ID를 입력한 상태입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "ProblemNotFound"
+                message: "문제가 존재하지 않습니다. 문제 ID를 확인해 주세요."
         409:
           description: 문제 생성이 접수되었으나, 시스템에서 아직 문제 생성이 완료되지 않은 상태입니다.
           content:

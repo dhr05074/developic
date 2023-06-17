@@ -204,7 +204,10 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 	p, err := tx.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return gateway.GetProblem404Response{}, nil
+			return gateway.GetProblem404JSONResponse{
+				Code:    "ProblemNotFound",
+				Message: "문제가 존재하지 않습니다. 문제 ID를 확인해 주세요.",
+			}, nil
 		}
 
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
