@@ -40,7 +40,7 @@ const LineButton = styled.button`
     }
 `;
 
-const gap = 3;
+const gap = 4;
 
 const listSample = [
     { name: "가독성", score: 100 },
@@ -84,7 +84,6 @@ function Result() {
                         </article>
                         <img src={Rectangle} className="h-2 w-2" />
                         <ResultList list={listSample} />
-                        {/* 컴포넌트화예정 */}
                     </ScoreSection>
                     <section className="pretendard_medium_20 mt-1 w-full">
                         <LineButton>처음으로</LineButton>
