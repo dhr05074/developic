@@ -26,25 +26,30 @@ func (s *ProblemHandlerTestSuite) SetupTest() {
 	s.gpt = &mocks.GPTClient{}
 	cli := enttest.Open(s.T(), "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 
-	s.hdl = NewHandler(s.kv, s.gpt, cli)
+	s.hdl = NewHandler(s.kv, s.gpt, cli, nil)
 }
 
 func (s *ProblemHandlerTestSuite) TestWhenConcurrentlyAccessTheSameProblem_ThenFinallyProblemCreated() {
 	ctx := context.Background()
 
 	id := nanoid.Must(8)
-	s.Require().NoError(s.hdl.createProblem(ctx, id, gateway.Go))
+	s.Require().NoError(s.hdl.createProblem(ctx, id, gateway.RequestProblemRequestObject{
+		Body: &gateway.RequestProblemJSONRequestBody{
+			EloScore: nil,
+			Language: gateway.Go,
+		},
+	}))
 
 	resp, err := s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
 	s.Require().NoError(err)
-	s.Require().NoError(s.hdl.saveProblem(ctx, id, Output{
+	s.Require().NoError(s.hdl.saveProblem(ctx, id, GPTOutput{
 		Title: "hi",
 		Code:  "21",
 	}))
 	resp, err = s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
 	s.Require().NoError(err)
 
-	_, ok := resp.(gateway.GetProblem409Response)
+	_, ok := resp.(gateway.GetProblem409JSONResponse)
 	s.Require().True(ok)
 
 	s.Eventually(func() bool {

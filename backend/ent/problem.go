@@ -25,18 +25,16 @@ type Problem struct {
 	Title string `json:"title,omitempty"`
 	// Language holds the value of the "language" field.
 	Language gateway.ProgrammingLanguage `json:"language,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Difficulty holds the value of the "difficulty" field.
 	Difficulty int `json:"difficulty,omitempty"`
 	// Readability holds the value of the "readability" field.
 	Readability int `json:"readability,omitempty"`
-	// Modularity holds the value of the "modularity" field.
-	Modularity int `json:"modularity,omitempty"`
+	// Robustness holds the value of the "robustness" field.
+	Robustness int `json:"robustness,omitempty"`
 	// Efficiency holds the value of the "efficiency" field.
 	Efficiency int `json:"efficiency,omitempty"`
-	// Testability holds the value of the "testability" field.
-	Testability int `json:"testability,omitempty"`
-	// Maintainablity holds the value of the "maintainablity" field.
-	Maintainablity int `json:"maintainablity,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
 	Edges        ProblemEdges `json:"edges"`
@@ -66,9 +64,9 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldID, problem.FieldDifficulty, problem.FieldReadability, problem.FieldModularity, problem.FieldEfficiency, problem.FieldTestability, problem.FieldMaintainablity:
+		case problem.FieldID, problem.FieldDifficulty, problem.FieldReadability, problem.FieldRobustness, problem.FieldEfficiency:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldUUID, problem.FieldCode, problem.FieldTitle, problem.FieldLanguage:
+		case problem.FieldUUID, problem.FieldCode, problem.FieldTitle, problem.FieldLanguage, problem.FieldDescription:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -115,6 +113,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Language = gateway.ProgrammingLanguage(value.String)
 			}
+		case problem.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				pr.Description = value.String
+			}
 		case problem.FieldDifficulty:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field difficulty", values[i])
@@ -127,29 +131,17 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Readability = int(value.Int64)
 			}
-		case problem.FieldModularity:
+		case problem.FieldRobustness:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field modularity", values[i])
+				return fmt.Errorf("unexpected type %T for field robustness", values[i])
 			} else if value.Valid {
-				pr.Modularity = int(value.Int64)
+				pr.Robustness = int(value.Int64)
 			}
 		case problem.FieldEfficiency:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field efficiency", values[i])
 			} else if value.Valid {
 				pr.Efficiency = int(value.Int64)
-			}
-		case problem.FieldTestability:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field testability", values[i])
-			} else if value.Valid {
-				pr.Testability = int(value.Int64)
-			}
-		case problem.FieldMaintainablity:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field maintainablity", values[i])
-			} else if value.Valid {
-				pr.Maintainablity = int(value.Int64)
 			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
@@ -204,23 +196,20 @@ func (pr *Problem) String() string {
 	builder.WriteString("language=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Language))
 	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(pr.Description)
+	builder.WriteString(", ")
 	builder.WriteString("difficulty=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Difficulty))
 	builder.WriteString(", ")
 	builder.WriteString("readability=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Readability))
 	builder.WriteString(", ")
-	builder.WriteString("modularity=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Modularity))
+	builder.WriteString("robustness=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Robustness))
 	builder.WriteString(", ")
 	builder.WriteString("efficiency=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Efficiency))
-	builder.WriteString(", ")
-	builder.WriteString("testability=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Testability))
-	builder.WriteString(", ")
-	builder.WriteString("maintainablity=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Maintainablity))
 	builder.WriteByte(')')
 	return builder.String()
 }

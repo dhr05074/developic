@@ -20,23 +20,21 @@ const (
 	FieldCode = "code"
 	// FieldReadability holds the string denoting the readability field in the database.
 	FieldReadability = "readability"
-	// FieldModularity holds the string denoting the modularity field in the database.
-	FieldModularity = "modularity"
+	// FieldRobustness holds the string denoting the robustness field in the database.
+	FieldRobustness = "robustness"
 	// FieldEfficiency holds the string denoting the efficiency field in the database.
 	FieldEfficiency = "efficiency"
-	// FieldTestability holds the string denoting the testability field in the database.
-	FieldTestability = "testability"
-	// FieldMaintainablity holds the string denoting the maintainablity field in the database.
-	FieldMaintainablity = "maintainablity"
 	// EdgeProblem holds the string denoting the problem edge name in mutations.
 	EdgeProblem = "problem"
 	// Table holds the table name of the record in the database.
 	Table = "records"
-	// ProblemTable is the table that holds the problem relation/edge. The primary key declared below.
-	ProblemTable = "problem_records"
+	// ProblemTable is the table that holds the problem relation/edge.
+	ProblemTable = "records"
 	// ProblemInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemInverseTable = "problems"
+	// ProblemColumn is the table column denoting the problem relation/edge.
+	ProblemColumn = "problem_records"
 )
 
 // Columns holds all SQL columns for record fields.
@@ -46,17 +44,15 @@ var Columns = []string{
 	FieldUserUUID,
 	FieldCode,
 	FieldReadability,
-	FieldModularity,
+	FieldRobustness,
 	FieldEfficiency,
-	FieldTestability,
-	FieldMaintainablity,
 }
 
-var (
-	// ProblemPrimaryKey and ProblemColumn2 are the table columns denoting the
-	// primary key for the problem relation (M2M).
-	ProblemPrimaryKey = []string{"problem_id", "record_id"}
-)
+// ForeignKeys holds the SQL foreign-keys that are owned by the "records"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"problem_records",
+}
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -65,20 +61,23 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
 
 var (
+	// DefaultUserUUID holds the default value on creation for the "user_uuid" field.
+	DefaultUserUUID string
 	// DefaultReadability holds the default value on creation for the "readability" field.
 	DefaultReadability int
-	// DefaultModularity holds the default value on creation for the "modularity" field.
-	DefaultModularity int
+	// DefaultRobustness holds the default value on creation for the "robustness" field.
+	DefaultRobustness int
 	// DefaultEfficiency holds the default value on creation for the "efficiency" field.
 	DefaultEfficiency int
-	// DefaultTestability holds the default value on creation for the "testability" field.
-	DefaultTestability int
-	// DefaultMaintainablity holds the default value on creation for the "maintainablity" field.
-	DefaultMaintainablity int
 )
 
 // OrderOption defines the ordering options for the Record queries.
@@ -109,9 +108,9 @@ func ByReadability(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReadability, opts...).ToFunc()
 }
 
-// ByModularity orders the results by the modularity field.
-func ByModularity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldModularity, opts...).ToFunc()
+// ByRobustness orders the results by the robustness field.
+func ByRobustness(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRobustness, opts...).ToFunc()
 }
 
 // ByEfficiency orders the results by the efficiency field.
@@ -119,33 +118,16 @@ func ByEfficiency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEfficiency, opts...).ToFunc()
 }
 
-// ByTestability orders the results by the testability field.
-func ByTestability(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTestability, opts...).ToFunc()
-}
-
-// ByMaintainablity orders the results by the maintainablity field.
-func ByMaintainablity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMaintainablity, opts...).ToFunc()
-}
-
-// ByProblemCount orders the results by problem count.
-func ByProblemCount(opts ...sql.OrderTermOption) OrderOption {
+// ByProblemField orders the results by problem field.
+func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newProblemStep(), opts...)
-	}
-}
-
-// ByProblem orders the results by problem terms.
-func ByProblem(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newProblemStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, ProblemTable, ProblemPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
 	)
 }

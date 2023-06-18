@@ -61,6 +61,20 @@ func (pc *ProblemCreate) SetLanguage(gl gateway.ProgrammingLanguage) *ProblemCre
 	return pc
 }
 
+// SetDescription sets the "description" field.
+func (pc *ProblemCreate) SetDescription(s string) *ProblemCreate {
+	pc.mutation.SetDescription(s)
+	return pc
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableDescription(s *string) *ProblemCreate {
+	if s != nil {
+		pc.SetDescription(*s)
+	}
+	return pc
+}
+
 // SetDifficulty sets the "difficulty" field.
 func (pc *ProblemCreate) SetDifficulty(i int) *ProblemCreate {
 	pc.mutation.SetDifficulty(i)
@@ -89,16 +103,16 @@ func (pc *ProblemCreate) SetNillableReadability(i *int) *ProblemCreate {
 	return pc
 }
 
-// SetModularity sets the "modularity" field.
-func (pc *ProblemCreate) SetModularity(i int) *ProblemCreate {
-	pc.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (pc *ProblemCreate) SetRobustness(i int) *ProblemCreate {
+	pc.mutation.SetRobustness(i)
 	return pc
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableModularity(i *int) *ProblemCreate {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableRobustness(i *int) *ProblemCreate {
 	if i != nil {
-		pc.SetModularity(*i)
+		pc.SetRobustness(*i)
 	}
 	return pc
 }
@@ -113,34 +127,6 @@ func (pc *ProblemCreate) SetEfficiency(i int) *ProblemCreate {
 func (pc *ProblemCreate) SetNillableEfficiency(i *int) *ProblemCreate {
 	if i != nil {
 		pc.SetEfficiency(*i)
-	}
-	return pc
-}
-
-// SetTestability sets the "testability" field.
-func (pc *ProblemCreate) SetTestability(i int) *ProblemCreate {
-	pc.mutation.SetTestability(i)
-	return pc
-}
-
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableTestability(i *int) *ProblemCreate {
-	if i != nil {
-		pc.SetTestability(*i)
-	}
-	return pc
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (pc *ProblemCreate) SetMaintainablity(i int) *ProblemCreate {
-	pc.mutation.SetMaintainablity(i)
-	return pc
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableMaintainablity(i *int) *ProblemCreate {
-	if i != nil {
-		pc.SetMaintainablity(*i)
 	}
 	return pc
 }
@@ -209,21 +195,13 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultReadability
 		pc.mutation.SetReadability(v)
 	}
-	if _, ok := pc.mutation.Modularity(); !ok {
-		v := problem.DefaultModularity
-		pc.mutation.SetModularity(v)
+	if _, ok := pc.mutation.Robustness(); !ok {
+		v := problem.DefaultRobustness
+		pc.mutation.SetRobustness(v)
 	}
 	if _, ok := pc.mutation.Efficiency(); !ok {
 		v := problem.DefaultEfficiency
 		pc.mutation.SetEfficiency(v)
-	}
-	if _, ok := pc.mutation.Testability(); !ok {
-		v := problem.DefaultTestability
-		pc.mutation.SetTestability(v)
-	}
-	if _, ok := pc.mutation.Maintainablity(); !ok {
-		v := problem.DefaultMaintainablity
-		pc.mutation.SetMaintainablity(v)
 	}
 }
 
@@ -246,17 +224,11 @@ func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.Readability(); !ok {
 		return &ValidationError{Name: "readability", err: errors.New(`ent: missing required field "Problem.readability"`)}
 	}
-	if _, ok := pc.mutation.Modularity(); !ok {
-		return &ValidationError{Name: "modularity", err: errors.New(`ent: missing required field "Problem.modularity"`)}
+	if _, ok := pc.mutation.Robustness(); !ok {
+		return &ValidationError{Name: "robustness", err: errors.New(`ent: missing required field "Problem.robustness"`)}
 	}
 	if _, ok := pc.mutation.Efficiency(); !ok {
 		return &ValidationError{Name: "efficiency", err: errors.New(`ent: missing required field "Problem.efficiency"`)}
-	}
-	if _, ok := pc.mutation.Testability(); !ok {
-		return &ValidationError{Name: "testability", err: errors.New(`ent: missing required field "Problem.testability"`)}
-	}
-	if _, ok := pc.mutation.Maintainablity(); !ok {
-		return &ValidationError{Name: "maintainablity", err: errors.New(`ent: missing required field "Problem.maintainablity"`)}
 	}
 	return nil
 }
@@ -306,6 +278,10 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldLanguage, field.TypeString, value)
 		_node.Language = value
 	}
+	if value, ok := pc.mutation.Description(); ok {
+		_spec.SetField(problem.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
 	if value, ok := pc.mutation.Difficulty(); ok {
 		_spec.SetField(problem.FieldDifficulty, field.TypeInt, value)
 		_node.Difficulty = value
@@ -314,28 +290,20 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldReadability, field.TypeInt, value)
 		_node.Readability = value
 	}
-	if value, ok := pc.mutation.Modularity(); ok {
-		_spec.SetField(problem.FieldModularity, field.TypeInt, value)
-		_node.Modularity = value
+	if value, ok := pc.mutation.Robustness(); ok {
+		_spec.SetField(problem.FieldRobustness, field.TypeInt, value)
+		_node.Robustness = value
 	}
 	if value, ok := pc.mutation.Efficiency(); ok {
 		_spec.SetField(problem.FieldEfficiency, field.TypeInt, value)
 		_node.Efficiency = value
 	}
-	if value, ok := pc.mutation.Testability(); ok {
-		_spec.SetField(problem.FieldTestability, field.TypeInt, value)
-		_node.Testability = value
-	}
-	if value, ok := pc.mutation.Maintainablity(); ok {
-		_spec.SetField(problem.FieldMaintainablity, field.TypeInt, value)
-		_node.Maintainablity = value
-	}
 	if nodes := pc.mutation.RecordsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   problem.RecordsTable,
-			Columns: problem.RecordsPrimaryKey,
+			Columns: []string{problem.RecordsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt),

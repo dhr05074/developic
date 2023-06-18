@@ -11,7 +11,7 @@ components:
   securitySchemes:
     apiKey:
       type: apiKey
-      name: X-API-KEY
+      name: Authorization
       in: header
   requestBodies:
     SubmitCode:
@@ -43,10 +43,10 @@ components:
             type: object
             additionalProperties: false
             properties:
-              report_id:
+              record_id:
                 $ref: "#/components/schemas/RecordID"
             required:
-              - report_id
+              - record_id
     200GetRecords:
       description: 성공적으로 채점 결과를 조회한 경우입니다.
       content:
@@ -62,71 +62,13 @@ components:
                 minItems: 0
                 maxItems: 100
                 items:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - id
-                    - problem_id
-                    - problem_name
-                    - score
-                  properties:
-                    id:
-                      $ref: "#/components/schemas/RecordID"
-                    problem_id:
-                      $ref: "#/components/schemas/ProblemID"
-                    problem_name:
-                      $ref: "#/components/schemas/ProblemName"
-                    score:
-                      $ref: "#/components/schemas/RecordScore"
+                  $ref: "#/components/schemas/Record"
     200GetRecord:
       description: 채점 보고서가 생성되었으며, 성공적으로 조회한 상태입니다.
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            required:
-              - id
-              - problem
-              - user_code
-              - result
-            properties:
-              id:
-                $ref: "#/components/schemas/RecordID"
-              problem:
-                $ref: "#/components/schemas/Problem"
-              user_code:
-                $ref: "#/components/schemas/Code"
-              result:
-                type: object
-                additionalProperties: false
-                required:
-                  - score
-                  - sub_score
-                properties:
-                  score:
-                    type: integer
-                    description: 채점 결과의 총점입니다. 100점 만점입니다.
-                  sub_score:
-                    type: object
-                    additionalProperties: false
-                    properties:
-                      readability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      modularity:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      efficiency:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      testability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                      maintainability:
-                        $ref: "#/components/schemas/SucceedCheckListItems"
-                    required:
-                      - readability
-                      - modularity
-                      - efficiency
-                      - testability
-                      - maintainability
+            $ref: "#/components/schemas/Record"
     InternalServerError:
       description: 내부 서버 오류입니다. 오류 코드와 함께 반환됩니다.
       content:
@@ -169,20 +111,27 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/ProblemID"
-        name:
-          $ref: "#/components/schemas/ProblemName"
+        title:
+          $ref: "#/components/schemas/ProblemTitle"
+        description:
+          type: string
+          description: 문제의 자세한 설명입니다.
+          example: |
+            문제 설명입니다.
+            이 문제는 이렇게 풀면 됩니다.
         code:
           $ref: "#/components/schemas/Code"
       required:
         - id
-        - name
+        - title
+        - description
         - code
     ProblemID:
       type: string
       description: Developic에서 출제한 문제의 고유 ID입니다.
       example: 1a2b3c4d
       maxLength: 8
-    ProblemName:
+    ProblemTitle:
       type: string
       description: Developic에서 출제한 문제의 타이틀입니다.
       example: 중첩된 If문 없애기
@@ -191,15 +140,32 @@ components:
       description: Developic에서 생성된 결과 보고서의 고유 ID입니다.
       example: 1a2b3c4d
       maxLength: 8
-    SucceedCheckListItems:
-      type: array
-      description: 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-      minItems: 0
-      maxItems: 20
-      items:
-        type: integer
-        format: int32
-    RecordScore:
+    Record:
+      type: object
+      required:
+        - id
+        - problem_id
+        - problem_title
+        - efficiency
+        - readability
+        - robustness
+        - code
+      properties:
+        id:
+          $ref: "#/components/schemas/RecordID"
+        problem_id:
+          $ref: "#/components/schemas/ProblemID"
+        problem_title:
+          $ref: "#/components/schemas/ProblemTitle"
+        efficiency:
+          $ref: "#/components/schemas/Score"
+        readability:
+          $ref: "#/components/schemas/Score"
+        robustness:
+          $ref: "#/components/schemas/Score"
+        code:
+          $ref: "#/components/schemas/Code"
+    Score:
       type: integer
       format: int32
       description: 결과 보고서에서 사용자가 취득한 총점입니다.
@@ -212,11 +178,21 @@ components:
         Developic에서 사용되는 코드 데이터입니다.
         코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
       example: 7J6s7ZmY7J207ZiVIOuwlOuztA==
+    UserID:
+      type: string
+      description: Developic에서 사용되는 유저의 고유 ID입니다.
+      example: 1a2b3c4d
+      maxLength: 8
+    Nickname:
+      type: string
+      description: Developic에서 사용되는 유저의 이름입니다.
+      example: "김개발"
 paths:
   /problems:
     post:
       operationId: requestProblem
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -259,8 +235,22 @@ paths:
           $ref: "#/components/responses/200GetProblem"
         404:
           description: 존재하지 않는 문제 ID를 입력한 상태입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "ProblemNotFound"
+                message: "문제가 존재하지 않습니다. 문제 ID를 확인해 주세요."
         409:
           description: 문제 생성이 접수되었으나, 시스템에서 아직 문제 생성이 완료되지 않은 상태입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "ProblemNotReady"
+                message: "문제가 아직 준비되지 않았습니다. 잠시만 더 기다려 주세요."
         default:
           $ref: "#/components/responses/InternalServerError"
   /submit:
@@ -331,7 +321,21 @@ paths:
               schema:
                 type: object
                 properties:
+                  nickname:
+                    $ref: "#/components/schemas/Nickname"
                   elo_score:
                     $ref: "#/components/schemas/ELOScore"
                 required:
                   - elo_score
+                  - nickname
+        404:
+          description: 유저가 존재하지 않는 경우입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "UserNotFound"
+                message: "존재하지 않는 유저입니다."
+        default:
+          $ref: "#/components/responses/InternalServerError"

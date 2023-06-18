@@ -16,7 +16,7 @@ func init() {
 	problemFields := schema.Problem{}.Fields()
 	_ = problemFields
 	// problemDescDifficulty is the schema descriptor for difficulty field.
-	problemDescDifficulty := problemFields[5].Descriptor()
+	problemDescDifficulty := problemFields[6].Descriptor()
 	// problem.DefaultDifficulty holds the default value on creation for the difficulty field.
 	problem.DefaultDifficulty = problemDescDifficulty.Default.(int)
 	// problem.DifficultyValidator is a validator for the "difficulty" field. It is called by the builders before save.
@@ -36,47 +36,35 @@ func init() {
 		}
 	}()
 	// problemDescReadability is the schema descriptor for readability field.
-	problemDescReadability := problemFields[6].Descriptor()
+	problemDescReadability := problemFields[7].Descriptor()
 	// problem.DefaultReadability holds the default value on creation for the readability field.
 	problem.DefaultReadability = problemDescReadability.Default.(int)
-	// problemDescModularity is the schema descriptor for modularity field.
-	problemDescModularity := problemFields[7].Descriptor()
-	// problem.DefaultModularity holds the default value on creation for the modularity field.
-	problem.DefaultModularity = problemDescModularity.Default.(int)
+	// problemDescRobustness is the schema descriptor for robustness field.
+	problemDescRobustness := problemFields[8].Descriptor()
+	// problem.DefaultRobustness holds the default value on creation for the robustness field.
+	problem.DefaultRobustness = problemDescRobustness.Default.(int)
 	// problemDescEfficiency is the schema descriptor for efficiency field.
-	problemDescEfficiency := problemFields[8].Descriptor()
+	problemDescEfficiency := problemFields[9].Descriptor()
 	// problem.DefaultEfficiency holds the default value on creation for the efficiency field.
 	problem.DefaultEfficiency = problemDescEfficiency.Default.(int)
-	// problemDescTestability is the schema descriptor for testability field.
-	problemDescTestability := problemFields[9].Descriptor()
-	// problem.DefaultTestability holds the default value on creation for the testability field.
-	problem.DefaultTestability = problemDescTestability.Default.(int)
-	// problemDescMaintainablity is the schema descriptor for maintainablity field.
-	problemDescMaintainablity := problemFields[10].Descriptor()
-	// problem.DefaultMaintainablity holds the default value on creation for the maintainablity field.
-	problem.DefaultMaintainablity = problemDescMaintainablity.Default.(int)
 	recordFields := schema.Record{}.Fields()
 	_ = recordFields
+	// recordDescUserUUID is the schema descriptor for user_uuid field.
+	recordDescUserUUID := recordFields[2].Descriptor()
+	// record.DefaultUserUUID holds the default value on creation for the user_uuid field.
+	record.DefaultUserUUID = recordDescUserUUID.Default.(string)
 	// recordDescReadability is the schema descriptor for readability field.
 	recordDescReadability := recordFields[4].Descriptor()
 	// record.DefaultReadability holds the default value on creation for the readability field.
 	record.DefaultReadability = recordDescReadability.Default.(int)
-	// recordDescModularity is the schema descriptor for modularity field.
-	recordDescModularity := recordFields[5].Descriptor()
-	// record.DefaultModularity holds the default value on creation for the modularity field.
-	record.DefaultModularity = recordDescModularity.Default.(int)
+	// recordDescRobustness is the schema descriptor for robustness field.
+	recordDescRobustness := recordFields[5].Descriptor()
+	// record.DefaultRobustness holds the default value on creation for the robustness field.
+	record.DefaultRobustness = recordDescRobustness.Default.(int)
 	// recordDescEfficiency is the schema descriptor for efficiency field.
 	recordDescEfficiency := recordFields[6].Descriptor()
 	// record.DefaultEfficiency holds the default value on creation for the efficiency field.
 	record.DefaultEfficiency = recordDescEfficiency.Default.(int)
-	// recordDescTestability is the schema descriptor for testability field.
-	recordDescTestability := recordFields[7].Descriptor()
-	// record.DefaultTestability holds the default value on creation for the testability field.
-	record.DefaultTestability = recordDescTestability.Default.(int)
-	// recordDescMaintainablity is the schema descriptor for maintainablity field.
-	recordDescMaintainablity := recordFields[8].Descriptor()
-	// record.DefaultMaintainablity holds the default value on creation for the maintainablity field.
-	record.DefaultMaintainablity = recordDescMaintainablity.Default.(int)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEloScore is the schema descriptor for elo_score field.

@@ -20,27 +20,27 @@ const (
 	FieldTitle = "title"
 	// FieldLanguage holds the string denoting the language field in the database.
 	FieldLanguage = "language"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldDifficulty holds the string denoting the difficulty field in the database.
 	FieldDifficulty = "difficulty"
 	// FieldReadability holds the string denoting the readability field in the database.
 	FieldReadability = "readability"
-	// FieldModularity holds the string denoting the modularity field in the database.
-	FieldModularity = "modularity"
+	// FieldRobustness holds the string denoting the robustness field in the database.
+	FieldRobustness = "robustness"
 	// FieldEfficiency holds the string denoting the efficiency field in the database.
 	FieldEfficiency = "efficiency"
-	// FieldTestability holds the string denoting the testability field in the database.
-	FieldTestability = "testability"
-	// FieldMaintainablity holds the string denoting the maintainablity field in the database.
-	FieldMaintainablity = "maintainablity"
 	// EdgeRecords holds the string denoting the records edge name in mutations.
 	EdgeRecords = "records"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
-	// RecordsTable is the table that holds the records relation/edge. The primary key declared below.
-	RecordsTable = "problem_records"
+	// RecordsTable is the table that holds the records relation/edge.
+	RecordsTable = "records"
 	// RecordsInverseTable is the table name for the Record entity.
 	// It exists in this package in order to avoid circular dependency with the "record" package.
 	RecordsInverseTable = "records"
+	// RecordsColumn is the table column denoting the records relation/edge.
+	RecordsColumn = "problem_records"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -50,19 +50,12 @@ var Columns = []string{
 	FieldCode,
 	FieldTitle,
 	FieldLanguage,
+	FieldDescription,
 	FieldDifficulty,
 	FieldReadability,
-	FieldModularity,
+	FieldRobustness,
 	FieldEfficiency,
-	FieldTestability,
-	FieldMaintainablity,
 }
-
-var (
-	// RecordsPrimaryKey and RecordsColumn2 are the table columns denoting the
-	// primary key for the records relation (M2M).
-	RecordsPrimaryKey = []string{"problem_id", "record_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -81,14 +74,10 @@ var (
 	DifficultyValidator func(int) error
 	// DefaultReadability holds the default value on creation for the "readability" field.
 	DefaultReadability int
-	// DefaultModularity holds the default value on creation for the "modularity" field.
-	DefaultModularity int
+	// DefaultRobustness holds the default value on creation for the "robustness" field.
+	DefaultRobustness int
 	// DefaultEfficiency holds the default value on creation for the "efficiency" field.
 	DefaultEfficiency int
-	// DefaultTestability holds the default value on creation for the "testability" field.
-	DefaultTestability int
-	// DefaultMaintainablity holds the default value on creation for the "maintainablity" field.
-	DefaultMaintainablity int
 )
 
 // OrderOption defines the ordering options for the Problem queries.
@@ -119,6 +108,11 @@ func ByLanguage(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLanguage, opts...).ToFunc()
 }
 
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
 // ByDifficulty orders the results by the difficulty field.
 func ByDifficulty(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDifficulty, opts...).ToFunc()
@@ -129,24 +123,14 @@ func ByReadability(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReadability, opts...).ToFunc()
 }
 
-// ByModularity orders the results by the modularity field.
-func ByModularity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldModularity, opts...).ToFunc()
+// ByRobustness orders the results by the robustness field.
+func ByRobustness(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRobustness, opts...).ToFunc()
 }
 
 // ByEfficiency orders the results by the efficiency field.
 func ByEfficiency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEfficiency, opts...).ToFunc()
-}
-
-// ByTestability orders the results by the testability field.
-func ByTestability(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTestability, opts...).ToFunc()
-}
-
-// ByMaintainablity orders the results by the maintainablity field.
-func ByMaintainablity(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMaintainablity, opts...).ToFunc()
 }
 
 // ByRecordsCount orders the results by records count.
@@ -166,6 +150,6 @@ func newRecordsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RecordsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, RecordsTable, RecordsPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, RecordsTable, RecordsColumn),
 	)
 }

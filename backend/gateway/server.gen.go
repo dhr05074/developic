@@ -47,92 +47,80 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Nickname Developic에서 사용되는 유저의 이름입니다.
+type Nickname = string
+
 // Problem defines model for Problem.
 type Problem struct {
 	// Code Developic에서 사용되는 코드 데이터입니다.
 	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
 	Code Code `json:"code"`
 
+	// Description 문제의 자세한 설명입니다.
+	Description string `json:"description"`
+
 	// Id Developic에서 출제한 문제의 고유 ID입니다.
 	Id ProblemID `json:"id"`
 
-	// Name Developic에서 출제한 문제의 타이틀입니다.
-	Name ProblemName `json:"name"`
+	// Title Developic에서 출제한 문제의 타이틀입니다.
+	Title ProblemTitle `json:"title"`
 }
 
 // ProblemID Developic에서 출제한 문제의 고유 ID입니다.
 type ProblemID = string
 
-// ProblemName Developic에서 출제한 문제의 타이틀입니다.
-type ProblemName = string
+// ProblemTitle Developic에서 출제한 문제의 타이틀입니다.
+type ProblemTitle = string
 
 // ProgrammingLanguage Developic에서 사용할 프로그래밍 언어입니다.
 type ProgrammingLanguage string
 
+// Record defines model for Record.
+type Record struct {
+	// Code Developic에서 사용되는 코드 데이터입니다.
+	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
+	Code Code `json:"code"`
+
+	// Efficiency 결과 보고서에서 사용자가 취득한 총점입니다.
+	Efficiency Score `json:"efficiency"`
+
+	// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	Id RecordID `json:"id"`
+
+	// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
+	ProblemId ProblemID `json:"problem_id"`
+
+	// ProblemTitle Developic에서 출제한 문제의 타이틀입니다.
+	ProblemTitle ProblemTitle `json:"problem_title"`
+
+	// Readability 결과 보고서에서 사용자가 취득한 총점입니다.
+	Readability Score `json:"readability"`
+
+	// Robustness 결과 보고서에서 사용자가 취득한 총점입니다.
+	Robustness Score `json:"robustness"`
+}
+
 // RecordID Developic에서 생성된 결과 보고서의 고유 ID입니다.
 type RecordID = string
 
-// RecordScore 결과 보고서에서 사용자가 취득한 총점입니다.
-type RecordScore = int32
-
-// SucceedCheckListItems 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-type SucceedCheckListItems = []int32
+// Score 결과 보고서에서 사용자가 취득한 총점입니다.
+type Score = int32
 
 // N200GetProblem defines model for 200GetProblem.
 type N200GetProblem = Problem
 
 // N200GetRecord defines model for 200GetRecord.
-type N200GetRecord struct {
-	// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
-	Id      RecordID `json:"id"`
-	Problem Problem  `json:"problem"`
-	Result  struct {
-		// Score 채점 결과의 총점입니다. 100점 만점입니다.
-		Score    int `json:"score"`
-		SubScore struct {
-			// Efficiency 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Efficiency SucceedCheckListItems `json:"efficiency"`
-
-			// Maintainability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Maintainability SucceedCheckListItems `json:"maintainability"`
-
-			// Modularity 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Modularity SucceedCheckListItems `json:"modularity"`
-
-			// Readability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Readability SucceedCheckListItems `json:"readability"`
-
-			// Testability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Testability SucceedCheckListItems `json:"testability"`
-		} `json:"sub_score"`
-	} `json:"result"`
-
-	// UserCode Developic에서 사용되는 코드 데이터입니다.
-	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
-	UserCode Code `json:"user_code"`
-}
+type N200GetRecord = Record
 
 // N200GetRecords defines model for 200GetRecords.
 type N200GetRecords struct {
-	Records []struct {
-		// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
-		Id RecordID `json:"id"`
-
-		// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
-		ProblemId ProblemID `json:"problem_id"`
-
-		// ProblemName Developic에서 출제한 문제의 타이틀입니다.
-		ProblemName ProblemName `json:"problem_name"`
-
-		// Score 결과 보고서에서 사용자가 취득한 총점입니다.
-		Score RecordScore `json:"score"`
-	} `json:"records"`
+	Records []Record `json:"records"`
 }
 
 // N202Submit defines model for 202Submit.
 type N202Submit struct {
-	// ReportId Developic에서 생성된 결과 보고서의 고유 ID입니다.
-	ReportId RecordID `json:"report_id"`
+	// RecordId Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	RecordId RecordID `json:"record_id"`
 }
 
 // InternalServerError defines model for InternalServerError.
@@ -344,55 +332,15 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 type N200GetProblemJSONResponse Problem
 
-type N200GetRecordJSONResponse struct {
-	// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
-	Id      RecordID `json:"id"`
-	Problem Problem  `json:"problem"`
-	Result  struct {
-		// Score 채점 결과의 총점입니다. 100점 만점입니다.
-		Score    int `json:"score"`
-		SubScore struct {
-			// Efficiency 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Efficiency SucceedCheckListItems `json:"efficiency"`
-
-			// Maintainability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Maintainability SucceedCheckListItems `json:"maintainability"`
-
-			// Modularity 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Modularity SucceedCheckListItems `json:"modularity"`
-
-			// Readability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Readability SucceedCheckListItems `json:"readability"`
-
-			// Testability 사용자가 제출한 코드가 만족한 체크리스트의 인덱스를 의미합니다.
-			Testability SucceedCheckListItems `json:"testability"`
-		} `json:"sub_score"`
-	} `json:"result"`
-
-	// UserCode Developic에서 사용되는 코드 데이터입니다.
-	// 코드 데이터의 Escape를 방지하기 위해 Base64로 인코딩되어 전송, 보관됩니다.
-	UserCode Code `json:"user_code"`
-}
+type N200GetRecordJSONResponse Record
 
 type N200GetRecordsJSONResponse struct {
-	Records []struct {
-		// Id Developic에서 생성된 결과 보고서의 고유 ID입니다.
-		Id RecordID `json:"id"`
-
-		// ProblemId Developic에서 출제한 문제의 고유 ID입니다.
-		ProblemId ProblemID `json:"problem_id"`
-
-		// ProblemName Developic에서 출제한 문제의 타이틀입니다.
-		ProblemName ProblemName `json:"problem_name"`
-
-		// Score 결과 보고서에서 사용자가 취득한 총점입니다.
-		Score RecordScore `json:"score"`
-	} `json:"records"`
+	Records []Record `json:"records"`
 }
 
 type N202SubmitJSONResponse struct {
-	// ReportId Developic에서 생성된 결과 보고서의 고유 ID입니다.
-	ReportId RecordID `json:"report_id"`
+	// RecordId Developic에서 생성된 결과 보고서의 고유 ID입니다.
+	RecordId RecordID `json:"record_id"`
 }
 
 type InternalServerErrorJSONResponse Error
@@ -407,6 +355,9 @@ type GetMeResponseObject interface {
 type GetMe200JSONResponse struct {
 	// EloScore Developic에서 유저의 실력을 가늠하는 ELO 점수입니다.
 	EloScore ELOScore `json:"elo_score"`
+
+	// Nickname Developic에서 사용되는 유저의 이름입니다.
+	Nickname Nickname `json:"nickname"`
 }
 
 func (response GetMe200JSONResponse) VisitGetMeResponse(w http.ResponseWriter) error {
@@ -414,6 +365,27 @@ func (response GetMe200JSONResponse) VisitGetMeResponse(w http.ResponseWriter) e
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type GetMe404JSONResponse Error
+
+func (response GetMe404JSONResponse) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetMedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetMedefaultJSONResponse) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
 }
 
 type RequestProblemRequestObject struct {
@@ -465,20 +437,22 @@ func (response GetProblem200JSONResponse) VisitGetProblemResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetProblem404Response struct {
-}
+type GetProblem404JSONResponse Error
 
-func (response GetProblem404Response) VisitGetProblemResponse(w http.ResponseWriter) error {
+func (response GetProblem404JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
-	return nil
+
+	return json.NewEncoder(w).Encode(response)
 }
 
-type GetProblem409Response struct {
-}
+type GetProblem409JSONResponse Error
 
-func (response GetProblem409Response) VisitGetProblemResponse(w http.ResponseWriter) error {
+func (response GetProblem409JSONResponse) VisitGetProblemResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(409)
-	return nil
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetProblemdefaultJSONResponse struct {
@@ -789,42 +763,42 @@ func (sh *strictHandler) SubmitSolution(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"AAD//8jhN3JVHwAA",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

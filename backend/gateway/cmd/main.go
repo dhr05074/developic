@@ -1,19 +1,25 @@
 package main
 
 import (
+	"ariga.io/entcache"
 	"code-connect/ent"
 	"code-connect/gateway"
 	"code-connect/gateway/handler"
+	middleware2 "code-connect/gateway/middleware"
 	"code-connect/pkg/ai"
 	"code-connect/pkg/aws"
 	"code-connect/pkg/db"
 	"code-connect/pkg/log"
 	"code-connect/pkg/store"
 	"code-connect/problem"
+	"code-connect/record"
+	"code-connect/schema/message"
+	"code-connect/worker/score"
 	"context"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3filter"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sashabaranov/go-openai"
@@ -34,9 +40,31 @@ func main() {
 	gptClient := mustInitGPTClient()
 	entClient := mustInitEntClient(ctx)
 
-	problemHandler := problem.NewHandler(kvStore, gptClient, entClient)
+	reqCh := make(chan message.ProblemMessage)
+	subCh := make(chan message.ProblemMessage)
 
-	strictHandler := handler.NewStrictHandler(problemHandler)
+	w := score.NewScoreWorker(score.NewScoreWorkerParams{
+		ParamClient: kvStore,
+		EntClient:   entClient,
+		GptClient:   gptClient,
+		ProblemCh:   reqCh,
+		SubmitCh:    subCh,
+	})
+
+	go func() {
+		if err := w.Run(ctx); err != nil {
+			l.Fatalw("failed to run score worker", "err", err)
+		}
+	}()
+
+	problemHandler := problem.NewHandler(kvStore, gptClient, entClient, reqCh)
+	recordHandler := record.NewHandler(record.NewHandlerParams{
+		ParamClient: kvStore,
+		EntClient:   entClient,
+		SubmitCh:    subCh,
+	})
+
+	strictHandler := handler.NewStrictHandler(problemHandler, recordHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
@@ -56,9 +84,7 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 
 	return oapimiddleware.OapiRequestValidatorWithOptions(swagger, &oapimiddleware.Options{
 		Options: openapi3filter.Options{
-			AuthenticationFunc: func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-				return nil
-			},
+			AuthenticationFunc: middleware2.Authenticate,
 		},
 	})
 }
@@ -75,7 +101,7 @@ func mustInitKVStore(ctx context.Context) store.KV {
 
 func mustInitGPTClient() ai.GPTClient {
 	apiToken, ok := os.LookupEnv("CHATGPT_API_KEY")
-	if !ok {
+	if !ok || apiToken == "" {
 		l.Fatal("CHATGPT_API_KEY is not set")
 	}
 	cli := ai.NewOpenAI(openai.NewClient(apiToken))
@@ -85,7 +111,7 @@ func mustInitGPTClient() ai.GPTClient {
 func mustInitEntClient(ctx context.Context) *ent.Client {
 	drv := db.NewCachedEntDriver()
 	client := ent.NewClient(ent.Driver(drv))
-	if err := client.Schema.Create(ctx); err != nil {
+	if err := client.Schema.Create(entcache.Skip(ctx)); err != nil {
 		l.Fatalf("failed creating schema resources: %v", err)
 	}
 	return client

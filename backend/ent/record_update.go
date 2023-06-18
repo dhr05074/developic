@@ -40,6 +40,14 @@ func (ru *RecordUpdate) SetUserUUID(s string) *RecordUpdate {
 	return ru
 }
 
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (ru *RecordUpdate) SetNillableUserUUID(s *string) *RecordUpdate {
+	if s != nil {
+		ru.SetUserUUID(*s)
+	}
+	return ru
+}
+
 // SetCode sets the "code" field.
 func (ru *RecordUpdate) SetCode(s string) *RecordUpdate {
 	ru.mutation.SetCode(s)
@@ -67,24 +75,24 @@ func (ru *RecordUpdate) AddReadability(i int) *RecordUpdate {
 	return ru
 }
 
-// SetModularity sets the "modularity" field.
-func (ru *RecordUpdate) SetModularity(i int) *RecordUpdate {
-	ru.mutation.ResetModularity()
-	ru.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (ru *RecordUpdate) SetRobustness(i int) *RecordUpdate {
+	ru.mutation.ResetRobustness()
+	ru.mutation.SetRobustness(i)
 	return ru
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableModularity(i *int) *RecordUpdate {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (ru *RecordUpdate) SetNillableRobustness(i *int) *RecordUpdate {
 	if i != nil {
-		ru.SetModularity(*i)
+		ru.SetRobustness(*i)
 	}
 	return ru
 }
 
-// AddModularity adds i to the "modularity" field.
-func (ru *RecordUpdate) AddModularity(i int) *RecordUpdate {
-	ru.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (ru *RecordUpdate) AddRobustness(i int) *RecordUpdate {
+	ru.mutation.AddRobustness(i)
 	return ru
 }
 
@@ -109,61 +117,15 @@ func (ru *RecordUpdate) AddEfficiency(i int) *RecordUpdate {
 	return ru
 }
 
-// SetTestability sets the "testability" field.
-func (ru *RecordUpdate) SetTestability(i int) *RecordUpdate {
-	ru.mutation.ResetTestability()
-	ru.mutation.SetTestability(i)
+// SetProblemID sets the "problem" edge to the Problem entity by ID.
+func (ru *RecordUpdate) SetProblemID(id int) *RecordUpdate {
+	ru.mutation.SetProblemID(id)
 	return ru
 }
 
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableTestability(i *int) *RecordUpdate {
-	if i != nil {
-		ru.SetTestability(*i)
-	}
-	return ru
-}
-
-// AddTestability adds i to the "testability" field.
-func (ru *RecordUpdate) AddTestability(i int) *RecordUpdate {
-	ru.mutation.AddTestability(i)
-	return ru
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (ru *RecordUpdate) SetMaintainablity(i int) *RecordUpdate {
-	ru.mutation.ResetMaintainablity()
-	ru.mutation.SetMaintainablity(i)
-	return ru
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (ru *RecordUpdate) SetNillableMaintainablity(i *int) *RecordUpdate {
-	if i != nil {
-		ru.SetMaintainablity(*i)
-	}
-	return ru
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (ru *RecordUpdate) AddMaintainablity(i int) *RecordUpdate {
-	ru.mutation.AddMaintainablity(i)
-	return ru
-}
-
-// AddProblemIDs adds the "problem" edge to the Problem entity by IDs.
-func (ru *RecordUpdate) AddProblemIDs(ids ...int) *RecordUpdate {
-	ru.mutation.AddProblemIDs(ids...)
-	return ru
-}
-
-// AddProblem adds the "problem" edges to the Problem entity.
-func (ru *RecordUpdate) AddProblem(p ...*Problem) *RecordUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ru.AddProblemIDs(ids...)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (ru *RecordUpdate) SetProblem(p *Problem) *RecordUpdate {
+	return ru.SetProblemID(p.ID)
 }
 
 // Mutation returns the RecordMutation object of the builder.
@@ -171,25 +133,10 @@ func (ru *RecordUpdate) Mutation() *RecordMutation {
 	return ru.mutation
 }
 
-// ClearProblem clears all "problem" edges to the Problem entity.
+// ClearProblem clears the "problem" edge to the Problem entity.
 func (ru *RecordUpdate) ClearProblem() *RecordUpdate {
 	ru.mutation.ClearProblem()
 	return ru
-}
-
-// RemoveProblemIDs removes the "problem" edge to Problem entities by IDs.
-func (ru *RecordUpdate) RemoveProblemIDs(ids ...int) *RecordUpdate {
-	ru.mutation.RemoveProblemIDs(ids...)
-	return ru
-}
-
-// RemoveProblem removes "problem" edges to Problem entities.
-func (ru *RecordUpdate) RemoveProblem(p ...*Problem) *RecordUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ru.RemoveProblemIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -219,7 +166,18 @@ func (ru *RecordUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ru *RecordUpdate) check() error {
+	if _, ok := ru.mutation.ProblemID(); ru.mutation.ProblemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Record.problem"`)
+	}
+	return nil
+}
+
 func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := ru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(record.Table, record.Columns, sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -243,11 +201,11 @@ func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.AddedReadability(); ok {
 		_spec.AddField(record.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := ru.mutation.Modularity(); ok {
-		_spec.SetField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ru.mutation.Robustness(); ok {
+		_spec.SetField(record.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := ru.mutation.AddedModularity(); ok {
-		_spec.AddField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ru.mutation.AddedRobustness(); ok {
+		_spec.AddField(record.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := ru.mutation.Efficiency(); ok {
 		_spec.SetField(record.FieldEfficiency, field.TypeInt, value)
@@ -255,53 +213,25 @@ func (ru *RecordUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.AddedEfficiency(); ok {
 		_spec.AddField(record.FieldEfficiency, field.TypeInt, value)
 	}
-	if value, ok := ru.mutation.Testability(); ok {
-		_spec.SetField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.AddedTestability(); ok {
-		_spec.AddField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.Maintainablity(); ok {
-		_spec.SetField(record.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := ru.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(record.FieldMaintainablity, field.TypeInt, value)
-	}
 	if ru.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ru.mutation.RemovedProblemIDs(); len(nodes) > 0 && !ru.mutation.ProblemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := ru.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -344,6 +274,14 @@ func (ruo *RecordUpdateOne) SetUserUUID(s string) *RecordUpdateOne {
 	return ruo
 }
 
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (ruo *RecordUpdateOne) SetNillableUserUUID(s *string) *RecordUpdateOne {
+	if s != nil {
+		ruo.SetUserUUID(*s)
+	}
+	return ruo
+}
+
 // SetCode sets the "code" field.
 func (ruo *RecordUpdateOne) SetCode(s string) *RecordUpdateOne {
 	ruo.mutation.SetCode(s)
@@ -371,24 +309,24 @@ func (ruo *RecordUpdateOne) AddReadability(i int) *RecordUpdateOne {
 	return ruo
 }
 
-// SetModularity sets the "modularity" field.
-func (ruo *RecordUpdateOne) SetModularity(i int) *RecordUpdateOne {
-	ruo.mutation.ResetModularity()
-	ruo.mutation.SetModularity(i)
+// SetRobustness sets the "robustness" field.
+func (ruo *RecordUpdateOne) SetRobustness(i int) *RecordUpdateOne {
+	ruo.mutation.ResetRobustness()
+	ruo.mutation.SetRobustness(i)
 	return ruo
 }
 
-// SetNillableModularity sets the "modularity" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableModularity(i *int) *RecordUpdateOne {
+// SetNillableRobustness sets the "robustness" field if the given value is not nil.
+func (ruo *RecordUpdateOne) SetNillableRobustness(i *int) *RecordUpdateOne {
 	if i != nil {
-		ruo.SetModularity(*i)
+		ruo.SetRobustness(*i)
 	}
 	return ruo
 }
 
-// AddModularity adds i to the "modularity" field.
-func (ruo *RecordUpdateOne) AddModularity(i int) *RecordUpdateOne {
-	ruo.mutation.AddModularity(i)
+// AddRobustness adds i to the "robustness" field.
+func (ruo *RecordUpdateOne) AddRobustness(i int) *RecordUpdateOne {
+	ruo.mutation.AddRobustness(i)
 	return ruo
 }
 
@@ -413,61 +351,15 @@ func (ruo *RecordUpdateOne) AddEfficiency(i int) *RecordUpdateOne {
 	return ruo
 }
 
-// SetTestability sets the "testability" field.
-func (ruo *RecordUpdateOne) SetTestability(i int) *RecordUpdateOne {
-	ruo.mutation.ResetTestability()
-	ruo.mutation.SetTestability(i)
+// SetProblemID sets the "problem" edge to the Problem entity by ID.
+func (ruo *RecordUpdateOne) SetProblemID(id int) *RecordUpdateOne {
+	ruo.mutation.SetProblemID(id)
 	return ruo
 }
 
-// SetNillableTestability sets the "testability" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableTestability(i *int) *RecordUpdateOne {
-	if i != nil {
-		ruo.SetTestability(*i)
-	}
-	return ruo
-}
-
-// AddTestability adds i to the "testability" field.
-func (ruo *RecordUpdateOne) AddTestability(i int) *RecordUpdateOne {
-	ruo.mutation.AddTestability(i)
-	return ruo
-}
-
-// SetMaintainablity sets the "maintainablity" field.
-func (ruo *RecordUpdateOne) SetMaintainablity(i int) *RecordUpdateOne {
-	ruo.mutation.ResetMaintainablity()
-	ruo.mutation.SetMaintainablity(i)
-	return ruo
-}
-
-// SetNillableMaintainablity sets the "maintainablity" field if the given value is not nil.
-func (ruo *RecordUpdateOne) SetNillableMaintainablity(i *int) *RecordUpdateOne {
-	if i != nil {
-		ruo.SetMaintainablity(*i)
-	}
-	return ruo
-}
-
-// AddMaintainablity adds i to the "maintainablity" field.
-func (ruo *RecordUpdateOne) AddMaintainablity(i int) *RecordUpdateOne {
-	ruo.mutation.AddMaintainablity(i)
-	return ruo
-}
-
-// AddProblemIDs adds the "problem" edge to the Problem entity by IDs.
-func (ruo *RecordUpdateOne) AddProblemIDs(ids ...int) *RecordUpdateOne {
-	ruo.mutation.AddProblemIDs(ids...)
-	return ruo
-}
-
-// AddProblem adds the "problem" edges to the Problem entity.
-func (ruo *RecordUpdateOne) AddProblem(p ...*Problem) *RecordUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ruo.AddProblemIDs(ids...)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (ruo *RecordUpdateOne) SetProblem(p *Problem) *RecordUpdateOne {
+	return ruo.SetProblemID(p.ID)
 }
 
 // Mutation returns the RecordMutation object of the builder.
@@ -475,25 +367,10 @@ func (ruo *RecordUpdateOne) Mutation() *RecordMutation {
 	return ruo.mutation
 }
 
-// ClearProblem clears all "problem" edges to the Problem entity.
+// ClearProblem clears the "problem" edge to the Problem entity.
 func (ruo *RecordUpdateOne) ClearProblem() *RecordUpdateOne {
 	ruo.mutation.ClearProblem()
 	return ruo
-}
-
-// RemoveProblemIDs removes the "problem" edge to Problem entities by IDs.
-func (ruo *RecordUpdateOne) RemoveProblemIDs(ids ...int) *RecordUpdateOne {
-	ruo.mutation.RemoveProblemIDs(ids...)
-	return ruo
-}
-
-// RemoveProblem removes "problem" edges to Problem entities.
-func (ruo *RecordUpdateOne) RemoveProblem(p ...*Problem) *RecordUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ruo.RemoveProblemIDs(ids...)
 }
 
 // Where appends a list predicates to the RecordUpdate builder.
@@ -536,7 +413,18 @@ func (ruo *RecordUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ruo *RecordUpdateOne) check() error {
+	if _, ok := ruo.mutation.ProblemID(); ruo.mutation.ProblemCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Record.problem"`)
+	}
+	return nil
+}
+
 func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err error) {
+	if err := ruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(record.Table, record.Columns, sqlgraph.NewFieldSpec(record.FieldID, field.TypeInt))
 	id, ok := ruo.mutation.ID()
 	if !ok {
@@ -577,11 +465,11 @@ func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err err
 	if value, ok := ruo.mutation.AddedReadability(); ok {
 		_spec.AddField(record.FieldReadability, field.TypeInt, value)
 	}
-	if value, ok := ruo.mutation.Modularity(); ok {
-		_spec.SetField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ruo.mutation.Robustness(); ok {
+		_spec.SetField(record.FieldRobustness, field.TypeInt, value)
 	}
-	if value, ok := ruo.mutation.AddedModularity(); ok {
-		_spec.AddField(record.FieldModularity, field.TypeInt, value)
+	if value, ok := ruo.mutation.AddedRobustness(); ok {
+		_spec.AddField(record.FieldRobustness, field.TypeInt, value)
 	}
 	if value, ok := ruo.mutation.Efficiency(); ok {
 		_spec.SetField(record.FieldEfficiency, field.TypeInt, value)
@@ -589,53 +477,25 @@ func (ruo *RecordUpdateOne) sqlSave(ctx context.Context) (_node *Record, err err
 	if value, ok := ruo.mutation.AddedEfficiency(); ok {
 		_spec.AddField(record.FieldEfficiency, field.TypeInt, value)
 	}
-	if value, ok := ruo.mutation.Testability(); ok {
-		_spec.SetField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.AddedTestability(); ok {
-		_spec.AddField(record.FieldTestability, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.Maintainablity(); ok {
-		_spec.SetField(record.FieldMaintainablity, field.TypeInt, value)
-	}
-	if value, ok := ruo.mutation.AddedMaintainablity(); ok {
-		_spec.AddField(record.FieldMaintainablity, field.TypeInt, value)
-	}
 	if ruo.mutation.ProblemCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ruo.mutation.RemovedProblemIDs(); len(nodes) > 0 && !ruo.mutation.ProblemCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := ruo.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   record.ProblemTable,
-			Columns: record.ProblemPrimaryKey,
+			Columns: []string{record.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"code-connect/ent/problem"
 	"code-connect/ent/record"
 	"fmt"
 	"strings"
@@ -24,33 +25,34 @@ type Record struct {
 	Code string `json:"code,omitempty"`
 	// Readability holds the value of the "readability" field.
 	Readability int `json:"readability,omitempty"`
-	// Modularity holds the value of the "modularity" field.
-	Modularity int `json:"modularity,omitempty"`
+	// Robustness holds the value of the "robustness" field.
+	Robustness int `json:"robustness,omitempty"`
 	// Efficiency holds the value of the "efficiency" field.
 	Efficiency int `json:"efficiency,omitempty"`
-	// Testability holds the value of the "testability" field.
-	Testability int `json:"testability,omitempty"`
-	// Maintainablity holds the value of the "maintainablity" field.
-	Maintainablity int `json:"maintainablity,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RecordQuery when eager-loading is set.
-	Edges        RecordEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges           RecordEdges `json:"edges"`
+	problem_records *int
+	selectValues    sql.SelectValues
 }
 
 // RecordEdges holds the relations/edges for other nodes in the graph.
 type RecordEdges struct {
 	// Problem holds the value of the problem edge.
-	Problem []*Problem `json:"problem,omitempty"`
+	Problem *Problem `json:"problem,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // ProblemOrErr returns the Problem value or an error if the edge
-// was not loaded in eager-loading.
-func (e RecordEdges) ProblemOrErr() ([]*Problem, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RecordEdges) ProblemOrErr() (*Problem, error) {
 	if e.loadedTypes[0] {
+		if e.Problem == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: problem.Label}
+		}
 		return e.Problem, nil
 	}
 	return nil, &NotLoadedError{edge: "problem"}
@@ -61,10 +63,12 @@ func (*Record) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case record.FieldID, record.FieldReadability, record.FieldModularity, record.FieldEfficiency, record.FieldTestability, record.FieldMaintainablity:
+		case record.FieldID, record.FieldReadability, record.FieldRobustness, record.FieldEfficiency:
 			values[i] = new(sql.NullInt64)
 		case record.FieldUUID, record.FieldUserUUID, record.FieldCode:
 			values[i] = new(sql.NullString)
+		case record.ForeignKeys[0]: // problem_records
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -110,11 +114,11 @@ func (r *Record) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.Readability = int(value.Int64)
 			}
-		case record.FieldModularity:
+		case record.FieldRobustness:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field modularity", values[i])
+				return fmt.Errorf("unexpected type %T for field robustness", values[i])
 			} else if value.Valid {
-				r.Modularity = int(value.Int64)
+				r.Robustness = int(value.Int64)
 			}
 		case record.FieldEfficiency:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -122,17 +126,12 @@ func (r *Record) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.Efficiency = int(value.Int64)
 			}
-		case record.FieldTestability:
+		case record.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field testability", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field problem_records", value)
 			} else if value.Valid {
-				r.Testability = int(value.Int64)
-			}
-		case record.FieldMaintainablity:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field maintainablity", values[i])
-			} else if value.Valid {
-				r.Maintainablity = int(value.Int64)
+				r.problem_records = new(int)
+				*r.problem_records = int(value.Int64)
 			}
 		default:
 			r.selectValues.Set(columns[i], values[i])
@@ -187,17 +186,11 @@ func (r *Record) String() string {
 	builder.WriteString("readability=")
 	builder.WriteString(fmt.Sprintf("%v", r.Readability))
 	builder.WriteString(", ")
-	builder.WriteString("modularity=")
-	builder.WriteString(fmt.Sprintf("%v", r.Modularity))
+	builder.WriteString("robustness=")
+	builder.WriteString(fmt.Sprintf("%v", r.Robustness))
 	builder.WriteString(", ")
 	builder.WriteString("efficiency=")
 	builder.WriteString(fmt.Sprintf("%v", r.Efficiency))
-	builder.WriteString(", ")
-	builder.WriteString("testability=")
-	builder.WriteString(fmt.Sprintf("%v", r.Testability))
-	builder.WriteString(", ")
-	builder.WriteString("maintainablity=")
-	builder.WriteString(fmt.Sprintf("%v", r.Maintainablity))
 	builder.WriteByte(')')
 	return builder.String()
 }

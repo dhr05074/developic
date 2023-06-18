@@ -20,12 +20,11 @@ func (Problem) Fields() []ent.Field {
 		field.Text("code").Optional(),
 		field.String("title").Optional(),
 		field.String("language").GoType(gateway.ProgrammingLanguage("")),
+		field.String("description").Optional(),
 		field.Int("difficulty").Min(0).Max(3000).Default(1500),
 		field.Int("readability").Default(0),
-		field.Int("modularity").Default(0),
+		field.Int("robustness").Default(0),
 		field.Int("efficiency").Default(0),
-		field.Int("testability").Default(0),
-		field.Int("maintainablity").Default(0),
 	}
 }
 

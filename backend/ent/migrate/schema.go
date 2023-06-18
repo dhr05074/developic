@@ -15,12 +15,11 @@ var (
 		{Name: "code", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "language", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "difficulty", Type: field.TypeInt, Default: 1500},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
-		{Name: "modularity", Type: field.TypeInt, Default: 0},
+		{Name: "robustness", Type: field.TypeInt, Default: 0},
 		{Name: "efficiency", Type: field.TypeInt, Default: 0},
-		{Name: "testability", Type: field.TypeInt, Default: 0},
-		{Name: "maintainablity", Type: field.TypeInt, Default: 0},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -32,19 +31,26 @@ var (
 	RecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeString, Unique: true},
-		{Name: "user_uuid", Type: field.TypeString},
+		{Name: "user_uuid", Type: field.TypeString, Default: "test"},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "readability", Type: field.TypeInt, Default: 0},
-		{Name: "modularity", Type: field.TypeInt, Default: 0},
+		{Name: "robustness", Type: field.TypeInt, Default: 0},
 		{Name: "efficiency", Type: field.TypeInt, Default: 0},
-		{Name: "testability", Type: field.TypeInt, Default: 0},
-		{Name: "maintainablity", Type: field.TypeInt, Default: 0},
+		{Name: "problem_records", Type: field.TypeInt},
 	}
 	// RecordsTable holds the schema information for the "records" table.
 	RecordsTable = &schema.Table{
 		Name:       "records",
 		Columns:    RecordsColumns,
 		PrimaryKey: []*schema.Column{RecordsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "records_problems_records",
+				Columns:    []*schema.Column{RecordsColumns[7]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -59,41 +65,14 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
-	// ProblemRecordsColumns holds the columns for the "problem_records" table.
-	ProblemRecordsColumns = []*schema.Column{
-		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "record_id", Type: field.TypeInt},
-	}
-	// ProblemRecordsTable holds the schema information for the "problem_records" table.
-	ProblemRecordsTable = &schema.Table{
-		Name:       "problem_records",
-		Columns:    ProblemRecordsColumns,
-		PrimaryKey: []*schema.Column{ProblemRecordsColumns[0], ProblemRecordsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "problem_records_problem_id",
-				Columns:    []*schema.Column{ProblemRecordsColumns[0]},
-				RefColumns: []*schema.Column{ProblemsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "problem_records_record_id",
-				Columns:    []*schema.Column{ProblemRecordsColumns[1]},
-				RefColumns: []*schema.Column{RecordsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ProblemsTable,
 		RecordsTable,
 		UsersTable,
-		ProblemRecordsTable,
 	}
 )
 
 func init() {
-	ProblemRecordsTable.ForeignKeys[0].RefTable = ProblemsTable
-	ProblemRecordsTable.ForeignKeys[1].RefTable = RecordsTable
+	RecordsTable.ForeignKeys[0].RefTable = ProblemsTable
 }

@@ -1,0 +1,43 @@
+name: Check & deploy API documentation
+permissions:
+  contents: read
+  pull-requests: write
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+jobs:
+  deploy-doc:
+    if: ${{ github.event_name == 'push' }}
+    name: Deploy API documentation on Bump
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy API documentation
+        uses: bump-sh/github-action@v1
+        with:
+          doc: developic
+          token: pngkLXaLXYJkjFcqPUVZMBWq9z6C1hvg
+          file: api/openapi/api.yaml
+  api-diff:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Check API diff on Bump
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Comment pull request with API diff
+        uses: bump-sh/github-action@v1
+        with:
+          doc: developic
+          token: pngkLXaLXYJkjFcqPUVZMBWq9z6C1hvg
+          file: api/openapi/api.yaml
+          command: diff
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
