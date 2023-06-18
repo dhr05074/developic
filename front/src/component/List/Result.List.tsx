@@ -1,4 +1,5 @@
 import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
+import { GetRecords200Response, Record } from "api/api";
 import styled from "styled-components";
 
 const ListComponent = styled.div`
@@ -11,7 +12,7 @@ const ListComponent = styled.div`
     justify-content: space-between;
 `;
 type PropsType = {
-    list: ResultListType[];
+    recordList: Record[] | undefined;
 };
 type ResultListType = {
     name: string;
@@ -21,11 +22,11 @@ function ResultList(props: PropsType) {
     const result = [] as ReactJSXElement[];
 
     const setScore = () => {
-        props.list.map((l: ResultListType) => {
+        props.recordList?.map((l: Record) => {
             result.push(
-                <ListComponent className="pretendard_regular_16" key={l.name}>
-                    <div>{l.name}</div>
-                    <div>{l.score}</div>
+                <ListComponent className="pretendard_regular_16" key={`${l.id}_${l.problem_id}`}>
+                    <div>{l.id}</div>
+                    <div>{l.readability}</div>
                 </ListComponent>,
             );
         });

@@ -111,38 +111,39 @@ export default [
     // record
     rest.get(`${apiUrl}/records/:recordId`, (req, res, ctx) => {
         const { recordId } = req.params;
-        if (recordId) {
-            // 단일 조회
-            if (record.id) {
-                return res(ctx.status(200), ctx.json(record));
-            } else {
-                return res(ctx.status(409), ctx.json("아직 채점 안됌."));
-            }
+        if (record.id) {
+            return res(ctx.status(200), ctx.json(record));
         } else {
-            for (let i = 0; i < 10; i++) {
-                const setRecord: Record = {
-                    id: `record_id_${i}`,
-                    problem_id: `problem_${i}`,
-                    problem_title: `problem_title_${i}`,
-                    efficiency: i,
-                    readability: i,
-                    robustness: i,
-                    code: `code_${i}`,
-                };
-                records.push(setRecord);
-            }
-            //대량 조회
-            return res(ctx.status(200), ctx.json(records));
+            return res(ctx.status(409), ctx.json("아직 채점 안됌."));
         }
+    }),
+    rest.get(`${apiUrl}/records`, (req, res, ctx) => {
+        for (let i = 0; i < 10; i++) {
+            const setRecord: Record = {
+                id: `record_id_${i}`,
+                problem_id: `problem_${i}`,
+                problem_title: `problem_title_${i}`,
+                efficiency: i,
+                readability: i,
+                robustness: i,
+                code: `code_${i}`,
+            };
+            records.push(setRecord);
+        }
+        //대량 조회
+        return res(ctx.status(200), ctx.json({ records }));
     }),
     // Me
     rest.get(`${apiUrl}/me`, (req, res, ctx) => {
         // 나를 호출
+        const authHeader = req.headers.get("Authorization");
+        console.log("🚀 ~ file: handlers.ts:142 ~ rest.get ~ authHeader:", authHeader);
+        // console.log(atob(authHeader));
         return res(
             ctx.status(200),
             ctx.json({
-                nickname: "김재환",
-                elo_score: 10000000,
+                nickname: authHeader,
+                elo_score: 1000,
             }),
         );
     }),
