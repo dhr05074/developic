@@ -11,6 +11,7 @@ export const profileState = atom({
         elo_score: 0,
         headers: {
             Authorization: "",
+            "Content-Type": "application/json",
         },
     },
     effects: [

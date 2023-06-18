@@ -5,17 +5,24 @@ import { api } from "@/api/defaultApi";
 import { v4 as uuidv4 } from "uuid";
 import { Record } from "api/api";
 import { t } from "msw/lib/glossary-de6278a9";
+import { useNavigate } from "react-router-dom";
 
 function useProfile() {
+    const navigate = useNavigate();
+
     const [profile, setProfile] = useRecoilState(profileState);
     const [records, setRecords] = useState<Record[]>();
     const setAuth = async () => {
-        if (!profile.nickname) {
+        if (!profile.headers.Authorization) {
             const uuid: string = uuidv4();
             // const name = btoa("JaeHwan"); // 대안.
 
             setProfile((prevState) => {
-                return { ...prevState, headers: { Authorization: uuid }, nickname: uuid };
+                return {
+                    ...prevState,
+                    headers: { Authorization: uuid, "Content-Type": "application/json" },
+                    nickname: uuid,
+                };
             });
             console.log("profile.hook", profile);
             return true;
@@ -32,6 +39,7 @@ function useProfile() {
                         elo_score: me.data.elo_score,
                         headers: {
                             Authorization: me.data.nickname,
+                            "Content-Type": "application/json",
                         },
                     };
                     setProfile(getProfile);
@@ -52,7 +60,22 @@ function useProfile() {
             });
         return () => {};
     };
-    return { profile, records, getProfile, getRecords, setAuth };
+    const getSingleRecord = (recordId: string) => {
+        api.getRecord(recordId, { headers: profile.headers })
+            .then((record) => {
+                console.log("getRecord", record);
+            })
+            .catch((error) => {
+                console.log("getSingleRecord : ", error.response.data);
+                if (error.response.status === 409) {
+                    // 아직 채점안됌.
+                    setTimeout(() => {
+                        getSingleRecord(recordId);
+                    }, 3000);
+                }
+            });
+    };
+    return { profile, records, getProfile, getRecords, getSingleRecord, setAuth };
 }
 
 export default useProfile;

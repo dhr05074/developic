@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRecoilState } from "recoil";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
-import { problemIdState, problemState, editorInCode } from "../recoil/problem.recoil";
+import { problemState, editorInCode } from "../recoil/problem.recoil";
 import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
 import { profileState } from "@/recoil/profile.recoil";
+import useProfile from "./Profile.hook";
 
 // recoil로 변경
 // const problemId = "";
@@ -12,12 +13,11 @@ import { profileState } from "@/recoil/profile.recoil";
 const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
-    const navigate = useNavigate();
     const [profile, setProfile] = useRecoilState(profileState);
-    const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
     // 에디터 내부 코드
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
+    const { getSingleRecord } = useProfile();
     const [isCodeReset, setIsCodeReset] = useState(false);
     const [searchParams] = useSearchParams();
     const getDifficulty = Number(searchParams.get("difficulty"));
@@ -31,15 +31,14 @@ const useProblem = () => {
     };
     const initProblem = () => {
         console.log("initProblem");
-        if (problemId) {
-            api.getProblem(problemId, {
+        if (problem?.id) {
+            api.getProblem(problem.id, {
                 headers: profile.headers,
                 cancelToken: new CancelToken(function executor(c) {
                     console.log("get problem cancel");
                 }),
             });
         }
-        setProblemId(null);
         setProblem(null);
     };
     const createProblem = async () => {
@@ -74,16 +73,16 @@ const useProblem = () => {
     };
 
     const onClickSubmit = () => {
-        console.log(problem?.id);
+        console.log("onClickSubmit", problem?.id);
         // problemId = null이다 조치해야함.
         const submit = {
-            problem_id: problemId,
+            problem_id: problem?.id,
             code: editorCode,
         } as SubmitSolutionRequest;
 
         api.submitSolution(submit, { headers: profile.headers })
-            .then(() => {
-                navigate("/result");
+            .then((res) => {
+                getSingleRecord(res.data.record_id);
             })
             .catch((error) => {
                 console.error("onClickSubmit error", error);
@@ -94,7 +93,6 @@ const useProblem = () => {
         createProblem,
         getProblemData,
         initProblem,
-        problemId,
         problem,
         editorCode,
         isCodeReset,

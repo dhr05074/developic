@@ -12,14 +12,14 @@ const createProblem: RequestProblem202Response = {
 };
 
 let problem = {
-    problem_id: "",
+    id: "",
     title: "",
     description: "",
     code: "",
 };
 let record = {
     // record로 받는값.
-    id: "",
+    id: "record_id",
     problem_id: "",
     problem_title: "",
     efficiency: 0,
@@ -50,7 +50,7 @@ const onCreateProblem = () => {
 
     setTimeout(() => {
         problem = {
-            problem_id: createProblem.problem_id,
+            id: createProblem.problem_id,
             title: "Add Two Numbers",
             description: `<p class="has-line-data" data-line-start="3" data-line-end="4">You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.</p>
             <p class="has-line-data" data-line-start="5" data-line-end="6">You may assume the two numbers do not contain any leading zero, except the number 0 itself.</p>`,
@@ -71,7 +71,7 @@ const onCreateRecord = async () => {
             robustness: 85,
             code: "7J6s7ZmY7J207ZiVIOuwlOuztA==",
         };
-    }, 5000);
+    }, 10000);
 };
 export default [
     // Handles a POST /login request
@@ -90,7 +90,7 @@ export default [
     rest.get(`${apiUrl}/problems/:requestId`, (req, res, ctx) => {
         const { requestId } = req.params;
         console.log("msw : get ID", requestId);
-        if (problem.problem_id) {
+        if (problem.id) {
             return res(ctx.status(200), ctx.json(problem));
         } else {
             return res(ctx.status(409), ctx.json("아직 문제 생성 안됌."));
@@ -100,7 +100,6 @@ export default [
     rest.post(`${apiUrl}/submit`, (req, res, ctx) => {
         const { problem_id, code } = req.body as SubmitSolutionRequest;
         onCreateRecord(); // 채점 시작
-        console.log("problem_id : ", problem_id, "code : ", code);
         return res(
             ctx.status(200),
             ctx.json({
@@ -109,9 +108,9 @@ export default [
         );
     }),
     // record
-    rest.get(`${apiUrl}/records/:recordId`, (req, res, ctx) => {
-        const { recordId } = req.params;
-        if (record.id) {
+    rest.get(`${apiUrl}/records/:record_id`, (req, res, ctx) => {
+        const { record_id } = req.params;
+        if (record.code) {
             return res(ctx.status(200), ctx.json(record));
         } else {
             return res(ctx.status(409), ctx.json("아직 채점 안됌."));

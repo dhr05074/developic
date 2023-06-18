@@ -83,7 +83,7 @@ function Result() {
                             <Value>value</Value>
                         </article>
                         <img src={Rectangle} className="h-2 w-2" />
-                        <ResultList list={listSample} />
+                        {/* <ResultList list={listSample} /> */}
                     </ScoreSection>
                     <section className="pretendard_medium_20 mt-1 w-full">
                         <LineButton>처음으로</LineButton>
