@@ -33,15 +33,19 @@ const ScoreSection = styled.section`
 const Button = styled.button`
     border-radius: 30px;
     border: solid 1px #1f1c32;
-    background: #b9ff47;
+    background: ${(props) => (props.disabled ? "gray" : "#b9ff47")};
     color: black;
-
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
     width: 60%;
-    &:hover {
+    &: hover
+        ${(props) =>
+            props.disabled
+                ? null
+                : `  {
         border: solid 1px #b9ff47;
         background: #1f1c32;
         color: #b9ff47;
-    }
+    }`};
 `;
 
 const gap = 4;
@@ -74,7 +78,7 @@ function Profile() {
                         </article>
                         <ResultList recordList={records} />
                         <section className="pretendard_medium_20 w-full">
-                            <Button>More</Button>
+                            <Button disabled={true}>More</Button>
                         </section>
                     </ScoreSection>
                 </div>

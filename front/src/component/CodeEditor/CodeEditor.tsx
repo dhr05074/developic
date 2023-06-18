@@ -16,7 +16,6 @@ import { cpp } from "@codemirror/lang-cpp";
 import { StreamLanguage } from "@codemirror/language";
 import { ViewUpdate } from "@codemirror/view";
 // import { go } from "@codemirror/legacy-modes/mode/go";
-import useProblem from "@/hook/Problem.hook";
 type PropsType = {
     code: string | undefined;
 };

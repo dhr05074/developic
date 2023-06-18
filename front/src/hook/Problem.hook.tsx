@@ -14,7 +14,7 @@ import { loadingState } from "@/recoil/component.recoil";
 const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
-    const [profile, setProfile] = useRecoilState(profileState);
+    const [profile] = useRecoilState(profileState);
     const [problem, setProblem] = useRecoilState(problemState);
     const [isLoading, setLoading] = useRecoilState(loadingState);
     // 에디터 내부 코드
@@ -101,6 +101,7 @@ const useProblem = () => {
         isCodeReset,
         initEditor,
         onClickSubmit,
+        setLoading,
         // getProblemState,
     };
 };

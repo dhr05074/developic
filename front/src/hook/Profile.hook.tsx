@@ -1,10 +1,9 @@
 import { useRecoilState } from "recoil";
-import { profileState } from "../recoil/profile.recoil";
-import { useEffect, useState } from "react";
+import { profileState, recordState } from "../recoil/profile.recoil";
+import { useState } from "react";
 import { api } from "@/api/defaultApi";
 import { v4 as uuidv4 } from "uuid";
 import { Record } from "api/api";
-import { t } from "msw/lib/glossary-de6278a9";
 import { useNavigate } from "react-router-dom";
 import { loadingState } from "@/recoil/component.recoil";
 
@@ -12,8 +11,10 @@ function useProfile() {
     const navigate = useNavigate();
 
     const [profile, setProfile] = useRecoilState(profileState);
-    const [records, setRecords] = useState<Record[]>();
     const [isLoading, setLoading] = useRecoilState(loadingState);
+    const [singleRecord, setRecord] = useRecoilState(recordState);
+
+    const [records, setRecords] = useState<Record[]>();
     const setAuth = async () => {
         if (!profile.headers.Authorization) {
             const uuid: string = uuidv4();
@@ -67,7 +68,7 @@ function useProfile() {
             .then((record) => {
                 setLoading(false);
                 navigate("/result");
-                console.log("getRecord", record);
+                setRecord(record.data);
             })
             .catch((error) => {
                 console.log("getSingleRecord : ", error.response.data);
@@ -79,7 +80,7 @@ function useProfile() {
                 }
             });
     };
-    return { profile, records, getProfile, getRecords, getSingleRecord, setAuth };
+    return { profile, records, singleRecord, getProfile, getRecords, getSingleRecord, setAuth };
 }
 
 export default useProfile;

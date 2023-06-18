@@ -2,6 +2,7 @@ import ResultList from "@/component/List/Result.List";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import Rectangle from "@/assets/images/Rectangle.png";
+import useProfile from "@/hook/Profile.hook";
 
 const ComplexityBox = styled.article`
     background: #353346;
@@ -42,15 +43,14 @@ const LineButton = styled.button`
 
 const gap = 4;
 
-const listSample = [
-    { name: "가독성", score: 100 },
-    { name: "모듈성", score: 100 },
-    { name: "효율성", score: 100 },
-    { name: "테스트 가능성", score: 100 },
-    { name: "유지 보수 가능성", score: 100 },
-];
-
 function Result() {
+    const { singleRecord } = useProfile();
+
+    const listSample = [
+        { name: "가독성", score: singleRecord.readability },
+        { name: "견고성", score: singleRecord.robustness },
+        { name: "효율성", score: singleRecord.efficiency },
+    ];
     return (
         <motion.div
             className="h-full w-full"
@@ -62,7 +62,7 @@ function Result() {
             <div className=" flex h-full  w-full  flex-row justify-center bg-Navy-900 text-white">
                 <div className={`flex h-full w-[464px] flex-col justify-center gap-${gap}`}>
                     <section id="result_title">
-                        <h2 className="pretendard_extrabold_32">Result</h2>
+                        <h2 className="pretendard_extrabold_32">{singleRecord.problem_title}</h2>
                     </section>
                     <section
                         id="result_complexity"
@@ -70,20 +70,22 @@ function Result() {
                     >
                         <ComplexityBox id="result_complexity_execution">
                             <Title>Execution Time</Title>
-                            <Value>value</Value>
+                            <Value>... ms</Value>
                         </ComplexityBox>
                         <ComplexityBox id="result_complexity_memory">
                             <Title>Memory Usage</Title>
-                            <Value>value</Value>
+                            <Value>... KB</Value>
                         </ComplexityBox>
                     </section>
                     <ScoreSection id="result_score" className="pretendard_bold_20 flex flex-col items-center ">
                         <article className="flex w-full flex-row justify-between">
                             <Title>Score</Title>
-                            <Value>value</Value>
+                            <Value>
+                                {singleRecord.readability + singleRecord.robustness + singleRecord.efficiency}
+                            </Value>
                         </article>
                         <img src={Rectangle} className="h-2 w-2" />
-                        {/* <ResultList list={listSample} /> */}
+                        <ResultList singleRecord={listSample} />
                     </ScoreSection>
                     <section className="pretendard_medium_20 mt-1 w-full">
                         <LineButton>처음으로</LineButton>
