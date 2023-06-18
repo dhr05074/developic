@@ -5,7 +5,7 @@ import (
 	"code-connect/ent"
 	"code-connect/gateway"
 	"code-connect/gateway/handler"
-	middleware2 "code-connect/gateway/middleware"
+	customMiddleware "code-connect/gateway/middleware"
 	"code-connect/pkg/ai"
 	"code-connect/pkg/aws"
 	"code-connect/pkg/db"
@@ -34,6 +34,7 @@ func main() {
 	app.Use(middleware.CORS())
 	app.Use(middleware.Logger())
 	app.Use(mustGetSwaggerValidator())
+	app.Use(customMiddleware.AttachUsername)
 
 	ctx := context.Background()
 	kvStore := mustInitKVStore(ctx)
@@ -84,7 +85,7 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 
 	return oapimiddleware.OapiRequestValidatorWithOptions(swagger, &oapimiddleware.Options{
 		Options: openapi3filter.Options{
-			AuthenticationFunc: middleware2.Authenticate,
+			AuthenticationFunc: customMiddleware.ValidateAuth,
 		},
 	})
 }
