@@ -6,6 +6,7 @@ import { problemState, editorInCode } from "../recoil/problem.recoil";
 import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
 import { profileState } from "@/recoil/profile.recoil";
 import useProfile from "./Profile.hook";
+import { loadingState } from "@/recoil/component.recoil";
 
 // recoil로 변경
 // const problemId = "";
@@ -15,6 +16,7 @@ const useProblem = () => {
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
     const [profile, setProfile] = useRecoilState(profileState);
     const [problem, setProblem] = useRecoilState(problemState);
+    const [isLoading, setLoading] = useRecoilState(loadingState);
     // 에디터 내부 코드
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
     const { getSingleRecord } = useProfile();
@@ -83,6 +85,7 @@ const useProblem = () => {
         api.submitSolution(submit, { headers: profile.headers })
             .then((res) => {
                 getSingleRecord(res.data.record_id);
+                setLoading(true);
             })
             .catch((error) => {
                 console.error("onClickSubmit error", error);

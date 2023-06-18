@@ -18,12 +18,14 @@ import HomePage from "./routes/Home";
 import Stepper from "./routes/Stepper";
 import Result from "./routes/Result";
 import Profile from "./routes/Profile";
+import LoadingComponent from "./component/Loading/Loading";
 
 function App(): JSX.Element {
     return (
         <RecoilRoot>
             <AnimatePresence>
                 <div className="flex h-screen w-screen flex-col">
+                    <LoadingComponent />
                     <section id="header" className=" h-16 w-full">
                         <NavBar />
                     </section>

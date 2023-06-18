@@ -6,12 +6,14 @@ import { v4 as uuidv4 } from "uuid";
 import { Record } from "api/api";
 import { t } from "msw/lib/glossary-de6278a9";
 import { useNavigate } from "react-router-dom";
+import { loadingState } from "@/recoil/component.recoil";
 
 function useProfile() {
     const navigate = useNavigate();
 
     const [profile, setProfile] = useRecoilState(profileState);
     const [records, setRecords] = useState<Record[]>();
+    const [isLoading, setLoading] = useRecoilState(loadingState);
     const setAuth = async () => {
         if (!profile.headers.Authorization) {
             const uuid: string = uuidv4();
@@ -63,6 +65,8 @@ function useProfile() {
     const getSingleRecord = (recordId: string) => {
         api.getRecord(recordId, { headers: profile.headers })
             .then((record) => {
+                setLoading(false);
+                navigate("/result");
                 console.log("getRecord", record);
             })
             .catch((error) => {
