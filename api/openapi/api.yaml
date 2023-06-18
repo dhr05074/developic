@@ -329,13 +329,13 @@ paths:
                   - elo_score
                   - nickname
         404:
-            description: 유저가 존재하지 않는 경우입니다.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-                example:
-                  code: "UserNotFound"
-                  message: "존재하지 않는 유저입니다."
+          description: 유저가 존재하지 않는 경우입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "UserNotFound"
+                message: "존재하지 않는 유저입니다."
         default:
           $ref: "#/components/responses/InternalServerError"

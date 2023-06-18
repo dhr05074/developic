@@ -26,15 +26,31 @@ func (h *Handler) GetMe(ctx context.Context, req gateway.GetMeRequestObject) (ga
 		}, nil
 	}
 
-	user, err := h.entClient.User.Query().Where(user2.UUID(userID)).Only(ctx)
+	count, err := h.entClient.User.Query().Where(user2.UUID(userID)).Count(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return gateway.GetMe404JSONResponse{
-				Code:    userNotFoundErrorCode,
-				Message: userNotFoundErrorMessage,
-			}, err
-		}
 		return nil, err
+	}
+
+	var (
+		user *ent.User
+	)
+	// 유저 신규 등록
+	if count == 0 {
+		user, err = h.entClient.User.Create().SetUUID(userID).SetNickname(userID).Save(ctx)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		user, err = h.entClient.User.Query().Where(user2.UUID(userID)).Only(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return gateway.GetMe404JSONResponse{
+					Code:    userNotFoundErrorCode,
+					Message: userNotFoundErrorMessage,
+				}, err
+			}
+			return nil, err
+		}
 	}
 
 	return gateway.GetMe200JSONResponse{
