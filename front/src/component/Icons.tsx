@@ -9,9 +9,9 @@ type PropsType = {
 function Icons(props: PropsType) {
     switch (props.icon) {
         case "profile":
-            return <img src={profileImg} height={props.height} />;
+            return <img src={profileImg} className={`h-${props.height}`} />;
         case "profile_active":
-            return <img src={profileActiveImg} height={props.height} />;
+            return <img src={profileActiveImg} className={`h-${props.height}`} />;
         default:
             return null;
     }

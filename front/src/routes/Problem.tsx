@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSelectComponent from "@/hook/SelectComponent.hook";
 import useProblem from "@/hook/Problem.hook";
@@ -18,10 +19,15 @@ function Problem() {
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseUp, runnerWidth } = useResizable();
+    const navigate = useNavigate();
 
     useEffect(() => {
+        if (!problem) {
+            console.log("code", problem);
+
+            navigate("/");
+        }
         getRef(runner, body);
-        console.log("code", problem);
         return () => {
             initProblem();
             setLoading(false);

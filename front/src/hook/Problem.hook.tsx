@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
@@ -21,6 +21,7 @@ const useProblem = () => {
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
     const { getSingleRecord } = useProfile();
     const [isCodeReset, setIsCodeReset] = useState(false);
+    const [repeatProblem, setRepeatProblem] = useState(true);
     const [searchParams] = useSearchParams();
     const getDifficulty = Number(searchParams.get("difficulty"));
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
@@ -62,16 +63,19 @@ const useProblem = () => {
             console.log("no problemId. Problem.hook.tsx 45");
             return false;
         }
-        const interval = setInterval(async () => {
-            console.log("problem interval");
-            const p_data = await api.getProblem(problemId, { headers: profile.headers });
-            if (p_data) {
-                console.log("getProblemData End!!", p_data);
-                setProblem(p_data.data);
-                setEditorCode(atob(p_data.data.code));
-                clearInterval(interval);
-            }
-        }, 3000);
+        api.getProblem(problemId, { headers: profile.headers })
+            .then((res) => {
+                console.log("getProblemData End!!", res);
+                setProblem(res.data);
+                setEditorCode(atob(res.data.code));
+            })
+            .catch((error) => {
+                if (error.response.status === 409) {
+                    setTimeout(() => {
+                        if (repeatProblem) getProblemData(problemId);
+                    }, 3000);
+                }
+            });
     };
 
     const onClickSubmit = () => {
@@ -91,6 +95,11 @@ const useProblem = () => {
                 console.error("onClickSubmit error", error);
             });
     };
+    useEffect(() => {
+        return () => {
+            console.log("problem.hook out");
+        };
+    }, []);
 
     return {
         createProblem,
@@ -102,6 +111,7 @@ const useProblem = () => {
         initEditor,
         onClickSubmit,
         setLoading,
+        setRepeatProblem,
         // getProblemState,
     };
 };
