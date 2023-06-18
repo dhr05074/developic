@@ -17,6 +17,10 @@ type Handler struct {
 	entClient *ent.Client
 }
 
+func NewHandler(entClient *ent.Client) *Handler {
+	return &Handler{entClient: entClient}
+}
+
 func (h *Handler) GetMe(ctx context.Context, req gateway.GetMeRequestObject) (gateway.GetMeResponseObject, error) {
 	userID, ok := store.UsernameFromContext(ctx)
 	if !ok {

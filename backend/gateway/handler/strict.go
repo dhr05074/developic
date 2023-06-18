@@ -18,8 +18,8 @@ func (s *StrictHandler) GetMe(ctx context.Context, request gateway.GetMeRequestO
 	return s.userHandler.GetMe(ctx, request)
 }
 
-func NewStrictHandler(problemHandler *problem.Handler, recordHandler *record.Handler) *StrictHandler {
-	return &StrictHandler{problemHandler: problemHandler, recordHandler: recordHandler}
+func NewStrictHandler(problemHandler *problem.Handler, recordHandler *record.Handler, userHandler *user.Handler) *StrictHandler {
+	return &StrictHandler{problemHandler: problemHandler, recordHandler: recordHandler, userHandler: userHandler}
 }
 
 func (s *StrictHandler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {

@@ -14,6 +14,7 @@ import (
 	"code-connect/problem"
 	"code-connect/record"
 	"code-connect/schema/message"
+	"code-connect/user"
 	"code-connect/worker/score"
 	"context"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
@@ -64,8 +65,9 @@ func main() {
 		EntClient:   entClient,
 		SubmitCh:    subCh,
 	})
+	userHandler := user.NewHandler(entClient)
 
-	strictHandler := handler.NewStrictHandler(problemHandler, recordHandler)
+	strictHandler := handler.NewStrictHandler(problemHandler, recordHandler, userHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
