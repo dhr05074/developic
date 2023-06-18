@@ -4,9 +4,9 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "prod": "vite serve --mode production",
-        "build": "vite build",
+        "prod": "vite --port 8080 --mode production",
+        "dev": "vite --port 5173 --mode development",
+        "build": "vite build --mode production",
         "type-check": "tsc -watch",
         "preview": "vite preview"
     },

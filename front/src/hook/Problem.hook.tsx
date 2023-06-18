@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
 import { problemIdState, problemState, editorInCode } from "../recoil/problem.recoil";
 import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
+import { profileState } from "@/recoil/profile.recoil";
 
 // recoil로 변경
 // const problemId = "";
@@ -12,6 +13,7 @@ const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
     const navigate = useNavigate();
+    const [profile, setProfile] = useRecoilState(profileState);
     const [problemId, setProblemId] = useRecoilState(problemIdState);
     const [problem, setProblem] = useRecoilState(problemState);
     // 에디터 내부 코드
@@ -31,6 +33,7 @@ const useProblem = () => {
         console.log("initProblem");
         if (problemId) {
             api.getProblem(problemId, {
+                headers: profile.headers,
                 cancelToken: new CancelToken(function executor(c) {
                     console.log("get problem cancel");
                 }),
@@ -42,9 +45,12 @@ const useProblem = () => {
     const createProblem = async () => {
         console.log("createProblem", getLanguage);
         if (getLanguage) {
-            const getCreate = await api.requestProblem({
-                language: getLanguage,
-            });
+            const getCreate = await api.requestProblem(
+                {
+                    language: getLanguage,
+                },
+                { headers: profile.headers },
+            );
             return getCreate.data.problem_id;
         }
     };
@@ -57,7 +63,7 @@ const useProblem = () => {
         }
         const interval = setInterval(async () => {
             console.log("problem interval");
-            const p_data = await api.getProblem(problemId);
+            const p_data = await api.getProblem(problemId, { headers: profile.headers });
             if (p_data) {
                 console.log("getProblemData End!!", p_data);
                 setProblem(p_data.data);
@@ -75,7 +81,7 @@ const useProblem = () => {
             code: editorCode,
         } as SubmitSolutionRequest;
 
-        api.submitSolution(submit)
+        api.submitSolution(submit, { headers: profile.headers })
             .then(() => {
                 navigate("/result");
             })

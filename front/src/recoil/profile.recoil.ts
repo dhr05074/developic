@@ -1,5 +1,4 @@
 import { atom } from "recoil";
-import { Problem } from "api/api";
 
 // recoil을 model로 사용한다.
 // problem 타입이 any라서 일단..
@@ -10,6 +9,9 @@ export const profileState = atom({
     default: {
         nickname: "", //key로 사용.
         elo_score: 0,
+        headers: {
+            Authorization: "",
+        },
     },
     effects: [
         ({ setSelf, onSet }) => {

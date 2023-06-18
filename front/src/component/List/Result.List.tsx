@@ -24,7 +24,7 @@ function ResultList(props: PropsType) {
     const setScore = () => {
         props.recordList?.map((l: Record) => {
             result.push(
-                <ListComponent className="pretendard_regular_16" key={`${l.id}_${l.problem_id}`}>
+                <ListComponent className="pretendard_regular_16" key={`${l.id}_${l.problem_title}`}>
                     <div>{l.id}</div>
                     <div>{l.readability}</div>
                 </ListComponent>,

@@ -217,3 +217,8 @@
 -   v0.0.0:52
 -   profile api 적용
 -   v0.0.0:53
+
+### 6/18
+
+-   api header 전부 profile 헤더로 적용
+-   v0.0.0:54
