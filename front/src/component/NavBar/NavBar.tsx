@@ -26,7 +26,7 @@ export default function NavBar() {
                     </Link>
                 </div>
                 <Link to="/profile" className=" flex flex-row items-center gap-4 ">
-                    <Icons icon={profileIcon} width={40} />
+                    <Icons icon={profileIcon} height={40} />
                 </Link>
             </div>
         </nav>
