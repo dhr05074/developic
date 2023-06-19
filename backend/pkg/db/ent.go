@@ -5,8 +5,6 @@ import (
 	"code-connect/pkg/log"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"time"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -20,7 +18,7 @@ func NewCachedEntDriver() *entcache.Driver {
 	db.DB().SetMaxOpenConns(4)
 
 	// Decorates the sql.Driver with entcache.Driver.
-	drv := entcache.NewDriver(db, entcache.TTL(3*time.Second))
+	drv := entcache.NewDriver(db)
 
 	return drv
 }

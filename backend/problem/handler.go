@@ -1,6 +1,7 @@
 package problem
 
 import (
+	"ariga.io/entcache"
 	"code-connect/ent"
 	"code-connect/ent/problem"
 	"code-connect/gateway"
@@ -16,6 +17,7 @@ import (
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"go.uber.org/zap"
 	"strings"
+	"time"
 )
 
 const (
@@ -74,6 +76,8 @@ type GPTOutput struct {
 }
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
+	// TODO: 유저 여러명이 동시에 요청을 보낼 때 GPTClient를 공유하기 때문에, 다른 요청이 씹히는 경우가 생긴다. 요청시마다 새로운 GPTClient를 생성하도록 수정해야 한다.
+
 	problemID := nanoid.Must(8)
 
 	// UUID만 담긴 문제 객체를 미리 생성한다.
@@ -197,13 +201,7 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 }
 
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	tx, err := h.entClient.Tx(ctx)
-	if err != nil {
-		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
-		return serverErrResp, nil
-	}
-
-	p, err := tx.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
+	p, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, 1*time.Second))
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
@@ -222,12 +220,6 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 			Code:    problemNotReadyCode,
 			Message: problemNotReadyMessage,
 		}, nil
-	}
-
-	if err := tx.Commit(); err != nil {
-		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
-
-		return serverErrResp, nil
 	}
 
 	return gateway.GetProblem200JSONResponse{
