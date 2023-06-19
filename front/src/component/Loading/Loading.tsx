@@ -28,6 +28,7 @@ function LoadingComponent() {
                 </div>
             </div>
         );
+    return null;
 }
 
 export default LoadingComponent;

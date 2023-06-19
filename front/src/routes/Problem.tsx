@@ -74,9 +74,12 @@ function Problem() {
                     onMouseMove={handleMouseMove}
                 >
                     {/* 고정 */}
-                    <article className=" flex w-full  flex-col bg-Navy-800 p-6 text-left text-white ">
-                        <h3 className="text-xl">{problem?.title ? problem?.title : "no title"}</h3>
-                        <MarkDown markdown={problem?.description ? problem.description : "no description"} />
+                    <article className=" flex w-full flex-col gap-10 bg-Navy-800 p-6 text-left text-white ">
+                        <h3 className="pretendard_bold_24">{problem?.title ? problem?.title : "no title"}</h3>
+                        <div id="problem_description" className="flex flex-col gap-6">
+                            <h4 className="pretendard_bold_20">문제 설명</h4>
+                            <MarkDown markdown={problem?.description ? problem.description : "no description"} />
+                        </div>
                     </article>
                     {/* <div
                     role="presentation"
