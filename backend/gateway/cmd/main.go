@@ -13,10 +13,12 @@ import (
 	"code-connect/pkg/store"
 	"code-connect/problem"
 	"code-connect/record"
+	"code-connect/schema"
 	"code-connect/schema/message"
 	"code-connect/user"
 	"code-connect/worker/score"
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -28,6 +30,15 @@ import (
 )
 
 var l = log.NewZap().With("service", "gateway")
+
+const (
+	certFilePath = "/cert/fullchain.pem"
+	keyFilePath  = "/cert/privkey.pem"
+)
+
+const (
+	defaultServerPort = 3000
+)
 
 func main() {
 	app := echo.New()
@@ -71,8 +82,8 @@ func main() {
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
-	l.Infow("starting server", "port", 3000)
-	if err := app.StartTLS(":3000", "/cert/fullchain.pem", "/cert/privkey.pem"); err != nil {
+	l.Infow("서버를 시작합니다.", "포트", defaultServerPort)
+	if err := app.StartTLS(fmt.Sprintf(":%d", defaultServerPort), certFilePath, keyFilePath); err != nil {
 		panic(err)
 	}
 }
@@ -103,9 +114,9 @@ func mustInitKVStore(ctx context.Context) store.KV {
 }
 
 func mustInitGPTClient() ai.GPTClient {
-	apiToken, ok := os.LookupEnv("CHATGPT_API_KEY")
+	apiToken, ok := os.LookupEnv(schema.ChatGPTAPIKeyEnvKey)
 	if !ok || apiToken == "" {
-		l.Fatal("CHATGPT_API_KEY is not set")
+		l.Fatalf("%s is not set", schema.ChatGPTAPIKeyEnvKey)
 	}
 	cli := ai.NewOpenAI(openai.NewClient(apiToken))
 	return cli
