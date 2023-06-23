@@ -126,13 +126,13 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	gptClient, err := ai.NewDefaultOpenAI()
+	gptClient, err := ai.NewDefaultOpenAIClient()
 	if err != nil {
 		h.log.Errorw("GPT 클라이언트 생성 실패", "error", err)
 		return GPTOutput{}, err
 	}
 
-	prompt = h.injectData(prompt, request)
+	prompt = h.injectParameterToPrompt(prompt, request)
 	gptClient.AddPrompt(prompt)
 
 	result, err := gptClient.Complete(ctx)
@@ -143,7 +143,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 
 	var output GPTOutput
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
-		h.log.Errorw("결과 언마샬 실패", "error", err)
+		h.log.Errorw("결과 JSON 언마샬 실패", "error", err)
 		return GPTOutput{}, err
 	}
 
@@ -158,7 +158,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 	return output, nil
 }
 
-func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObject) string {
+func (h *Handler) injectParameterToPrompt(prompt string, req gateway.RequestProblemRequestObject) string {
 	prompt = strings.ReplaceAll(prompt, languageTemplateKey, string(req.Body.Language))
 	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", req.Body.EloScore))
 
@@ -167,14 +167,14 @@ func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObj
 
 func (h *Handler) generateScratchCode(ctx context.Context, gptClient ai.GPTClient) (string, error) {
 	gptClient.AddPrompt(retrieveCodePrompt)
+
 	code, err := gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
 		return "", err
 	}
 
-	code = h.extractCode(code)
-	code = h.encodeCode(code)
+	code = h.encodeCode(h.extractCode(code))
 
 	return code, nil
 }
@@ -227,7 +227,9 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 }
 
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, 1*time.Second))
+	const cacheTTL = 1 * time.Second
+
+	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, cacheTTL))
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
@@ -240,8 +242,7 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 		return serverErrResp, nil
 	}
 
-	// 문제 생성 요청은 들어갔지만 아직 문제가 생성되지 않은 경우
-	if queriedProblem.Code == "" || queriedProblem.Title == "" {
+	if h.isProblemNotCompleted(queriedProblem) {
 		return gateway.GetProblem409JSONResponse{
 			Code:    problemNotReadyCode,
 			Message: problemNotReadyMessage,
@@ -256,4 +257,8 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 			Description: queriedProblem.Description,
 		},
 	}, nil
+}
+
+func (h *Handler) isProblemNotCompleted(p *ent.Problem) bool {
+	return p.Code == "" || p.Title == ""
 }

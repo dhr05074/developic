@@ -21,7 +21,7 @@ func NewOpenAI(openaiClient *openai.Client) *OpenAI {
 	return &OpenAI{openaiClient: openaiClient}
 }
 
-func NewDefaultOpenAI() (*OpenAI, error) {
+func NewDefaultOpenAIClient() (*OpenAI, error) {
 	openaiClient, err := NewOpenAIClientFromEnv()
 	if err != nil {
 		return nil, err
