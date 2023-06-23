@@ -5,7 +5,8 @@ import { Record } from "api/api";
 // src/mocks/handlers.js
 
 // problem
-const apiUrl = "http://localhost:3000";
+// const apiUrl = "http://localhost:3000";
+const apiUrl = "https://api.developic.kr";
 
 const createProblem: RequestProblem202Response = {
     problem_id: "problem_id_msw",

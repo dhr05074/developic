@@ -76,7 +76,8 @@ function Profile() {
                         <article className="flex w-full flex-row justify-between">
                             <Title>Latest Score</Title>
                         </article>
-                        <ResultList recordList={records} />
+                        {records ? <ResultList recordList={records} /> : "없음"}
+
                         <section className="pretendard_medium_20 w-full">
                             <Button disabled={true}>More</Button>
                         </section>
