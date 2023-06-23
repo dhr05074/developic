@@ -9,9 +9,9 @@ type PropsType = {
 };
 
 export default function ButtonBasic(props: PropsType) {
-    const active = "  button_large coco_button";
+    const active = "  button_large coco_button normal_button";
 
-    const inactive = " button_large coco_button_disabled  ";
+    const inactive = " button_large coco_button_disabled disabled_button  ";
 
     return (
         <Link

@@ -79,7 +79,7 @@ function Profile() {
                         {records ? <ResultList recordList={records} /> : "없음"}
 
                         <section className="pretendard_medium_20 w-full">
-                            <Button disabled={true}>More</Button>
+                            <Button id="profile_More" disabled={true}>More</Button>
                         </section>
                     </ScoreSection>
                 </div>
