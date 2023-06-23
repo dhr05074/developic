@@ -27,6 +27,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sashabaranov/go-openai"
 	"os"
+	"strings"
 )
 
 var l = log.NewZap().With("service", "gateway")
@@ -37,35 +38,77 @@ const (
 )
 
 const (
+	allowOriginsKey = "/settings/cors/allow_origins"
+)
+
+const (
 	defaultServerPort = 3000
 )
+
+var loggerCfg = middleware.RequestLoggerConfig{
+	Skipper:        nil,
+	BeforeNextFunc: nil,
+	LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+		var kv []interface{}
+
+		kv = append(kv, "latency", v.Latency)
+		kv = append(kv, "protocol", v.Protocol)
+		kv = append(kv, "remote_ip", v.RemoteIP)
+		kv = append(kv, "host", v.Host)
+		kv = append(kv, "method", v.Method)
+		kv = append(kv, "uri", v.URI)
+		kv = append(kv, "uri_path", v.URIPath)
+		kv = append(kv, "route_path", v.RoutePath)
+		kv = append(kv, "request_id", v.RequestID)
+		kv = append(kv, "referer", v.Referer)
+		kv = append(kv, "user_agent", v.UserAgent)
+		kv = append(kv, "status", v.Status)
+		kv = append(kv, "error", v.Error)
+		kv = append(kv, "content_length", v.ContentLength)
+		kv = append(kv, "response_size", v.ResponseSize)
+		kv = append(kv, "headers", v.Headers)
+		kv = append(kv, "query_params", v.QueryParams)
+		kv = append(kv, "form_values", v.FormValues)
+
+		l.Infow("HTTP Request", kv...)
+
+		return nil
+	},
+	HandleError:      false,
+	LogLatency:       true,
+	LogProtocol:      true,
+	LogRemoteIP:      true,
+	LogHost:          true,
+	LogMethod:        true,
+	LogURI:           true,
+	LogURIPath:       true,
+	LogRoutePath:     true,
+	LogRequestID:     true,
+	LogReferer:       true,
+	LogUserAgent:     true,
+	LogStatus:        true,
+	LogError:         true,
+	LogContentLength: true,
+	LogResponseSize:  true,
+	LogHeaders:       nil,
+	LogQueryParams:   nil,
+	LogFormValues:    nil,
+}
 
 func main() {
 	app := echo.New()
 
-	app.Use(
-		middleware.CORSWithConfig(
-			middleware.CORSConfig{
-				Skipper:                                  nil,
-				AllowOrigins:                             []string{"http://localhost:8080", "https://developic.kr"},
-				AllowOriginFunc:                          nil,
-				AllowMethods:                             nil,
-				AllowHeaders:                             []string{"Authorization", "Content-Type", "Accept"},
-				AllowCredentials:                         false,
-				UnsafeWildcardOriginWithAllowCredentials: false,
-				ExposeHeaders:                            nil,
-				MaxAge:                                   0,
-			},
-		),
-	)
-	app.Use(middleware.Logger())
 	app.Use(mustGetSwaggerValidator())
 	app.Use(customMiddleware.InjectUsernameToContext)
 
 	ctx := context.Background()
+
 	kvStore := mustInitKVStore(ctx)
 	gptClient := mustInitGPTClient()
 	entClient := mustInitEntClient(ctx)
+
+	app.Use(mustInitCORSMiddleware(ctx, kvStore))
+	app.Use(middleware.RequestLoggerWithConfig(loggerCfg))
 
 	reqCh := make(chan message.ProblemMessage)
 	subCh := make(chan message.ProblemMessage)
@@ -131,6 +174,19 @@ func mustInitKVStore(ctx context.Context) store.KV {
 	ssmClient := ssm.NewFromConfig(cfg)
 
 	return aws.NewSSMClient(ssmClient)
+}
+
+func mustInitCORSMiddleware(ctx context.Context, kvStore store.KV) echo.MiddlewareFunc {
+	allowOrigins, err := kvStore.Get(ctx, allowOriginsKey)
+	if err != nil {
+		panic(err)
+	}
+
+	return middleware.CORSWithConfig(
+		middleware.CORSConfig{
+			AllowOrigins: strings.Split(allowOrigins, ","),
+		},
+	)
 }
 
 func mustInitGPTClient() ai.GPTClient {
