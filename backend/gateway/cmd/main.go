@@ -129,7 +129,7 @@ func main() {
 		}
 	}()
 
-	problemHandler := problem.NewHandler(kvStore, entClient, reqCh)
+	problemHandler := problem.NewHandler(kvStore, entClient, ai.NewDefaultOpenAIClientGenerator, reqCh)
 	recordHandler := record.NewHandler(
 		record.NewHandlerParams{
 			ParamClient: kvStore,

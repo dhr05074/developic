@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrAPIKeyNotFound = errors.New("openai api key not found")
+	errAPIKeyNotFound = errors.New("openai api key not found")
 )
 
 type OpenAI struct {
@@ -31,10 +31,12 @@ func NewDefaultOpenAIClient() (*OpenAI, error) {
 }
 
 func (o *OpenAI) AddPrompt(prompt string) {
-	o.messages = append(o.messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: prompt,
-	})
+	o.messages = append(
+		o.messages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: prompt,
+		},
+	)
 }
 
 func (o *OpenAI) NewContext() GPTClient {
@@ -46,11 +48,13 @@ func (o *OpenAI) ClearContext() {
 }
 
 func (o *OpenAI) Complete(ctx context.Context) (answer string, err error) {
-	response, err := o.openaiClient.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-		Model:       openai.GPT3Dot5Turbo0613,
-		Temperature: 0.8,
-		Messages:    o.messages,
-	})
+	response, err := o.openaiClient.CreateChatCompletion(
+		ctx, openai.ChatCompletionRequest{
+			Model:       openai.GPT3Dot5Turbo0613,
+			Temperature: 0.8,
+			Messages:    o.messages,
+		},
+	)
 	if err != nil {
 		return "", err
 	}
@@ -67,8 +71,12 @@ func NewOpenAIClient(apiKey string) *openai.Client {
 func NewOpenAIClientFromEnv() (*openai.Client, error) {
 	apiKey, ok := os.LookupEnv(schema.ChatGPTAPIKeyEnvKey)
 	if !ok {
-		return nil, ErrAPIKeyNotFound
+		return nil, errAPIKeyNotFound
 	}
 
 	return NewOpenAIClient(apiKey), nil
+}
+
+func NewDefaultOpenAIClientGenerator() (GPTClient, error) {
+	return NewDefaultOpenAIClient()
 }

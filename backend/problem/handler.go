@@ -34,24 +34,27 @@ const (
 var pool = pond.New(10, 1000)
 
 type Handler struct {
-	paramClient store.KV
-	entClient   *ent.Client
-	log         *zap.SugaredLogger
-	reqeuestCh  chan message.ProblemMessage
+	paramClient       store.KV
+	entClient         *ent.Client
+	log               *zap.SugaredLogger
+	reqeuestCh        chan message.ProblemMessage
+	generateGPTClient ai.GPTClientGenerator
 }
 
 func NewHandler(
 	paramClient store.KV,
 	entClient *ent.Client,
+	gptClientGenerator ai.GPTClientGenerator,
 	reqCh chan message.ProblemMessage,
 ) *Handler {
 	l := log.NewZap().With("handler", "problem")
 
 	return &Handler{
-		paramClient: paramClient,
-		entClient:   entClient,
-		log:         l,
-		reqeuestCh:  reqCh,
+		paramClient:       paramClient,
+		entClient:         entClient,
+		generateGPTClient: gptClientGenerator,
+		log:               l,
+		reqeuestCh:        reqCh,
 	}
 }
 
@@ -106,6 +109,16 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
+func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
+	var difficulty *int
+	if request.Body.EloScore != nil {
+		difficultyValue := int(*request.Body.EloScore)
+		difficulty = &difficultyValue
+	}
+
+	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
+}
+
 func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gptOutput, error) {
 	now := time.Now()
 
@@ -115,7 +128,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return gptOutput{}, err
 	}
 
-	gptClient, err := ai.NewDefaultOpenAIClient()
+	gptClient, err := h.generateGPTClient()
 	if err != nil {
 		h.log.Errorw("GPT 클라이언트 생성 실패", "error", err)
 		return gptOutput{}, err
@@ -175,16 +188,6 @@ func (h *Handler) extractCode(code string) string {
 func (h *Handler) encodeCode(code string) string {
 	encoder := base64.StdEncoding
 	return encoder.EncodeToString([]byte(code))
-}
-
-func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
-	var difficulty *int
-	if request.Body.EloScore != nil {
-		difficultyValue := int(*request.Body.EloScore)
-		difficulty = &difficultyValue
-	}
-
-	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
 }
 
 func (h *Handler) saveProblem(ctx context.Context, uuid string, output gptOutput) error {

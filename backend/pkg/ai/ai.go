@@ -8,3 +8,5 @@ type GPTClient interface {
 	ClearContext()
 	AddPrompt(prompt string)
 }
+
+type GPTClientGenerator func() (GPTClient, error)
