@@ -46,7 +46,7 @@ func main() {
 	app.Use(middleware.CORS())
 	app.Use(middleware.Logger())
 	app.Use(mustGetSwaggerValidator())
-	app.Use(customMiddleware.AttachUsername)
+	app.Use(customMiddleware.InjectUsernameToContext)
 
 	ctx := context.Background()
 	kvStore := mustInitKVStore(ctx)

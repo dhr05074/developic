@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func AttachUsername(next echo.HandlerFunc) echo.HandlerFunc {
+func InjectUsernameToContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := c.Request().Header.Get("Authorization")
 		ctx := store.WithUsername(c.Request().Context(), username)
