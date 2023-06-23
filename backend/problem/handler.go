@@ -22,17 +22,6 @@ import (
 )
 
 const (
-	problemNotReadyCode = "ProblemNotReady"
-	problemNotFoundCode = "ProblemNotFound"
-)
-
-const (
-	problemNotReadyMessage = "문제가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요."
-	problemNotFoundMessage = "문제가 존재하지 않습니다. 문제 ID를 확인해주세요."
-	serverErrorMessage     = "일시적인 서버 오류입니다. 잠시 후에 다시 시도해주세요."
-)
-
-const (
 	generatingProblemPromptKey = "/prompts/problem/generating"
 	languageTemplateKey        = "{LANGUAGE}"
 	eloScoreTemplateKey        = "{ELO_SCORE}"
@@ -42,7 +31,7 @@ const (
 	retrieveCodePrompt = "Give me the code"
 )
 
-var pool = pond.New(10, 100)
+var pool = pond.New(10, 1000)
 
 type Handler struct {
 	paramClient store.KV
@@ -66,7 +55,7 @@ func NewHandler(
 	}
 }
 
-type GPTOutput struct {
+type gptOutput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Code        string `json:"code"`
@@ -81,7 +70,8 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 		h.log.Errorw("문제 객체 생성 실패", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
-				Message: serverErrorMessage,
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, nil
@@ -89,24 +79,26 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 
 	// 문제를 백그라운드에서 생성한다.
 	// 과도한 goroutine 생성 방지를 위해 Worker pool을 활용한다.
-	pool.Submit(func() {
-		anotherCtx := context.TODO()
+	pool.Submit(
+		func() {
+			emptyCtx := context.TODO()
 
-		output, err := h.requestProblem(anotherCtx, request)
-		if err != nil {
-			h.log.Errorw("GPT를 통한 문제 출제 실패", "error", err)
-			return
-		}
+			output, err := h.requestProblem(emptyCtx, request)
+			if err != nil {
+				h.log.Errorw("GPT를 통한 문제 출제 실패", "error", err)
+				return
+			}
 
-		if err := h.saveProblem(anotherCtx, problemID, output); err != nil {
-			h.log.Errorw("문제 저장 실패", "error", err)
-			return
-		}
+			if err := h.saveProblem(emptyCtx, problemID, output); err != nil {
+				h.log.Errorw("문제 저장 실패", "error", err)
+				return
+			}
 
-		h.reqeuestCh <- message.ProblemMessage{
-			ID: problemID,
-		}
-	})
+			h.reqeuestCh <- message.ProblemMessage{
+				ID: problemID,
+			}
+		},
+	)
 
 	// 사용자에게는 문제 ID를 바로 반환하고, 백그라운드에서 문제를 생성한다.
 	return gateway.RequestProblem202JSONResponse{
@@ -114,19 +106,19 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
-func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (GPTOutput, error) {
+func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gptOutput, error) {
 	now := time.Now()
 
 	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
 	if err != nil {
 		h.log.Errorw("프롬포트 조회 실패", "key", generatingProblemPromptKey, "error", err)
-		return GPTOutput{}, err
+		return gptOutput{}, err
 	}
 
 	gptClient, err := ai.NewDefaultOpenAIClient()
 	if err != nil {
 		h.log.Errorw("GPT 클라이언트 생성 실패", "error", err)
-		return GPTOutput{}, err
+		return gptOutput{}, err
 	}
 
 	prompt = h.injectParameterToPrompt(prompt, request)
@@ -135,19 +127,19 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 	result, err := gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
-		return GPTOutput{}, err
+		return gptOutput{}, err
 	}
 
-	var output GPTOutput
+	var output gptOutput
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
 		h.log.Errorw("결과 JSON 언마샬 실패", "error", err)
-		return GPTOutput{}, err
+		return gptOutput{}, err
 	}
 
 	output.Code, err = h.generateScratchCode(ctx, gptClient)
 	if err != nil {
 		h.log.Errorw("스크래치 코드 생성 실패", "error", err)
-		return GPTOutput{}, err
+		return gptOutput{}, err
 	}
 
 	h.log.Infow("문제 생성 완료", "elapsed", time.Since(now).String())
@@ -195,7 +187,7 @@ func (h *Handler) createProblem(ctx context.Context, uuid string, request gatewa
 	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
 }
 
-func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput) error {
+func (h *Handler) saveProblem(ctx context.Context, uuid string, output gptOutput) error {
 	p, err := h.entClient.Problem.Query().Where(problem.UUID(uuid)).Only(ctx)
 	if err != nil {
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
@@ -214,19 +206,24 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
 	const cacheTTL = 1 * time.Second
 
-	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, cacheTTL))
+	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(
+		entcache.WithTTL(
+			ctx, cacheTTL,
+		),
+	)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
-				Code:    problemNotFoundCode,
-				Message: problemNotFoundMessage,
+				Code:    gateway.ProblemNotFound,
+				Message: gateway.ProblemNotFoundMessage,
 			}, nil
 		}
 
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
 		return gateway.GetProblemdefaultJSONResponse{
 			Body: gateway.Error{
-				Message: serverErrorMessage,
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, nil
@@ -234,8 +231,8 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 
 	if h.isProblemNotCompleted(queriedProblem) {
 		return gateway.GetProblem409JSONResponse{
-			Code:    problemNotReadyCode,
-			Message: problemNotReadyMessage,
+			Code:    gateway.ProblemNotReady,
+			Message: gateway.ProblemNotReadyMessage,
 		}, nil
 	}
 

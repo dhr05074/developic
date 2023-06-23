@@ -4,7 +4,7 @@ import "context"
 
 type userCtxKey struct{}
 
-func WithUsername(ctx context.Context, username string) context.Context {
+func CtxWithUsername(ctx context.Context, username string) context.Context {
 	return context.WithValue(ctx, userCtxKey{}, username)
 }
 
