@@ -77,14 +77,12 @@ type GPTOutput struct {
 }
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
-	// TODO: 유저 여러명이 동시에 요청을 보낼 때 GPTClient를 공유하기 때문에, 다른 요청이 씹히는 경우가 생긴다. 요청시마다 새로운 GPTClient를 생성하도록 수정해야 한다.
-
 	problemID := nanoid.Must(8)
 
 	// UUID만 담긴 문제 객체를 미리 생성한다.
 	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
 	if err := h.createProblem(ctx, problemID, request); err != nil {
-		h.log.Errorw("failed to create problem", "category", "db", "error", err)
+		h.log.Errorw("문제 객체 생성 실패", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
 				Message: serverErrorMessage,
@@ -99,11 +97,12 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 
 		output, err := h.requestProblem(anotherCtx, request)
 		if err != nil {
+			h.log.Errorw("GPT를 통한 문제 출제 실패", "error", err)
 			return
 		}
 
 		if err := h.saveProblem(anotherCtx, problemID, output); err != nil {
-			h.log.Errorw("failed to save problem", "category", "db", "error", err)
+			h.log.Errorw("문제 저장 실패", "error", err)
 			return
 		}
 
@@ -119,15 +118,17 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 }
 
 func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (GPTOutput, error) {
+	now := time.Now()
+
 	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
 	if err != nil {
-		h.log.Errorw("failed to get prompt", "category", "kv", "error", err)
+		h.log.Errorw("프롬포트 조회 실패", "key", generatingProblemPromptKey, "error", err)
 		return GPTOutput{}, err
 	}
 
 	gptClient, err := ai.NewDefaultOpenAI()
 	if err != nil {
-		h.log.Errorw("failed to create gpt client", "category", "internal", "error", err)
+		h.log.Errorw("GPT 클라이언트 생성 실패", "error", err)
 		return GPTOutput{}, err
 	}
 
@@ -136,24 +137,24 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 
 	result, err := gptClient.Complete(ctx)
 	if err != nil {
-		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
+		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
 		return GPTOutput{}, err
 	}
 
 	var output GPTOutput
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
-		h.log.Errorw("failed to unmarshal result", "category", "internal", "error", err)
+		h.log.Errorw("결과 언마샬 실패", "error", err)
 		return GPTOutput{}, err
 	}
 
 	gptClient.AddPrompt(retrieveCodePrompt)
 	output.Code, err = gptClient.Complete(ctx)
 	if err != nil {
-		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
+		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
 		return GPTOutput{}, err
 	}
 
-	h.log.Infof("problem generated")
+	h.log.Infow("문제 생성 완료", "elapsed", time.Since(now).String())
 
 	output.Code = h.extractCode(output.Code)
 	output.Code = h.encodeCode(output.Code)
