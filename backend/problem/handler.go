@@ -144,7 +144,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 	}
 
 	gptClient.AddPrompt("Give me the code")
-	output.Code, err = h.gptClient.Complete(ctx)
+	output.Code, err = gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
 		return GPTOutput{}, err
