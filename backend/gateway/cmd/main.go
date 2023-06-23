@@ -43,7 +43,21 @@ const (
 func main() {
 	app := echo.New()
 
-	app.Use(middleware.CORS())
+	app.Use(
+		middleware.CORSWithConfig(
+			middleware.CORSConfig{
+				Skipper:                                  nil,
+				AllowOrigins:                             []string{"http://localhost:8080", "https://developic.kr"},
+				AllowOriginFunc:                          nil,
+				AllowMethods:                             nil,
+				AllowHeaders:                             []string{"Authorization", "Content-Type", "Accept"},
+				AllowCredentials:                         false,
+				UnsafeWildcardOriginWithAllowCredentials: false,
+				ExposeHeaders:                            nil,
+				MaxAge:                                   0,
+			},
+		),
+	)
 	app.Use(middleware.Logger())
 	app.Use(mustGetSwaggerValidator())
 	app.Use(customMiddleware.InjectUsernameToContext)
@@ -56,13 +70,15 @@ func main() {
 	reqCh := make(chan message.ProblemMessage)
 	subCh := make(chan message.ProblemMessage)
 
-	w := score.NewScoreWorker(score.NewScoreWorkerParams{
-		ParamClient: kvStore,
-		EntClient:   entClient,
-		GptClient:   gptClient,
-		ProblemCh:   reqCh,
-		SubmitCh:    subCh,
-	})
+	w := score.NewScoreWorker(
+		score.NewScoreWorkerParams{
+			ParamClient: kvStore,
+			EntClient:   entClient,
+			GptClient:   gptClient,
+			ProblemCh:   reqCh,
+			SubmitCh:    subCh,
+		},
+	)
 
 	go func() {
 		if err := w.Run(ctx); err != nil {
@@ -71,18 +87,20 @@ func main() {
 	}()
 
 	problemHandler := problem.NewHandler(kvStore, entClient, reqCh)
-	recordHandler := record.NewHandler(record.NewHandlerParams{
-		ParamClient: kvStore,
-		EntClient:   entClient,
-		SubmitCh:    subCh,
-	})
+	recordHandler := record.NewHandler(
+		record.NewHandlerParams{
+			ParamClient: kvStore,
+			EntClient:   entClient,
+			SubmitCh:    subCh,
+		},
+	)
 	userHandler := user.NewHandler(entClient)
 
 	strictHandler := handler.NewStrictHandler(problemHandler, recordHandler, userHandler)
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
-	l.Infow("서버를 시작합니다.", "포트", defaultServerPort)
+	l.Infow("서버를 시작합니다.", "port", defaultServerPort)
 	if err := app.StartTLS(fmt.Sprintf(":%d", defaultServerPort), certFilePath, keyFilePath); err != nil {
 		panic(err)
 	}
@@ -96,11 +114,13 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 
 	swagger.Servers = nil
 
-	return oapimiddleware.OapiRequestValidatorWithOptions(swagger, &oapimiddleware.Options{
-		Options: openapi3filter.Options{
-			AuthenticationFunc: customMiddleware.ValidateAuth,
+	return oapimiddleware.OapiRequestValidatorWithOptions(
+		swagger, &oapimiddleware.Options{
+			Options: openapi3filter.Options{
+				AuthenticationFunc: customMiddleware.ValidateAuth,
+			},
 		},
-	})
+	)
 }
 
 func mustInitKVStore(ctx context.Context) store.KV {
