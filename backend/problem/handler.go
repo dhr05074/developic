@@ -37,6 +37,10 @@ const (
 	eloScoreTemplateKey        = "{ELO_SCORE}"
 )
 
+const (
+	retrieveCodePrompt = "Give me the code"
+)
+
 var serverErrResp = gateway.GetProblemdefaultJSONResponse{
 	Body: gateway.Error{
 		Message: serverErrorMessage,
@@ -121,12 +125,11 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	openAIClient, err := ai.NewOpenAIClientFromEnv()
+	gptClient, err := ai.NewDefaultOpenAI()
 	if err != nil {
-		h.log.Errorw("failed to create openai client", "category", "internal", "error", err)
+		h.log.Errorw("failed to create gpt client", "category", "internal", "error", err)
 		return GPTOutput{}, err
 	}
-	gptClient := ai.NewOpenAI(openAIClient)
 
 	prompt = h.injectData(prompt, request)
 	gptClient.AddPrompt(prompt)
@@ -143,7 +146,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	gptClient.AddPrompt("Give me the code")
+	gptClient.AddPrompt(retrieveCodePrompt)
 	output.Code, err = gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
@@ -152,9 +155,8 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 
 	h.log.Infof("problem generated")
 
-	output.Code = str.ExtractCodeBlocksFromMarkdown(output.Code)[0]
-	encoder := base64.StdEncoding
-	output.Code = encoder.EncodeToString([]byte(output.Code))
+	output.Code = h.extractCode(output.Code)
+	output.Code = h.encodeCode(output.Code)
 
 	return output, nil
 }
@@ -164,6 +166,15 @@ func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObj
 	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", req.Body.EloScore))
 
 	return prompt
+}
+
+func (h *Handler) extractCode(code string) string {
+	return str.ExtractCodeBlocksFromMarkdown(code)[0]
+}
+
+func (h *Handler) encodeCode(code string) string {
+	encoder := base64.StdEncoding
+	return encoder.EncodeToString([]byte(code))
 }
 
 func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {

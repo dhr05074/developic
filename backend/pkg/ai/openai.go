@@ -22,6 +22,15 @@ func NewOpenAI(openaiClient *openai.Client) *OpenAI {
 	return &OpenAI{openaiClient: openaiClient}
 }
 
+func NewDefaultOpenAI() (*OpenAI, error) {
+	openaiClient, err := NewOpenAIClientFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	return NewOpenAI(openaiClient), nil
+}
+
 func (o *OpenAI) AddPrompt(prompt string) {
 	o.messages = append(o.messages, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
