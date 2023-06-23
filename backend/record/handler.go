@@ -37,9 +37,11 @@ func NewHandler(params NewHandlerParams) *Handler {
 func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolutionRequestObject) (gateway.SubmitSolutionResponseObject, error) {
 	tx, err := s.entClient.Tx(ctx)
 	if err != nil {
+		s.log.Errorw("트랜잭션 생성 실패", "error", err)
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
@@ -48,16 +50,17 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 	p, err := tx.Problem.Query().Where(problem.UUID(request.Body.ProblemId)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return gateway.SubmitSolutiondefaultJSONResponse{
-				Body: gateway.Error{
-					Message: err.Error(),
-				},
-				StatusCode: 404,
-			}, err
+			return gateway.SubmitSolution404JSONResponse{
+				Code:    gateway.ProblemNotFound,
+				Message: gateway.ProblemNotFoundMessage,
+			}, nil
 		}
+
+		s.log.Errorw("문제 조회 실패", "error", err)
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
@@ -75,7 +78,8 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 	if err != nil {
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
@@ -84,7 +88,8 @@ func (s *Handler) SubmitSolution(ctx context.Context, request gateway.SubmitSolu
 	if err := tx.Commit(); err != nil {
 		return gateway.SubmitSolutiondefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
@@ -121,7 +126,8 @@ func (s *Handler) GetRecords(ctx context.Context, request gateway.GetRecordsRequ
 	if err != nil {
 		return gateway.GetRecordsdefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
@@ -151,16 +157,14 @@ func (s *Handler) GetRecord(ctx context.Context, request gateway.GetRecordReques
 	rec, err := s.entClient.Record.Query().Where(record.UUID(request.Id)).WithProblem().Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return gateway.GetRecorddefaultJSONResponse{
-				Body: gateway.Error{
-					Message: err.Error(),
-				},
-				StatusCode: 404,
-			}, err
+			return gateway.GetRecord404Response{}, nil
 		}
+
+		s.log.Errorw("레코드 조회 실패", "error", err)
 		return gateway.GetRecorddefaultJSONResponse{
 			Body: gateway.Error{
-				Message: err.Error(),
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
 			},
 			StatusCode: 500,
 		}, err
