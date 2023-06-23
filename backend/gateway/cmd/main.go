@@ -59,7 +59,7 @@ func main() {
 		}
 	}()
 
-	problemHandler := problem.NewHandler(kvStore, gptClient, entClient, reqCh)
+	problemHandler := problem.NewHandler(kvStore, entClient, reqCh)
 	recordHandler := record.NewHandler(record.NewHandlerParams{
 		ParamClient: kvStore,
 		EntClient:   entClient,
@@ -72,7 +72,7 @@ func main() {
 	gateway.RegisterHandlers(app, serverInterface)
 
 	l.Infow("starting server", "port", 3000)
-	if err := app.Start(":3000"); err != nil {
+	if err := app.StartTLS(":3000", "/cert/fullchain.pem", "/cert/privkey.pem"); err != nil {
 		panic(err)
 	}
 }

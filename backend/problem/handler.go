@@ -46,7 +46,6 @@ var serverErrResp = gateway.GetProblemdefaultJSONResponse{
 
 type Handler struct {
 	paramClient store.KV
-	gptClient   ai.GPTClient
 	entClient   *ent.Client
 	log         *zap.SugaredLogger
 	reqeuestCh  chan message.ProblemMessage
@@ -54,7 +53,6 @@ type Handler struct {
 
 func NewHandler(
 	paramClient store.KV,
-	gptClient ai.GPTClient,
 	entClient *ent.Client,
 	reqCh chan message.ProblemMessage,
 ) *Handler {
@@ -62,7 +60,6 @@ func NewHandler(
 
 	return &Handler{
 		paramClient: paramClient,
-		gptClient:   gptClient,
 		entClient:   entClient,
 		log:         l,
 		reqeuestCh:  reqCh,
@@ -124,10 +121,17 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	prompt = h.injectData(prompt, request)
-	h.gptClient.AddPrompt(prompt)
+	openAIClient, err := ai.NewOpenAIClientFromEnv()
+	if err != nil {
+		h.log.Errorw("failed to create openai client", "category", "internal", "error", err)
+		return GPTOutput{}, err
+	}
+	gptClient := ai.NewOpenAI(openAIClient)
 
-	result, err := h.gptClient.Complete(ctx)
+	prompt = h.injectData(prompt, request)
+	gptClient.AddPrompt(prompt)
+
+	result, err := gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
 		return GPTOutput{}, err
@@ -139,7 +143,7 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	h.gptClient.AddPrompt("Give me the code")
+	gptClient.AddPrompt("Give me the code")
 	output.Code, err = h.gptClient.Complete(ctx)
 	if err != nil {
 		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)

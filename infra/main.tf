@@ -11,7 +11,7 @@ terraform {
 
 provider "aws" {
   region = "ap-northeast-2"
-  profile = "side_project"
+  profile = "developic"
 }
 
 data "aws_caller_identity" "caller" {}

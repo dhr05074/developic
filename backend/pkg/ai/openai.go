@@ -2,7 +2,15 @@ package ai
 
 import (
 	"context"
+	"errors"
 	"github.com/sashabaranov/go-openai"
+	"os"
+)
+
+const APIKeyEnvKey = "CHATGPT_API_KEY"
+
+var (
+	ErrAPIKeyNotFound = errors.New("openai api key not found")
 )
 
 type OpenAI struct {
@@ -42,4 +50,17 @@ func (o *OpenAI) Complete(ctx context.Context) (answer string, err error) {
 	o.messages = append(o.messages, response.Choices[0].Message)
 
 	return response.Choices[0].Message.Content, nil
+}
+
+func NewOpenAIClient(apiKey string) *openai.Client {
+	return openai.NewClient(apiKey)
+}
+
+func NewOpenAIClientFromEnv() (*openai.Client, error) {
+	apiKey, ok := os.LookupEnv(APIKeyEnvKey)
+	if !ok {
+		return nil, ErrAPIKeyNotFound
+	}
+
+	return NewOpenAIClient(apiKey), nil
 }
