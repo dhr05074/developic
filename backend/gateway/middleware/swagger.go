@@ -6,7 +6,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3filter"
 )
 
-func ValidateAuth(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
+func ValidateAuth(_ context.Context, input *openapi3filter.AuthenticationInput) error {
 	if input.SecuritySchemeName == "" {
 		return nil
 	}

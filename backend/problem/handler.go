@@ -14,6 +14,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/alitto/pond"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"go.uber.org/zap"
 	"strings"
@@ -41,12 +42,7 @@ const (
 	retrieveCodePrompt = "Give me the code"
 )
 
-var serverErrResp = gateway.GetProblemdefaultJSONResponse{
-	Body: gateway.Error{
-		Message: serverErrorMessage,
-	},
-	StatusCode: 500,
-}
+var pool = pond.New(10, 100)
 
 type Handler struct {
 	paramClient store.KV
@@ -92,7 +88,8 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}
 
 	// 문제를 백그라운드에서 생성한다.
-	go func() {
+	// 과도한 goroutine 생성 방지를 위해 Worker pool을 활용한다.
+	pool.Submit(func() {
 		anotherCtx := context.TODO()
 
 		output, err := h.requestProblem(anotherCtx, request)
@@ -109,7 +106,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 		h.reqeuestCh <- message.ProblemMessage{
 			ID: problemID,
 		}
-	}()
+	})
 
 	// 사용자에게는 문제 ID를 바로 반환하고, 백그라운드에서 문제를 생성한다.
 	return gateway.RequestProblem202JSONResponse{
@@ -191,21 +188,15 @@ func (h *Handler) encodeCode(code string) string {
 func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
 	var difficulty *int
 	if request.Body.EloScore != nil {
-		elo := int(*request.Body.EloScore)
-		difficulty = &elo
+		difficultyValue := int(*request.Body.EloScore)
+		difficulty = &difficultyValue
 	}
 
 	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
 }
 
 func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput) error {
-	tx, err := h.entClient.Tx(ctx)
-	if err != nil {
-		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
-		return err
-	}
-
-	p, err := tx.Problem.Query().ForUpdate().Where(problem.UUID(uuid)).Only(ctx)
+	p, err := h.entClient.Problem.Query().Where(problem.UUID(uuid)).Only(ctx)
 	if err != nil {
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
 		return err
@@ -214,12 +205,6 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 	err = p.Update().SetTitle(output.Title).SetDescription(output.Description).SetCode(output.Code).Exec(ctx)
 	if err != nil {
 		h.log.Errorw("failed to update problem", "category", "db", "error", err)
-		return err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
 		return err
 	}
 
@@ -239,7 +224,12 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 		}
 
 		h.log.Errorw("failed to get problem", "category", "db", "error", err)
-		return serverErrResp, nil
+		return gateway.GetProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Message: serverErrorMessage,
+			},
+			StatusCode: 500,
+		}, nil
 	}
 
 	if h.isProblemNotCompleted(queriedProblem) {
