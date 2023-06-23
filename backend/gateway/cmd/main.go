@@ -116,7 +116,7 @@ func mustInitKVStore(ctx context.Context) store.KV {
 func mustInitGPTClient() ai.GPTClient {
 	apiToken, ok := os.LookupEnv(schema.ChatGPTAPIKeyEnvKey)
 	if !ok || apiToken == "" {
-		l.Fatalf("%s is not set", schema.ChatGPTAPIKeyEnvKey)
+		l.Fatalf("%s 환경 변수가 설정되지 않았습니다.", schema.ChatGPTAPIKeyEnvKey)
 	}
 	cli := ai.NewOpenAI(openai.NewClient(apiToken))
 	return cli
@@ -126,7 +126,7 @@ func mustInitEntClient(ctx context.Context) *ent.Client {
 	drv := db.NewCachedEntDriver()
 	client := ent.NewClient(ent.Driver(drv))
 	if err := client.Schema.Create(entcache.Skip(ctx)); err != nil {
-		l.Fatalf("failed creating schema resources: %v", err)
+		l.Fatalf("DB 스키마에 맞는 리소스 생성에 실패했습니다: %v", err)
 	}
 	return client
 }

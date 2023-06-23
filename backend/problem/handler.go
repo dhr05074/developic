@@ -147,17 +147,13 @@ func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestPro
 		return GPTOutput{}, err
 	}
 
-	gptClient.AddPrompt(retrieveCodePrompt)
-	output.Code, err = gptClient.Complete(ctx)
+	output.Code, err = h.generateScratchCode(ctx, gptClient)
 	if err != nil {
-		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
+		h.log.Errorw("스크래치 코드 생성 실패", "error", err)
 		return GPTOutput{}, err
 	}
 
 	h.log.Infow("문제 생성 완료", "elapsed", time.Since(now).String())
-
-	output.Code = h.extractCode(output.Code)
-	output.Code = h.encodeCode(output.Code)
 
 	return output, nil
 }
@@ -167,6 +163,20 @@ func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObj
 	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", req.Body.EloScore))
 
 	return prompt
+}
+
+func (h *Handler) generateScratchCode(ctx context.Context, gptClient ai.GPTClient) (string, error) {
+	gptClient.AddPrompt(retrieveCodePrompt)
+	code, err := gptClient.Complete(ctx)
+	if err != nil {
+		h.log.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
+		return "", err
+	}
+
+	code = h.extractCode(code)
+	code = h.encodeCode(code)
+
+	return code, nil
 }
 
 func (h *Handler) extractCode(code string) string {
@@ -217,7 +227,7 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 }
 
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	p, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, 1*time.Second))
+	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(entcache.WithTTL(ctx, 1*time.Second))
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
@@ -231,7 +241,7 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 	}
 
 	// 문제 생성 요청은 들어갔지만 아직 문제가 생성되지 않은 경우
-	if p.Code == "" || p.Title == "" {
+	if queriedProblem.Code == "" || queriedProblem.Title == "" {
 		return gateway.GetProblem409JSONResponse{
 			Code:    problemNotReadyCode,
 			Message: problemNotReadyMessage,
@@ -240,10 +250,10 @@ func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequ
 
 	return gateway.GetProblem200JSONResponse{
 		N200GetProblemJSONResponse: gateway.N200GetProblemJSONResponse{
-			Code:        p.Code,
-			Id:          p.UUID,
-			Title:       p.Title,
-			Description: p.Description,
+			Code:        queriedProblem.Code,
+			Id:          queriedProblem.UUID,
+			Title:       queriedProblem.Title,
+			Description: queriedProblem.Description,
 		},
 	}, nil
 }

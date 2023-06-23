@@ -1,13 +1,12 @@
 package ai
 
 import (
+	"code-connect/schema"
 	"context"
 	"errors"
 	"github.com/sashabaranov/go-openai"
 	"os"
 )
-
-const APIKeyEnvKey = "CHATGPT_API_KEY"
 
 var (
 	ErrAPIKeyNotFound = errors.New("openai api key not found")
@@ -66,7 +65,7 @@ func NewOpenAIClient(apiKey string) *openai.Client {
 }
 
 func NewOpenAIClientFromEnv() (*openai.Client, error) {
-	apiKey, ok := os.LookupEnv(APIKeyEnvKey)
+	apiKey, ok := os.LookupEnv(schema.ChatGPTAPIKeyEnvKey)
 	if !ok {
 		return nil, ErrAPIKeyNotFound
 	}
