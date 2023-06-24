@@ -140,7 +140,7 @@ func (_c *GPTClient_Complete_Call) RunAndReturn(run func(context.Context) (strin
 }
 
 // NewContext provides a mock function with given fields:
-func (_m *GPTClient) NewContext() ai.GPTClient {
+func (_m *GPTClient) Clone() ai.GPTClient {
 	ret := _m.Called()
 
 	var r0 ai.GPTClient

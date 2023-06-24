@@ -14,14 +14,14 @@ import (
 )
 
 type Handler struct {
-	paramClient store.KV
+	paramClient store.KeyValue
 	entClient   *ent.Client
 	log         *zap.SugaredLogger
 	submitCh    chan message.ProblemMessage
 }
 
 type NewHandlerParams struct {
-	ParamClient store.KV
+	ParamClient store.KeyValue
 	EntClient   *ent.Client
 	SubmitCh    chan message.ProblemMessage
 }

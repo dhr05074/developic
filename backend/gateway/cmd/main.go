@@ -19,7 +19,6 @@ import (
 	"code-connect/worker/score"
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	_ "github.com/go-sql-driver/mysql"
@@ -30,7 +29,7 @@ import (
 	"strings"
 )
 
-var l = log.NewZap().With("service", "gateway")
+var logger = log.NewZap().With("service", "gateway")
 
 const (
 	certFilePath = "/cert/fullchain.pem"
@@ -70,7 +69,7 @@ var loggerCfg = middleware.RequestLoggerConfig{
 		kv = append(kv, "query_params", v.QueryParams)
 		kv = append(kv, "form_values", v.FormValues)
 
-		l.Infow("HTTP Request", kv...)
+		logger.Infow("HTTP Request", kv...)
 
 		return nil
 	},
@@ -125,7 +124,7 @@ func main() {
 
 	go func() {
 		if err := w.Run(ctx); err != nil {
-			l.Fatalw("failed to run score worker", "err", err)
+			logger.Fatalw("failed to run score worker", "err", err)
 		}
 	}()
 
@@ -143,7 +142,7 @@ func main() {
 	serverInterface := gateway.NewStrictHandler(strictHandler, []gateway.StrictMiddlewareFunc{})
 	gateway.RegisterHandlers(app, serverInterface)
 
-	l.Infow("서버를 시작합니다.", "port", defaultServerPort)
+	logger.Infow("서버를 시작합니다.", "port", defaultServerPort)
 	if err := app.StartTLS(fmt.Sprintf(":%d", defaultServerPort), certFilePath, keyFilePath); err != nil {
 		panic(err)
 	}
@@ -152,7 +151,7 @@ func main() {
 func mustGetSwaggerValidator() echo.MiddlewareFunc {
 	swagger, err := gateway.GetSwagger()
 	if err != nil {
-		l.Fatalf("failed to get swagger: %v", err)
+		logger.Fatalf("failed to get swagger: %v", err)
 	}
 
 	swagger.Servers = nil
@@ -166,20 +165,21 @@ func mustGetSwaggerValidator() echo.MiddlewareFunc {
 	)
 }
 
-func mustInitKVStore(ctx context.Context) store.KV {
-	cfg, err := aws.Config(ctx)
+func mustInitKVStore(ctx context.Context) store.KeyValue {
+	kv, err := aws.NewDefaultSSMKeyValueStore(ctx)
 	if err != nil {
-		l.Fatalf("failed to get aws config: %v", err)
+		logger.Fatalw("AWS SSM 클라이언트 생성에 실패했습니다.", "error", err)
 	}
-	ssmClient := ssm.NewFromConfig(cfg)
 
-	return aws.NewSSMClient(ssmClient)
+	store.SetGlobalKeyValueStore(kv)
+
+	return kv
 }
 
-func mustInitCORSMiddleware(ctx context.Context, kvStore store.KV) echo.MiddlewareFunc {
-	allowOrigins, err := kvStore.Get(ctx, allowOriginsKey)
+func mustInitCORSMiddleware(ctx context.Context, kvStore store.KeyValue) echo.MiddlewareFunc {
+	allowOrigins, err := kvStore.GetParameter(ctx, allowOriginsKey)
 	if err != nil {
-		panic(err)
+		logger.Fatalf("CORS 허용 목록을 가져오는 데 실패했습니다.: %v", err)
 	}
 
 	return middleware.CORSWithConfig(
@@ -192,17 +192,18 @@ func mustInitCORSMiddleware(ctx context.Context, kvStore store.KV) echo.Middlewa
 func mustInitGPTClient() ai.GPTClient {
 	apiToken, ok := os.LookupEnv(schema.ChatGPTAPIKeyEnvKey)
 	if !ok || apiToken == "" {
-		l.Fatalf("%s 환경 변수가 설정되지 않았습니다.", schema.ChatGPTAPIKeyEnvKey)
+		logger.Fatalf("%s 환경 변수가 설정되지 않았습니다.", schema.ChatGPTAPIKeyEnvKey)
 	}
+
 	cli := ai.NewOpenAI(openai.NewClient(apiToken))
 	return cli
 }
 
 func mustInitEntClient(ctx context.Context) *ent.Client {
-	drv := db.NewCachedEntDriver()
+	drv := db.MustCachedEntDriver()
 	client := ent.NewClient(ent.Driver(drv))
 	if err := client.Schema.Create(entcache.Skip(ctx)); err != nil {
-		l.Fatalf("DB 스키마에 맞는 리소스 생성에 실패했습니다: %v", err)
+		logger.Fatalf("DB 스키마에 맞는 리소스 생성에 실패했습니다: %v", err)
 	}
 	return client
 }

@@ -2,6 +2,16 @@ package store
 
 import "context"
 
-type KV interface {
-	Get(ctx context.Context, key string) (string, error)
+var kv KeyValue
+
+type KeyValue interface {
+	GetParameter(ctx context.Context, key string) (string, error)
+}
+
+func SetGlobalKeyValueStore(newKV KeyValue) {
+	kv = newKV
+}
+
+func KV() KeyValue {
+	return kv
 }

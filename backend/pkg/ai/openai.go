@@ -17,19 +17,6 @@ type OpenAI struct {
 	messages     []openai.ChatCompletionMessage
 }
 
-func NewOpenAI(openaiClient *openai.Client) *OpenAI {
-	return &OpenAI{openaiClient: openaiClient}
-}
-
-func NewDefaultOpenAIClient() (*OpenAI, error) {
-	openaiClient, err := NewOpenAIClientFromEnv()
-	if err != nil {
-		return nil, err
-	}
-
-	return NewOpenAI(openaiClient), nil
-}
-
 func (o *OpenAI) AddPrompt(prompt string) {
 	o.messages = append(
 		o.messages, openai.ChatCompletionMessage{
@@ -39,7 +26,7 @@ func (o *OpenAI) AddPrompt(prompt string) {
 	)
 }
 
-func (o *OpenAI) NewContext() GPTClient {
+func (o *OpenAI) Clone() GPTClient {
 	return NewOpenAI(o.openaiClient)
 }
 
@@ -64,6 +51,19 @@ func (o *OpenAI) Complete(ctx context.Context) (answer string, err error) {
 	return response.Choices[0].Message.Content, nil
 }
 
+func NewOpenAI(openaiClient *openai.Client) *OpenAI {
+	return &OpenAI{openaiClient: openaiClient}
+}
+
+func newDefaultOpenAIClient() (*OpenAI, error) {
+	openaiClient, err := NewOpenAIClientFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	return NewOpenAI(openaiClient), nil
+}
+
 func NewOpenAIClient(apiKey string) *openai.Client {
 	return openai.NewClient(apiKey)
 }
@@ -78,5 +78,5 @@ func NewOpenAIClientFromEnv() (*openai.Client, error) {
 }
 
 func NewDefaultOpenAIClientGenerator() (GPTClient, error) {
-	return NewDefaultOpenAIClient()
+	return newDefaultOpenAIClient()
 }

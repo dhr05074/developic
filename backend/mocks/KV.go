@@ -22,7 +22,7 @@ func (_m *KV) EXPECT() *KV_Expecter {
 }
 
 // Get provides a mock function with given fields: ctx, key
-func (_m *KV) Get(ctx context.Context, key string) (string, error) {
+func (_m *KV) GetParameter(ctx context.Context, key string) (string, error) {
 	ret := _m.Called(ctx, key)
 
 	var r0 string
