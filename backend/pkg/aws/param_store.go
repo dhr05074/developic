@@ -20,7 +20,7 @@ type SSMClient struct {
 	logger *zap.SugaredLogger
 }
 
-func NewSSMClient(client *ssm.Client) *SSMClient {
+func newSSMClient(client *ssm.Client) *SSMClient {
 	logger := log.NewZap().With("client", "aws.ssm")
 	return &SSMClient{client: client, logger: logger}
 }
@@ -50,5 +50,5 @@ func NewDefaultSSMKeyValueStore(ctx context.Context) (*SSMClient, error) {
 		return nil, err
 	}
 
-	return NewSSMClient(ssm.NewFromConfig(cfg)), nil
+	return newSSMClient(ssm.NewFromConfig(cfg)), nil
 }

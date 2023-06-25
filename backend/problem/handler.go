@@ -79,7 +79,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 
 	// UUID만 담긴 문제 객체를 미리 생성한다.
 	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
-	if err := h.createProblem(ctx, problemID, request); err != nil {
+	if err := h.createProblemObject(ctx, problemID, request); err != nil {
 		h.logger.Errorw("문제 객체 생성 실패", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
@@ -119,7 +119,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
-func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
+func (h *Handler) createProblemObject(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
 	var difficulty *int
 	if request.Body.EloScore != nil {
 		difficultyValue := int(*request.Body.EloScore)
