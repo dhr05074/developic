@@ -13,11 +13,13 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/alitto/pond"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,13 +40,19 @@ const (
 )
 
 const (
-	problemIDLength = 8
+	problemIDLength      = 8
+	maxRequestCountPerIP = 5
+)
+
+var (
+	ErrExceededMaxRequestCount = errors.New("exceeded max request count")
 )
 
 var pool = pond.New(poolMaxWorkers, poolMaxCapacity)
 
 type Handler struct {
 	paramClient       store.KeyValue
+	redisClient       store.KeyValue
 	entClient         *ent.Client
 	logger            *zap.SugaredLogger
 	reqeuestCh        chan message.ProblemMessage
@@ -53,6 +61,7 @@ type Handler struct {
 
 func NewHandler(
 	paramClient store.KeyValue,
+	redisClient store.KeyValue,
 	entClient *ent.Client,
 	gptClientGenerator ai.GPTClientGenerator,
 	reqCh chan message.ProblemMessage,
@@ -61,6 +70,7 @@ func NewHandler(
 
 	return &Handler{
 		paramClient:       paramClient,
+		redisClient:       redisClient,
 		entClient:         entClient,
 		generateGPTClient: gptClientGenerator,
 		logger:            l,
@@ -75,12 +85,55 @@ type gptOutput struct {
 }
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
+	userIP, ok := store.IPFromContext(ctx)
+	if !ok {
+		h.logger.Errorw("IP 주소를 가져올 수 없습니다.")
+		return gateway.RequestProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
+			},
+			StatusCode: http.StatusInternalServerError,
+		}, nil
+	}
+
+	requestCount, err := h.getRequestCount(ctx, userIP)
+	if err != nil {
+		return gateway.RequestProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
+			},
+			StatusCode: http.StatusInternalServerError,
+		}, nil
+	}
+
+	err = h.checkRequestCount(userIP, requestCount)
+	if err != nil {
+		return gateway.RequestProblem429JSONResponse{
+			Code:    gateway.TooManyRequests,
+			Message: gateway.TooManyRequestsMessage,
+		}, nil
+	}
+
 	problemID := nanoid.Must(problemIDLength)
 
 	// UUID만 담긴 문제 객체를 미리 생성한다.
 	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
 	if err := h.createProblemObject(ctx, problemID, request); err != nil {
 		h.logger.Errorw("문제 객체 생성 실패", "error", err)
+		return gateway.RequestProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
+			},
+			StatusCode: http.StatusInternalServerError,
+		}, nil
+	}
+
+	err = h.addRequestCount(ctx, userIP, requestCount)
+	if err != nil {
+		h.logger.Errorw("요청 횟수 증가 실패", "error", err)
 		return gateway.RequestProblemdefaultJSONResponse{
 			Body: gateway.Error{
 				Code:    gateway.ServerError,
@@ -119,6 +172,29 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
+func (h *Handler) checkRequestCount(userIP string, requestCount int) error {
+	if requestCount > maxRequestCountPerIP {
+		h.logger.Errorw("IP 주소당 요청 횟수 초과", "ip", userIP)
+		return ErrExceededMaxRequestCount
+	}
+
+	return nil
+}
+
+func (h *Handler) getRequestCount(ctx context.Context, userIP string) (count int, err error) {
+	requestCountString, err := h.redisClient.Get(ctx, userIP)
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(requestCountString)
+}
+
+func (h *Handler) addRequestCount(ctx context.Context, userIP string, requestCount int) error {
+	// IP 주소당 요청 횟수를 1 증가시킨다.
+	return h.redisClient.Set(ctx, userIP, strconv.Itoa(requestCount+1))
+}
+
 func (h *Handler) createProblemObject(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
 	var difficulty *int
 	if request.Body.EloScore != nil {
@@ -132,7 +208,7 @@ func (h *Handler) createProblemObject(ctx context.Context, uuid string, request 
 func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gptOutput, error) {
 	now := time.Now()
 
-	prompt, err := h.paramClient.GetParameter(ctx, generatingProblemPromptKey)
+	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
 	if err != nil {
 		h.logger.Errorw("프롬포트 조회 실패", "key", generatingProblemPromptKey, "error", err)
 		return gptOutput{}, err

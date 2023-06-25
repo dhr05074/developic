@@ -53,7 +53,7 @@ func NewScoreWorker(params NewScoreWorkerParams) *ScoreWorker {
 }
 
 func (s *ScoreWorker) initialize(ctx context.Context) error {
-	prompt, err := s.paramClient.GetParameter(ctx, scorePromptKey)
+	prompt, err := s.paramClient.Get(ctx, scorePromptKey)
 	if err != nil {
 		return err
 	}

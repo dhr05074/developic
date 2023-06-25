@@ -2,7 +2,6 @@ package aws
 
 import (
 	"code-connect/pkg/log"
-	"code-connect/pkg/store"
 	"context"
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
@@ -14,18 +13,15 @@ var (
 )
 
 type SSMClient struct {
-	store.KeyValue
-
 	client *ssm.Client
 	logger *zap.SugaredLogger
 }
 
-func newSSMClient(client *ssm.Client) *SSMClient {
-	logger := log.NewZap().With("client", "aws.ssm")
-	return &SSMClient{client: client, logger: logger}
+func (c *SSMClient) Set(_ context.Context, _, _ string) error {
+	panic("implement me")
 }
 
-func (c *SSMClient) GetParameter(ctx context.Context, name string) (string, error) {
+func (c *SSMClient) Get(ctx context.Context, name string) (string, error) {
 	result, err := c.client.GetParameter(
 		ctx, &ssm.GetParameterInput{
 			Name: &name,
@@ -51,4 +47,9 @@ func NewDefaultSSMKeyValueStore(ctx context.Context) (*SSMClient, error) {
 	}
 
 	return newSSMClient(ssm.NewFromConfig(cfg)), nil
+}
+
+func newSSMClient(client *ssm.Client) *SSMClient {
+	logger := log.NewZap().With("client", "aws.ssm")
+	return &SSMClient{client: client, logger: logger}
 }

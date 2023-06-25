@@ -98,6 +98,7 @@ components:
         - "InvalidAuthorization"
         - "RecordNotFound"
         - "ServerError"
+        - "TooManyRequests"
       default: "ServerError"
     ErrorMessage:
       type: string
@@ -109,6 +110,7 @@ components:
         - "해당 레코드를 찾을 수 없습니다."
         - "유효하지 않은 인증 정보입니다."
         - "서버 내부 오류가 발생했습니다."
+        - "요청이 너무 많습니다."
       x-enum-varnames:
         - "UserNotFoundMessage"
         - "ProblemNotFoundMessage"
@@ -116,6 +118,7 @@ components:
         - "RecordNotFoundMessage"
         - "InvalidAuthorizationMessage"
         - "ServerErrorMessage"
+        - "TooManyRequestsMessage"
       default: "서버 내부 오류가 발생했습니다."
     ELOScore:
       type: integer
@@ -244,6 +247,15 @@ paths:
                 properties:
                   problem_id:
                     $ref: "#/components/schemas/ProblemID"
+        429:
+          description: 문제 생성 요청이 너무 많아, 시스템에서 문제 생성을 거부하고 있습니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "TooManyRequests"
+                message: "문제 생성 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
         default:
           $ref: "#/components/responses/InternalServerError"
   /problems/{id}:

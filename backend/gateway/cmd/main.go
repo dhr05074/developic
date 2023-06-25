@@ -177,7 +177,7 @@ func mustInitKVStore(ctx context.Context) store.KeyValue {
 }
 
 func mustInitCORSMiddleware(ctx context.Context, kvStore store.KeyValue) echo.MiddlewareFunc {
-	allowOrigins, err := kvStore.GetParameter(ctx, allowOriginsKey)
+	allowOrigins, err := kvStore.Get(ctx, allowOriginsKey)
 	if err != nil {
 		logger.Fatalf("CORS 허용 목록을 가져오는 데 실패했습니다.: %v", err)
 	}

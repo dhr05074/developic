@@ -5,7 +5,8 @@ import "context"
 var kv KeyValue
 
 type KeyValue interface {
-	GetParameter(ctx context.Context, key string) (string, error)
+	Get(ctx context.Context, key string) (string, error)
+	Set(ctx context.Context, key string, value string) error
 }
 
 func SetGlobalKeyValueStore(newKV KeyValue) {
