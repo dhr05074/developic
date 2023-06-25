@@ -23,7 +23,7 @@ func NewRedis(redisClient *redis.Client) *Redis {
 	return &Redis{redisClient: redisClient}
 }
 
-func NewDefaultRedis() (*Redis, error) {
+func NewDefaultRedis(ctx context.Context) (*Redis, error) {
 	redisAddr, ok := os.LookupEnv(schema.RedisAddrEnvKey)
 	if !ok {
 		return nil, schema.ErrMissingRedisAddr
@@ -37,7 +37,7 @@ func NewDefaultRedis() (*Redis, error) {
 		},
 	)
 
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+	if err := redisClient.Ping(ctx).Err(); err != nil {
 		return nil, err
 	}
 

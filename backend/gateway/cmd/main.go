@@ -105,6 +105,7 @@ func main() {
 	kvStore := mustInitKVStore(ctx)
 	gptClient := mustInitGPTClient()
 	entClient := mustInitEntClient(ctx)
+	redisClient := mustInitRedisClient(ctx)
 
 	app.Use(mustInitCORSMiddleware(ctx, kvStore))
 	app.Use(middleware.RequestLoggerWithConfig(loggerCfg))
@@ -128,7 +129,7 @@ func main() {
 		}
 	}()
 
-	problemHandler := problem.NewHandler(kvStore, entClient, ai.NewDefaultOpenAIClientGenerator, reqCh)
+	problemHandler := problem.NewHandler(kvStore, redisClient, entClient, ai.NewDefaultOpenAIClientGenerator, reqCh)
 	recordHandler := record.NewHandler(
 		record.NewHandlerParams{
 			ParamClient: kvStore,
@@ -206,4 +207,13 @@ func mustInitEntClient(ctx context.Context) *ent.Client {
 		logger.Fatalf("DB 스키마에 맞는 리소스 생성에 실패했습니다: %v", err)
 	}
 	return client
+}
+
+func mustInitRedisClient(ctx context.Context) *store.Redis {
+	redisCli, err := store.NewDefaultRedis(ctx)
+	if err != nil {
+		logger.Fatalf("Redis 클라이언트 생성에 실패했습니다.: %v", err)
+	}
+
+	return redisCli
 }
