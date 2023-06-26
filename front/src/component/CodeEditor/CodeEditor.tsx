@@ -75,7 +75,7 @@ export default function CodeEditor(props: PropsType) {
         value: editorCode ? editorCode : "",
         theme: myTheme,
         height: "100%",
-        maxHeight: "80%",
+        maxHeight: "90%",
         width: "100%",
         minWidth: "100px",
         maxWidth: "100%",
