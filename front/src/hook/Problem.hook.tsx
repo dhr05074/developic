@@ -109,6 +109,7 @@ const useProblem = () => {
         editorCode,
         isCodeReset,
         initEditor,
+        setEditorCode,
         onClickSubmit,
         setLoading,
         setRepeatProblem,

@@ -15,7 +15,7 @@ import MarkDown from "@/component/Resizable/MarkDown";
 
 function Problem() {
     const { languages, difficultList, setLang, setDifficulty, selectOptoin } = useSelectComponent();
-    const { initEditor, onClickSubmit, problem, initProblem, setLoading } = useProblem();
+    const { initEditor,setEditorCode, onClickSubmit, problem, initProblem, setLoading } = useProblem();
     const runner = useRef<HTMLDivElement>(null);
     const body = useRef<HTMLSelectElement>(null);
     const { getRef, handleMouseMove, handleMouseUp, runnerWidth } = useResizable();
@@ -31,6 +31,7 @@ function Problem() {
         return () => {
             initProblem();
             setLoading(false);
+            setEditorCode("");
         };
     }, []);
     return (

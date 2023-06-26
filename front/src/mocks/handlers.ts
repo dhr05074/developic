@@ -1,3 +1,4 @@
+import { javascript } from '@codemirror/lang-javascript';
 import { rest } from "msw";
 import { RequestProblem202Response } from "api/api";
 import { SubmitSolutionRequest } from "api/api";
@@ -30,7 +31,7 @@ let record = {
 };
 const records: Record[] = [];
 
-const code = `
+const js = `
 /**
  * Definition for singly-linked list.
  * class ListNode {
@@ -46,8 +47,63 @@ const code = `
 function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
 
 };`;
-const onCreateProblem = () => {
-    console.log("문제 제출 시작");
+const go =`
+// Prime Sieve in Go.
+// Taken from the Go specification.
+// Copyright © The Go Authors.
+
+package main
+
+import "fmt"
+
+// Send the sequence 2, 3, 4, ... to channel 'ch'.
+func generate(ch chan<- int) {
+	for i := 2; ; i++ {
+		ch <- i  // Send 'i' to channel 'ch'
+	}
+}`
+const cpp = `#include <iostream>
+#include "mystuff/util.h"
+
+namespace {
+enum Enum {
+  VAL1, VAL2, VAL3
+};
+
+char32_t unicode_string = U"\U0010FFFF";
+string raw_string = R"delim(anything
+you
+want)delim";
+
+int Helper(const MyType& param) {
+  return 0;
+}
+} // namespace
+
+class ForwardDec;
+
+template <class T, class V>
+class Class : public BaseClass {
+  const MyType<T, V> member_;
+
+ public:
+  const MyType<T, V>& Method() const {
+    return member_;
+  }
+
+  void Method2(MyType<T, V>* value);
+}
+
+template <class T, class V>
+void Class::Method2(MyType<T, V>* value) {
+  std::out << 1 >> method();
+  value->Method3(member_);
+  member_ = value;
+}
+`
+const onCreateProblem = (language:string) => {
+    console.log("문제 제출 시작",language);
+    let code = "";
 
     setTimeout(() => {
         problem = {
@@ -62,8 +118,11 @@ const onCreateProblem = () => {
                 -   v0.0.0:1
             
             ### 4/2`,
-            code: btoa(code),
+            code:""
         };
+        if(language === "Cpp"){ problem.code =  btoa(cpp)}else
+        if(language === "Javascript"){problem.code = btoa(js)} else
+        if(language === "Go") problem.code = btoa(go)
     }, 5000);
 };
 
@@ -91,13 +150,13 @@ export default [
      */
     rest.post(`${apiUrl}/problems`, (req, res, ctx) => {
         console.log("msw post problems : ", req.body);
-
-        onCreateProblem(); // 문제 생성 시작
+            const body:any = req.body
+        onCreateProblem(body?.language); // 문제 생성 시작
         return res(ctx.status(200), ctx.json(createProblem));
     }),
     rest.get(`${apiUrl}/problems/:requestId`, (req, res, ctx) => {
         const { requestId } = req.params;
-        console.log("msw : get ID", requestId);
+        console.log("msw : get ID", problem);
         if (problem.id) {
             return res(ctx.status(200), ctx.json(problem));
         } else {

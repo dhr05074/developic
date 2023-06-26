@@ -62,6 +62,7 @@ export const editorInCode = atom<string | undefined>({
     effects: [
         ({ setSelf, onSet }) => {
             const savedData = localStorage.getItem(editorInCode.key);
+            console.log("🚀 ~ file: problem.recoil.ts:65 ~ savedData:", savedData)
             // setSelf: atom 값을 설정 혹은 재설정
             if (savedData) setSelf(JSON.parse(savedData));
 
