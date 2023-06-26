@@ -14,6 +14,7 @@ import { useCodeMirror } from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { cpp } from "@codemirror/lang-cpp";
 import { StreamLanguage } from "@codemirror/language";
+import { go } from '@codemirror/legacy-modes/mode/go';
 import { ViewUpdate } from "@codemirror/view";
 // import { go } from "@codemirror/legacy-modes/mode/go";
 type PropsType = {
@@ -21,7 +22,7 @@ type PropsType = {
 };
 
 //분기점 만들기 - js,go,cpp
-const extensions = [javascript({ jsx: true }), cpp()];
+const extensions = [StreamLanguage.define(go),javascript({ jsx: true }), cpp()];
 
 //gutter : line 번호
 //caret : 깜빡이
