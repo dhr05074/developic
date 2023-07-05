@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"go.uber.org/zap"
+	"time"
 )
 
 var (
@@ -15,6 +16,16 @@ var (
 type SSMClient struct {
 	client *ssm.Client
 	logger *zap.SugaredLogger
+}
+
+func (c *SSMClient) Incr(ctx context.Context, key string) error {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (c *SSMClient) Expire(ctx context.Context, key string, expiration time.Duration) error {
+	// TODO implement me
+	panic("implement me")
 }
 
 func (c *SSMClient) Set(_ context.Context, _, _ string) error {
