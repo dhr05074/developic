@@ -12,8 +12,8 @@ type Redis struct {
 	redisClient *redis.Client
 }
 
-func (r *Redis) Incr(ctx context.Context, key string) error {
-	return r.redisClient.Incr(ctx, key).Err()
+func (r *Redis) Incr(ctx context.Context, key string) (int64, error) {
+	return r.redisClient.Incr(ctx, key).Result()
 }
 
 func (r *Redis) Expire(ctx context.Context, key string, expiration time.Duration) error {

@@ -18,7 +18,7 @@ type SSMClient struct {
 	logger *zap.SugaredLogger
 }
 
-func (c *SSMClient) Incr(ctx context.Context, key string) error {
+func (c *SSMClient) Incr(ctx context.Context, key string) (int64, error) {
 	// TODO implement me
 	panic("implement me")
 }

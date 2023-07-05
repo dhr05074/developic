@@ -44,6 +44,10 @@ const (
 	maxRequestCountPerIP = 5
 )
 
+const (
+	problemGenerateCountTTL = 24 * time.Hour
+)
+
 var (
 	ErrExceededMaxRequestCount = errors.New("exceeded max request count")
 )
@@ -121,7 +125,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 		return internalServerErrorResp, nil
 	}
 
-	err = h.increaseRequestCount(ctx, userIP, requestCount)
+	err = h.increaseRequestCount(ctx, userIP)
 	if err != nil {
 		h.logger.Errorw("요청 횟수 증가 실패", "error", err)
 		return internalServerErrorResp, nil
@@ -178,8 +182,20 @@ func (h *Handler) requestCount(ctx context.Context, userIP string) (count int, e
 	return strconv.Atoi(requestCountString)
 }
 
-func (h *Handler) increaseRequestCount(ctx context.Context, userIP string, requestCount int) error {
-	return h.redisClient.Set(ctx, userIP, strconv.Itoa(requestCount+1))
+func (h *Handler) increaseRequestCount(ctx context.Context, userIP string) error {
+	cnt, err := h.redisClient.Incr(ctx, userIP)
+	if err != nil {
+		return err
+	}
+
+	// 만약 요청 횟수가 1이라면 해당 레코드가 새로 생성된 것이므로, 만료 시간을 설정한다.
+	if cnt == 1 {
+		if err := h.redisClient.Expire(ctx, userIP, problemGenerateCountTTL); err != nil {
+			h.logger.Errorw("요청 횟수 만료 시간 설정 실패", "error", err)
+		}
+	}
+
+	return nil
 }
 
 func (h *Handler) createProblemObject(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
