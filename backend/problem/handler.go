@@ -59,7 +59,7 @@ type Handler struct {
 	redisClient       store.KeyValue
 	entClient         *ent.Client
 	logger            *zap.SugaredLogger
-	reqeuestCh        chan message.ProblemMessage
+	requestCh         chan message.ProblemMessage
 	generateGPTClient ai.GPTClientGenerator
 }
 
@@ -78,7 +78,7 @@ func NewHandler(
 		entClient:         entClient,
 		generateGPTClient: gptClientGenerator,
 		logger:            l,
-		reqeuestCh:        reqCh,
+		requestCh:         reqCh,
 	}
 }
 
@@ -152,7 +152,7 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 				return
 			}
 
-			h.reqeuestCh <- message.ProblemMessage{
+			h.requestCh <- message.ProblemMessage{
 				ID: problemID,
 			}
 		},
