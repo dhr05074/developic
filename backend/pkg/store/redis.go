@@ -5,10 +5,19 @@ import (
 	"context"
 	"github.com/redis/go-redis/v9"
 	"os"
+	"time"
 )
 
 type Redis struct {
 	redisClient *redis.Client
+}
+
+func (r *Redis) Incr(ctx context.Context, key string) error {
+	return r.redisClient.Incr(ctx, key).Err()
+}
+
+func (r *Redis) Expire(ctx context.Context, key string, expiration time.Duration) error {
+	return r.redisClient.Expire(ctx, key, expiration).Err()
 }
 
 func (r *Redis) Get(ctx context.Context, key string) (string, error) {

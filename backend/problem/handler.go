@@ -85,27 +85,23 @@ type gptOutput struct {
 }
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
+	var internalServerErrorResp = gateway.RequestProblemdefaultJSONResponse{
+		Body: gateway.Error{
+			Code:    gateway.ServerError,
+			Message: gateway.ServerErrorMessage,
+		},
+		StatusCode: http.StatusInternalServerError,
+	}
+
 	userIP, ok := store.IPFromContext(ctx)
 	if !ok {
 		h.logger.Errorw("IP 주소를 가져올 수 없습니다.")
-		return gateway.RequestProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Code:    gateway.ServerError,
-				Message: gateway.ServerErrorMessage,
-			},
-			StatusCode: http.StatusInternalServerError,
-		}, nil
+		return internalServerErrorResp, nil
 	}
 
-	requestCount, err := h.getRequestCount(ctx, userIP)
+	requestCount, err := h.requestCount(ctx, userIP)
 	if err != nil {
-		return gateway.RequestProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Code:    gateway.ServerError,
-				Message: gateway.ServerErrorMessage,
-			},
-			StatusCode: http.StatusInternalServerError,
-		}, nil
+		return internalServerErrorResp, nil
 	}
 
 	err = h.checkRequestCount(userIP, requestCount)
@@ -122,40 +118,32 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
 	if err := h.createProblemObject(ctx, problemID, request); err != nil {
 		h.logger.Errorw("문제 객체 생성 실패", "error", err)
-		return gateway.RequestProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Code:    gateway.ServerError,
-				Message: gateway.ServerErrorMessage,
-			},
-			StatusCode: http.StatusInternalServerError,
-		}, nil
+		return internalServerErrorResp, nil
 	}
 
-	err = h.addRequestCount(ctx, userIP, requestCount)
+	err = h.increaseRequestCount(ctx, userIP, requestCount)
 	if err != nil {
 		h.logger.Errorw("요청 횟수 증가 실패", "error", err)
-		return gateway.RequestProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Code:    gateway.ServerError,
-				Message: gateway.ServerErrorMessage,
-			},
-			StatusCode: http.StatusInternalServerError,
-		}, nil
+		return internalServerErrorResp, nil
 	}
 
 	// 문제를 백그라운드에서 생성한다.
 	// 과도한 goroutine 생성 방지를 위해 Worker pool을 활용한다.
 	pool.Submit(
 		func() {
-			emptyCtx := context.TODO()
+			var (
+				output   gptOutput
+				err      error
+				emptyCtx = context.TODO()
+			)
 
-			output, err := h.requestProblem(emptyCtx, request)
+			output, err = h.requestProblem(emptyCtx, request)
 			if err != nil {
 				h.logger.Errorw("GPT를 통한 문제 출제 실패", "error", err)
 				return
 			}
 
-			if err := h.saveProblem(emptyCtx, problemID, output); err != nil {
+			if err = h.saveProblem(emptyCtx, problemID, output); err != nil {
 				h.logger.Errorw("문제 저장 실패", "error", err)
 				return
 			}
@@ -181,7 +169,7 @@ func (h *Handler) checkRequestCount(userIP string, requestCount int) error {
 	return nil
 }
 
-func (h *Handler) getRequestCount(ctx context.Context, userIP string) (count int, err error) {
+func (h *Handler) requestCount(ctx context.Context, userIP string) (count int, err error) {
 	requestCountString, err := h.redisClient.Get(ctx, userIP)
 	if err != nil {
 		return 0, err
@@ -190,8 +178,7 @@ func (h *Handler) getRequestCount(ctx context.Context, userIP string) (count int
 	return strconv.Atoi(requestCountString)
 }
 
-func (h *Handler) addRequestCount(ctx context.Context, userIP string, requestCount int) error {
-	// IP 주소당 요청 횟수를 1 증가시킨다.
+func (h *Handler) increaseRequestCount(ctx context.Context, userIP string, requestCount int) error {
 	return h.redisClient.Set(ctx, userIP, strconv.Itoa(requestCount+1))
 }
 

@@ -33,7 +33,7 @@ func (s *RequestProblemTestSuite) SetupTest() {
 	s.entClient = enttest.Open(s.T(), "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 
 	reqCh := make(chan message.ProblemMessage)
-	s.hdl = problem.NewHandler(nil, s.entClient, gptClientGenerator(s.mockGPTClient), reqCh)
+	s.hdl = problem.NewHandler(nil, nil, s.entClient, gptClientGenerator(s.mockGPTClient), reqCh)
 }
 
 func (s *RequestProblemTestSuite) TestCreateProblemDBFailed_Return500Error() {

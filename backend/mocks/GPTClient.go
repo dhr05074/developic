@@ -87,6 +87,49 @@ func (_c *GPTClient_ClearContext_Call) RunAndReturn(run func()) *GPTClient_Clear
 	return _c
 }
 
+// Clone provides a mock function with given fields:
+func (_m *GPTClient) Clone() ai.GPTClient {
+	ret := _m.Called()
+
+	var r0 ai.GPTClient
+	if rf, ok := ret.Get(0).(func() ai.GPTClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(ai.GPTClient)
+		}
+	}
+
+	return r0
+}
+
+// GPTClient_Clone_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Clone'
+type GPTClient_Clone_Call struct {
+	*mock.Call
+}
+
+// Clone is a helper method to define mock.On call
+func (_e *GPTClient_Expecter) Clone() *GPTClient_Clone_Call {
+	return &GPTClient_Clone_Call{Call: _e.mock.On("Clone")}
+}
+
+func (_c *GPTClient_Clone_Call) Run(run func()) *GPTClient_Clone_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *GPTClient_Clone_Call) Return(_a0 ai.GPTClient) *GPTClient_Clone_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *GPTClient_Clone_Call) RunAndReturn(run func() ai.GPTClient) *GPTClient_Clone_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Complete provides a mock function with given fields: ctx
 func (_m *GPTClient) Complete(ctx context.Context) (string, error) {
 	ret := _m.Called(ctx)
@@ -135,49 +178,6 @@ func (_c *GPTClient_Complete_Call) Return(answer string, err error) *GPTClient_C
 }
 
 func (_c *GPTClient_Complete_Call) RunAndReturn(run func(context.Context) (string, error)) *GPTClient_Complete_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// NewContext provides a mock function with given fields:
-func (_m *GPTClient) Clone() ai.GPTClient {
-	ret := _m.Called()
-
-	var r0 ai.GPTClient
-	if rf, ok := ret.Get(0).(func() ai.GPTClient); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(ai.GPTClient)
-		}
-	}
-
-	return r0
-}
-
-// GPTClient_NewContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewContext'
-type GPTClient_NewContext_Call struct {
-	*mock.Call
-}
-
-// NewContext is a helper method to define mock.On call
-func (_e *GPTClient_Expecter) NewContext() *GPTClient_NewContext_Call {
-	return &GPTClient_NewContext_Call{Call: _e.mock.On("NewContext")}
-}
-
-func (_c *GPTClient_NewContext_Call) Run(run func()) *GPTClient_NewContext_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *GPTClient_NewContext_Call) Return(_a0 ai.GPTClient) *GPTClient_NewContext_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *GPTClient_NewContext_Call) RunAndReturn(run func() ai.GPTClient) *GPTClient_NewContext_Call {
 	_c.Call.Return(run)
 	return _c
 }
