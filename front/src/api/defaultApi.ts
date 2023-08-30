@@ -2,8 +2,8 @@ import axios from "axios";
 import { DefaultApi } from "../../api/api";
 
 const instance = axios.create();
-// const baseURL = "http://localhost:3000";
-const baseURL = "https://api.developic.kr";
+const API_KEY = import.meta.env.API_KEY;
+const baseURL = API_KEY;
 const headers = { "Content-Type": `application/json` };
 
 type postProblemReturn = {

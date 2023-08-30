@@ -9,6 +9,6 @@ if (import.meta.env.MODE === "development") {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <BrowserRouter>
-        <App />
-    </BrowserRouter>,
+    <App />
+    </BrowserRouter>
 );

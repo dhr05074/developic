@@ -7,7 +7,8 @@ import { Record } from "api/api";
 
 // problem
 // const apiUrl = "http://localhost:3000";
-const apiUrl = "https://api.developic.kr";
+
+const apiUrl = import.meta.env.API_KEY;
 
 const createProblem: RequestProblem202Response = {
     problem_id: "problem_id_msw",

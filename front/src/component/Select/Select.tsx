@@ -32,7 +32,7 @@ export default function Select(props: propsState) {
         setIsClick(!isClick);
     };
     const onClickMenu = (e: React.MouseEvent<HTMLLIElement>) => {
-        const target = e.target as HTMLLIElement;
+            const target = e.target as HTMLLIElement;
         setSelectMenu(target.innerHTML);
         props?.value.callback(target.innerHTML);
         setIsClick(!isClick);

@@ -941,6 +941,11 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-18.16.13.tgz"
   integrity sha512-uZRomboV1vBL61EBXneL4j9/hEn+1Yqa4LQdpGrKmXFyJmVfWc9JV9+yb2AlnOnuaDnb2PDO3hC6/LKmzJxP1A==
 
+"@types/node@^18.15.11":
+  version "18.16.19"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.16.19.tgz#cb03fca8910fdeb7595b755126a8a78144714eea"
+  integrity sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==
+
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz"
@@ -1188,6 +1193,13 @@
   dependencies:
     tslib "^2.4.0"
 
+"@yarnpkg/fslib@^3.0.0-rc.48":
+  version "3.0.0-rc.48"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/fslib/-/fslib-3.0.0-rc.48.tgz#e6c4e930b922457d7fe3f4b346db21eb1407a5fd"
+  integrity sha512-ej3fAmvcOHaKP5urPKw3MnSxTllfsFGEyjavHR4IlVkCwC+TdFN4OT64XvxBLXA51/RhkfRyIQq1BVrNiafTwQ==
+  dependencies:
+    tslib "^2.4.0"
+
 "@yarnpkg/libzip@^3.0.0-rc.46":
   version "3.0.0-rc.46"
   resolved "https://registry.npmjs.org/@yarnpkg/libzip/-/libzip-3.0.0-rc.46.tgz"
@@ -1214,26 +1226,26 @@
     js-yaml "^3.10.0"
     tslib "^2.4.0"
 
-"@yarnpkg/plugin-pnp@^4.0.0-rc.43":
-  version "4.0.0-rc.46"
-  resolved "https://registry.npmjs.org/@yarnpkg/plugin-pnp/-/plugin-pnp-4.0.0-rc.46.tgz"
-  integrity sha512-I+tjiZd49zWMMs5mCT6QGFGtwYS/uhVjQmhC9u/qV4pBMrretTbcfm6+zsg15NV+0wDOn91slAVJA5Cc/zZGZw==
+"@yarnpkg/plugin-pnp@^4.0.0-rc.48":
+  version "4.0.0-rc.48"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/plugin-pnp/-/plugin-pnp-4.0.0-rc.48.tgz#8922d7d5683cc1cf14a5daa3fa377d306598fa70"
+  integrity sha512-fjD1IHKjRa4ZUAYAi316gRiXPN3zDBr7NHqxqKCfumXQGdM0LPbYP5fd+7o7iMN3+5eF4ZMiOp7MiGAHgA5OYQ==
   dependencies:
     "@types/semver" "^7.1.0"
-    "@yarnpkg/fslib" "^3.0.0-rc.46"
-    "@yarnpkg/plugin-stage" "^4.0.0-rc.46"
-    "@yarnpkg/pnp" "^4.0.0-rc.46"
+    "@yarnpkg/fslib" "^3.0.0-rc.48"
+    "@yarnpkg/plugin-stage" "^4.0.0-rc.48"
+    "@yarnpkg/pnp" "^4.0.0-rc.48"
     clipanion "^3.2.1"
     micromatch "^4.0.2"
     semver "^7.1.2"
     tslib "^2.4.0"
 
-"@yarnpkg/plugin-stage@^4.0.0-rc.46":
-  version "4.0.0-rc.46"
-  resolved "https://registry.npmjs.org/@yarnpkg/plugin-stage/-/plugin-stage-4.0.0-rc.46.tgz"
-  integrity sha512-E2lG95YveCqQxvCrkwaBNZOGlrniTFRK1HKpB/TyE+mDfEYjoDk8GTX7v1Gamyap2ANk9ozbL0XcwXPb3sTeEA==
+"@yarnpkg/plugin-stage@^4.0.0-rc.48":
+  version "4.0.0-rc.48"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/plugin-stage/-/plugin-stage-4.0.0-rc.48.tgz#af8cc40d39d8f2dc74532d484950f2c22d92ebb9"
+  integrity sha512-2H5FWkq2zgXzQqlehYTZNv03Q0rQszrpnMJPJ0QbrwtT5b01ZbQbSryQBtnRILgimVkCKSyYg47EBfBug/DDMw==
   dependencies:
-    "@yarnpkg/fslib" "^3.0.0-rc.46"
+    "@yarnpkg/fslib" "^3.0.0-rc.48"
     clipanion "^3.2.1"
     tslib "^2.4.0"
 
@@ -1244,6 +1256,14 @@
   dependencies:
     "@types/node" "^18.11.11"
     "@yarnpkg/fslib" "^3.0.0-rc.46"
+
+"@yarnpkg/pnp@^4.0.0-rc.48":
+  version "4.0.0-rc.48"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/pnp/-/pnp-4.0.0-rc.48.tgz#f2173229d29c50c91ab115d756a245c775f483a3"
+  integrity sha512-veLzNrT9EUev/jEjZcZolw6KYbINN3UsBIVM0OlPNZhNBmHTdwO5dnNhhPoTQgauEye1zg7MEIUC9j5+5p1+mg==
+  dependencies:
+    "@types/node" "^18.15.11"
+    "@yarnpkg/fslib" "^3.0.0-rc.48"
 
 "@yarnpkg/pnpify@^4.0.0-rc.43":
   version "4.0.0-rc.44"
@@ -4809,10 +4829,10 @@ prettier-plugin-tailwindcss@^0.2.8:
   resolved "https://registry.npmjs.org/prettier-plugin-tailwindcss/-/prettier-plugin-tailwindcss-0.2.8.tgz"
   integrity sha512-KgPcEnJeIijlMjsA6WwYgRs5rh3/q76oInqtMXBA/EMcamrcYJpyhtRhyX1ayT9hnHlHTuO8sIifHF10WuSDKg==
 
-prettier@^2.8.8:
-  version "2.8.8"
-  resolved "https://registry.npmjs.org/prettier/-/prettier-2.8.8.tgz"
-  integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
+prettier@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.0.tgz#e7b19f691245a21d618c68bc54dc06122f6105ae"
+  integrity sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==
 
 prop-types@^15.0.0, prop-types@^15.8.1:
   version "15.8.1"
