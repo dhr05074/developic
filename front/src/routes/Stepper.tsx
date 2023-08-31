@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-
 import useStepper from "@/hook/Stepper.hook";
 import useProblem from "@/hook/Problem.hook";
 import { motion } from "framer-motion";
 
 function StepperComponent() {
     const { StepperList, endStep } = useStepper();
-    const { problemId, problem } = useProblem();
+    const { setRepeatProblem, problem, createProblem, getProblemData } = useProblem();
 
     // if (step === 1) {
     //     stepButton = "문제 풀러가기";
@@ -18,14 +17,26 @@ function StepperComponent() {
         invisible: "opacity-0 invisible",
     };
     useEffect(() => {
-        console.log(problem, StepperList.comp.step);
+        //여기 문제
+        if (!problem) {
+            setRepeatProblem(true);
+            createProblem().then(async (r: string) => {
+                getProblemData(r);
+            });
+        }
+        return () => {
+            console.log("stepper out");
+            setRepeatProblem(false);
+        };
+    }, [problem]);
 
+    useEffect(() => {
         if (StepperList.comp.step === "loading") {
             if (problem) {
                 endStep();
             }
         }
-    }, [problem, problemId, StepperList]);
+    }, [problem, StepperList]);
     return (
         <motion.div
             className="h-full w-full"

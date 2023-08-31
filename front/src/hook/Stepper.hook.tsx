@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 
 const useStepper = () => {
     const navigate = useNavigate();
+
     const [currentStep, setCurrentStep] = useState<StepType>("idle");
     const [StepperList, setStepperList] = useState<StepperListTypes>({
         difficult: {

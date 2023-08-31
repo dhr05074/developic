@@ -28,3 +28,5 @@ type StepperListTypes = {
 };
 
 type StepType = "idle" | "start" | "level" | "lang" | "api" | "clear" | "end" | "stop";
+
+declare module "uuid";

@@ -182,5 +182,73 @@
 -   v0.0.0:40
 -   styled component 이용하여 button 제작
 -   v0.0.0:41
--   problem 페이지 nav바 디자인 적용
+-   problem 페이지
+    nav바 디자인 적용
 -   v0.0.0:42
+
+### 6/13
+
+-   codeEditor overflow 버그 개선
+-   resizable 제거
+-   v0.0.0:43
+-   problem.hook useEffect 문제 해결하면서 생긴 사이드 이펙트 제거
+-   v0.0.0:44
+
+### 6/14
+
+-   problem localstorage 적용
+-   v0.0.0:45
+-   reset 버튼 기능 제작
+-   v0.0.0:46
+-   problem nav의 언어,난이도 로컬스토리지 적용
+-   v0.0.0:47
+-   home 접속 시 옵션 초기화
+-   v0.0.0:48
+
+### 6/17
+
+-   api 변경사항에 따라 msw 수정 & 추가
+-   v0.0.0:49
+-   profile, result router 적용
+-   v0.0.0:50
+-   result 페이지 완성
+-   v0.0.0:51
+-   profile 페이지 완성
+-   v0.0.0:52
+-   profile api 적용
+-   v0.0.0:53
+
+### 6/18
+
+-   api header 전부 profile 헤더로 적용
+-   v0.0.0:54
+-   submit 버튼 기능 완료
+-   v0.0.0:55
+-   간이 로딩 적용
+-   v0.0.0:56
+-   more 버튼 비활성화, hook 에러 수정 -> 최상위에 놓지 않아서 생김.
+-   v0.0.0:57
+-   profile 이미지 svg로 변경
+-   v0.0.0:58
+-   problem 페이지에 접속할 때 problem 값이 없으면 home으로 리다이렉트
+-   v0.0.0:59
+
+### 6/19
+
+-   font 적용
+-   문제 타이틀, 설명 ui 개선
+-   v0.0.0:60
+
+### 6/23
+
+- profile 스코어없으면 없다고 표시
+- v0.0.0:61
+- e2e 테스트 home 제작
+- v0.0.0:62
+- 코드 창 짤리는 버그 제거
+- v0.0.0:63
+- 언어별로 code다르게 받도록 구현
+- localstorage 관리가 복잡해 유저플로우 구현 후 재구성 해야할 듯.
+- v0.0.0:64
+- codeEditor go언어 적용
+- v0.0.0:65

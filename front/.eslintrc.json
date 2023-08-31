@@ -29,7 +29,7 @@
             "tsx": true
         }
     },
-    "plugins": ["react", "@typescript-eslint", "react-hooks", "import"],
+    "plugins": ["react", "@typescript-eslint", "react-hooks", "import","prettier"],
     "rules": {
         //        "prettier/prettier": "error",
         //        "import/no-unresolved": "error",
@@ -52,7 +52,20 @@
             {
                 "extensions": [".tsx", ".jsx"]
             }
-        ]
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+              "singleQuote": true,
+              "semi": true,
+              "useTabs": true,
+              "tabWidth": 2,
+              "trailingComma": "all",
+              "printWidth": 80,
+              "bracketSpacing": true,
+              "arrowParens": "avoid",
+            },
+          ],
     },
     "settings": {
         "import/external-module-folders": [".yarn"],

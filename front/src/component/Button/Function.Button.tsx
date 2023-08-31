@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 type PropsType = {
-    func?: void;
+    func?: () => void;
+    name: string;
     type: "line" | "full";
     size: "large" | "medium" | "small";
-    name: string;
 };
 const Button = styled.button`
     background: #b9ff47;
@@ -33,13 +33,13 @@ export default function ButtonFunction(props: PropsType) {
     const active = `button_${props.size}`;
     if (props.type === "full") {
         return (
-            <FullButton id="button_function" className={active}>
+            <FullButton id="button_function" className={active} onClick={props.func}>
                 {props.name}
             </FullButton>
         );
     } else if (props.type === "line") {
         return (
-            <LineButton id="button_function" className={active}>
+            <LineButton id="button_function" className={active} onClick={props.func}>
                 {props.name}
             </LineButton>
         );

@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
-import { languageState, difficultState, problemIdState, problemState } from "../recoil/problem.recoil";
-import { ProgrammingLanguage } from "api/api";
+import { problemState, editorInCode } from "../recoil/problem.recoil";
+import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
+import { profileState } from "@/recoil/profile.recoil";
+import useProfile from "./Profile.hook";
+import { loadingState } from "@/recoil/component.recoil";
 
 // recoil로 변경
 // const problemId = "";
@@ -11,30 +14,45 @@ import { ProgrammingLanguage } from "api/api";
 const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
-
-    const [problemId, setProblemId] = useRecoilState(problemIdState);
+    const [profile] = useRecoilState(profileState);
     const [problem, setProblem] = useRecoilState(problemState);
+    const [isLoading, setLoading] = useRecoilState(loadingState);
+    // 에디터 내부 코드
+    const [editorCode, setEditorCode] = useRecoilState(editorInCode);
+    const { getSingleRecord } = useProfile();
+    const [isCodeReset, setIsCodeReset] = useState(false);
+    const [repeatProblem, setRepeatProblem] = useState(true);
     const [searchParams] = useSearchParams();
     const getDifficulty = Number(searchParams.get("difficulty"));
     const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
+    const initEditor = () => {
+        console.log("initEditor ");
+        const code = problem?.code;
+        if (code) setEditorCode(atob(code));
+        setIsCodeReset(!isCodeReset);
+    };
     const initProblem = () => {
-        if (problemId) {
-            api.getProblem(problemId, {
+        console.log("initProblem");
+        if (problem?.id) {
+            api.getProblem(problem.id, {
+                headers: profile.headers,
                 cancelToken: new CancelToken(function executor(c) {
                     console.log("get problem cancel");
                 }),
             });
         }
-        setProblemId(null);
         setProblem(null);
     };
     const createProblem = async () => {
         console.log("createProblem", getLanguage);
         if (getLanguage) {
-            const getCreate = await api.requestProblem({
-                language: getLanguage,
-            });
+            const getCreate = await api.requestProblem(
+                {
+                    language: getLanguage,
+                },
+                { headers: profile.headers },
+            );
             return getCreate.data.problem_id;
         }
     };
@@ -45,26 +63,41 @@ const useProblem = () => {
             console.log("no problemId. Problem.hook.tsx 45");
             return false;
         }
-        const interval = setInterval(async () => {
-            const p_data = await api.getProblem(problemId);
-            if (p_data) {
-                setProblem(p_data.data);
-                clearInterval(interval);
-            }
-        }, 3000);
+        api.getProblem(problemId, { headers: profile.headers })
+            .then((res) => {
+                console.log("getProblemData End!!", res);
+                setProblem(res.data);
+                setEditorCode(atob(res.data.code));
+            })
+            .catch((error) => {
+                if (error.response.status === 409) {
+                    setTimeout(() => {
+                        if (repeatProblem) getProblemData(problemId);
+                    }, 3000);
+                }
+            });
     };
-    // didMount 대용
 
-    useEffect(() => {
-        createProblem().then(async (r: string) => {
-            getProblemData(r);
-        });
-    }, [problem]);
+    const onClickSubmit = () => {
+        console.log("onClickSubmit", problem?.id);
+        // problemId = null이다 조치해야함.
+        const submit = {
+            problem_id: problem?.id,
+            code: editorCode,
+        } as SubmitSolutionRequest;
 
+        api.submitSolution(submit, { headers: profile.headers })
+            .then((res) => {
+                getSingleRecord(res.data.record_id);
+                setLoading(true);
+            })
+            .catch((error) => {
+                console.error("onClickSubmit error", error);
+            });
+    };
     useEffect(() => {
         return () => {
-            console.log("problem hook unmount");
-            initProblem();
+            console.log("problem.hook out");
         };
     }, []);
 
@@ -72,8 +105,14 @@ const useProblem = () => {
         createProblem,
         getProblemData,
         initProblem,
-        problemId,
         problem,
+        editorCode,
+        isCodeReset,
+        initEditor,
+        setEditorCode,
+        onClickSubmit,
+        setLoading,
+        setRepeatProblem,
         // getProblemState,
     };
 };

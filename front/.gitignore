@@ -33,3 +33,6 @@ openapi.sh
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+/test-results/
+/playwright-report/
+/playwright/.cache/

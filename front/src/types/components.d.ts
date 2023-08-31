@@ -14,6 +14,7 @@ type LanguageType =
     | "r"
     | "ruby"
     | "scala"
-    | "swift";
-type difficultyType = "Hard" | "Normal" | "Easy";
-type IconType = "profile";
+    | "swift"
+    | "";
+type difficultyType = "Hard" | "Normal" | "Easy" | "";
+type IconType = "profile" | "profile_active";

@@ -1,13 +1,20 @@
 import React from "react";
-import profileImg from "@/assets/images/profile.png";
+import profileImg from "@/assets/images/profile.svg";
+import profileActiveImg from "@/assets/images/profile_active.svg";
 type PropsType = {
     icon: IconType;
-    width: number;
+    height: number;
 };
 
 function Icons(props: PropsType) {
-    // if ()
-    return props.icon === "profile" ? <img src={profileImg} width={props.width} /> : null;
+    switch (props.icon) {
+        case "profile":
+            return <img src={profileImg} className={`h-${props.height}`} />;
+        case "profile_active":
+            return <img src={profileActiveImg} className={`h-${props.height}`} />;
+        default:
+            return null;
+    }
 }
 
 export default Icons;
