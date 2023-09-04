@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 import { Problem } from "api/api";
 
 // recoil을 model로 사용한다.
@@ -6,14 +6,15 @@ import { Problem } from "api/api";
 
 // effects를 하나의 함수로 묶을려고 시도했지만 타입이 좀 까다로움.
 
-export const languageState = atom<LanguageType[]>({
-    key: "languageList",
-    default: ["Javascript", "Go", "Cpp"],
-});
-export const difficultState = atom<difficultyType[]>({
-    key: "difficultList",
-    default: ["Hard", "Normal", "Easy"],
-});
+// export const languageState = atom<LanguageType[]>({
+//     key: "languages",
+//     default: ["Javascript", "Go", "Cpp"],
+// });
+
+// export const difficultState = atom<difficultyType[]>({
+//     key: "difficultList",
+//     default: ["Hard", "Normal", "Easy"],
+// });
 export const selectOptionState = atom({
     key: "selectOptions",
     default: {
@@ -36,7 +37,12 @@ export const selectOptionState = atom({
         },
     ],
 });
-
+export const optionSelector = selector({
+    "key":"selectOptionsSelector",
+    get:({get}) => {
+    return get(selectOptionState)
+    }
+})
 export const problemState = atom<Problem | null>({
     key: "problem",
     default: null,
@@ -77,31 +83,17 @@ export const editorInCode = atom<string | undefined>({
     ],
 });
 
-const effectHandler = () => {};
-// recoil에서 비동기를 사용하려면 suspence를 사용해야한다.
-// export const setProblemId = selector({
-//     key: "problemId/set",
-//     get: ({ get }) => get(problemIdState),
-//     set: ({ get, set }, id) => {
-//         set(problemIdState, id);
-//         console.log(get(problemIdState));
+// const currentUserNameQuery = selector({
+//     key: 'CurrentUserName',
+//     get: async ({get}) => {
+//       const response = await myDBQuery({
+//         userID: get(currentUserIDState),
+//       });
+//       return response.name;
 //     },
-// });
-// export const setProblem = selector({
-//     key: "problemState/set",
-//     get: ({ get }) => {
-//         return get(problemState);
-//     },
-//     set: ({ set }, data) => set(problemState, data),
-// });
-
-// use case
-// const [color, setColor] = useRecoilState(colorState)
-
-// const onChange = (e: React.MouseEvent<HTMLDivElement>) => {
-//   if (color === '#FBFBFE') {
-//     setColor('#ffa000')
-//   } else {
-//     setColor('#FBFBFE')
+//   });
+  
+//   function CurrentUserInfo() {
+//     const userName = useRecoilValue(currentUserNameQuery);
+//     return <div>{userName}</div>;
 //   }
-// }

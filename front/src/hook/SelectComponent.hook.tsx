@@ -1,8 +1,9 @@
-import { difficultState, languageState, selectOptionState } from "@/recoil/problem.recoil";
+import { selectOptionState } from "@/recoil/problem.recoil";
+import { useState } from "react";
 import { useRecoilState } from "recoil";
 const useSelectComponent = () => {
-    const [languages, setLanguages] = useRecoilState(languageState);
-    const [difficultList, setDifficultList] = useRecoilState(difficultState);
+    const [languages, setLanguages] = useState(["Javascript", "Go", "Cpp"]);
+    const [difficultList, setDifficultList] = useState(["Hard", "Normal", "Easy"]);
     const [selectOptoin, setSelectOption] = useRecoilState(selectOptionState);
 
     const initSelectOption = () => {

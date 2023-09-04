@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEventHandler, useState } from "react";
+import React, { useState } from "react";
 import Polygon from "@/assets/images/Polygon.svg";
 
 interface propsState {
@@ -18,15 +18,16 @@ export default function Select(props: propsState) {
     const setOptions = () => {
         console.log(props?.value);
         const menu = props?.value.menu;
-        const result = [];
-        for (let i = 0; i < menu.length; i++) {
-            result.push(
-                <li onClick={onClickMenu} key={i} className="motion_basic hover:text-coco-green_500 ">
-                    {menu[i]}
-                </li>,
-            );
-        }
-        return result;
+        // const result = [];
+        // for (let i = 0; i < menu.length; i++) {
+        //     result.push(
+        //         <li onClick={onClickMenu} key={i} className="motion_basic hover:text-coco-green_500 ">
+        //             {menu[i]}
+        //         </li>,
+        //     );
+        // }
+        // return result;
+        return <></>
     };
     const onClickSelect = () => {
         setIsClick(!isClick);

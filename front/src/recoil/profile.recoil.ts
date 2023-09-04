@@ -1,5 +1,4 @@
 import { Record } from "api/api";
-import { AxiosResponse } from "axios";
 import { atom } from "recoil";
 
 // recoil을 model로 사용한다.
