@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useSearchParams } from "react-router-dom";
 import { api, CancelToken } from "@/api/defaultApi";
-import { problemState, editorInCode } from "../recoil/problem.recoil";
+import { editorInCode,problemIdSelector, problemSelector } from "../recoil/problem.recoil";
 import { ProgrammingLanguage, SubmitSolutionRequest } from "api/api";
 import { profileState } from "@/recoil/profile.recoil";
 import useProfile from "./Profile.hook";
@@ -15,21 +15,19 @@ const useProblem = () => {
     // const [languages, setLanguages] = useRecoilState(languageState);
     // const [difficultList, setDifficultList] = useRecoilState(difficultState);
     const [profile] = useRecoilState(profileState);
-    const [problem, setProblem] = useRecoilState(problemState);
+    const problem = useRecoilValue(problemSelector);
+    const problemId = useRecoilValue(problemIdSelector);
+
     const [isLoading, setLoading] = useRecoilState(loadingState);
     // 에디터 내부 코드
     const [editorCode, setEditorCode] = useRecoilState(editorInCode);
     const { getSingleRecord } = useProfile();
     const [isCodeReset, setIsCodeReset] = useState(false);
     const [repeatProblem, setRepeatProblem] = useState(true);
-    const [searchParams] = useSearchParams();
-    const getDifficulty = Number(searchParams.get("difficulty"));
-    const getLanguage = searchParams.get("language") as ProgrammingLanguage;
 
     const initEditor = () => {
         console.log("initEditor ");
-        const code = problem?.code;
-        if (code) setEditorCode(atob(code));
+        if (problem?.code) setEditorCode(atob(problem?.code));
         setIsCodeReset(!isCodeReset);
     };
     const initProblem = () => {
@@ -44,18 +42,19 @@ const useProblem = () => {
         }
         setProblem(null);
     };
-    const createProblem = async () => {
-        console.log("createProblem", getLanguage);
-        if (getLanguage) {
-            const getCreate = await api.requestProblem(
-                {
-                    language: getLanguage,
-                },
-                { headers: profile.headers },
-            );
-            return getCreate.data.problem_id;
-        }
-    };
+    // const createProblem = async () => {
+        
+    //     console.log("createProblem", getLanguage);
+    //     if (getLanguage) {
+    //         const getCreate = await api.requestProblem(
+    //             {
+    //                 language: getLanguage,
+    //             },
+    //             { headers: profile.headers },
+    //         );
+    //         return getCreate.data.problem_id;
+    //     }
+    // };
 
     const getProblemData = async (problemId: string) => {
         console.log("getProblemData", problemId);

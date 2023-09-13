@@ -22,13 +22,3 @@ export const fontSizeLabel = selector({
     },
 });
 
-// use case
-// const [color, setColor] = useRecoilState(colorState)
-
-// const onChange = (e: React.MouseEvent<HTMLDivElement>) => {
-//   if (color === '#FBFBFE') {
-//     setColor('#ffa000')
-//   } else {
-//     setColor('#FBFBFE')
-//   }
-// }

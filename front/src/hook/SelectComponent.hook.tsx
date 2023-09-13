@@ -1,9 +1,8 @@
-import { difficultState, languageState, selectOptionState } from "@/recoil/problem.recoil";
+import { SelectDifficulty, SelectLang } from "@/recoil/problem.recoil";
 import { useRecoilState } from "recoil";
 const useSelectComponent = () => {
-    const [languages, setLanguages] = useRecoilState(languageState);
-    const [difficultList, setDifficultList] = useRecoilState(difficultState);
-    const [selectOptoin, setSelectOption] = useRecoilState(selectOptionState);
+    const [optionLength, setOptionLength] = useRecoilState(SelectLang);
+    const [optionDifficulty, setOptionDifficulty] = useRecoilState(SelectDifficulty);
 
     const initSelectOption = () => {
         setLang("");
@@ -11,20 +10,17 @@ const useSelectComponent = () => {
     };
 
     const setLang = (value: LanguageType) => {
-        setSelectOption((prevState) => {
-            return { ...prevState, currentLang: value };
-        });
+        setOptionLength(value)
+
     };
     const setDifficulty = (value: difficultyType) => {
-        setSelectOption((prevState) => {
-            return { ...prevState, defaultDifficulty: value };
-        });
+        setOptionDifficulty(value)
+
     };
 
     return {
-        languages,
-        difficultList,
-        selectOptoin,
+        optionLength,
+        optionDifficulty,
         setLang,
         setDifficulty,
         initSelectOption,

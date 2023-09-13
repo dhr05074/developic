@@ -1,10 +1,10 @@
-import React, { ChangeEvent, MouseEventHandler, useState } from "react";
+import React, { useState } from "react";
 import Polygon from "@/assets/images/Polygon.svg";
 
 interface propsState {
     value: {
         callback: Function;
-        menu: LanguageType[] | difficultyType[];
+        menu: string[]
     };
     disabled: string;
     location: "left-0" | "right-0";
