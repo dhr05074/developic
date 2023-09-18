@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useSelect from "./useSelect";
-import { Select } from "./Select";
+import { Select, SelectValueState } from "./Select";
 
-interface propsState {
-  menu: string[];
-  disabled: string;
-  location: "left-0" | "right-0";
-  size: "small" | "large";
-}
-
-export default function Usage(props: propsState) {
+export default function Usage(props: SelectValueState) {
   //여기서 훅을 사용해야함
   const {
     onClickSelect,
@@ -26,24 +19,19 @@ export default function Usage(props: propsState) {
   }, []);
 
   return (
-    <Select>
+    <Select value={props}>
       <Select.Wrapper
         location={props.location}
         size={props.size}
         clickEvent={onClickSelect}
       >
-        <div className="flex flex-row items-center justify-between ">
+        <Select.Label>
           <p>{selected}</p>
           <Select.Polygon isInverted={isClick} />
-        </div>
-        {/* menu */}
-        <ul
-          className={`list-none text-white transition-all ease-in-out ${
-            isClick ? "flex  flex-col gap-4 pb-4 opacity-100" : "-mt-4 "
-          }`}
-        >
+        </Select.Label>
+        <Select.DropDownMenu isClick={isClick}>
           {isClick && setOptions(props.menu)}
-        </ul>
+        </Select.DropDownMenu>
       </Select.Wrapper>
     </Select>
   );

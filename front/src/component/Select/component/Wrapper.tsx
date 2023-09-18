@@ -1,16 +1,14 @@
 import React from "react";
+import { useSelectContext } from "../useSelectContext";
 
 function Wrapper({
   children,
-  location,
-  size,
   clickEvent,
 }: {
   children: React.ReactNode;
-  location: string;
-  size: string;
   clickEvent: () => void;
 }) {
+  const { location, size } = useSelectContext();
   const style =
     " border-Navy-600 border bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " +
     location;

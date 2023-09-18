@@ -1,19 +1,16 @@
 import React from "react";
+import { SelectValueState } from "./Select";
 
-interface State {
-  menu: string[];
-  disabled: string;
-  location: "left-0" | "right-0";
-  size: "small" | "large";
-}
-const SelectContext = React.createContext<State | undefined>(undefined);
+const SelectContext = React.createContext<SelectValueState | undefined>(
+  undefined
+);
 
 function SelectProvider({
   children,
   value,
 }: {
   children: React.ReactNode;
-  value: State | undefined;
+  value: SelectValueState | undefined;
 }) {
   return (
     <SelectContext.Provider value={value}>{children}</SelectContext.Provider>

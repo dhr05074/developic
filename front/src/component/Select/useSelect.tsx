@@ -31,6 +31,7 @@ const useSelect = () => {
     setIsClick(!isClick);
   };
   const setOptions = (menu: string[]) => {
+    // 컴포넌트화 시킬 수 없을까?
     const result = [];
     for (let i = 0; i < menu.length; i++) {
       result.push(
