@@ -1,16 +1,15 @@
 import React from "react";
 
-type State = {
-  setLang : (value: LanguageType) => void
-  };
+const HomeContext = React.createContext<undefined>(undefined);
 
-const HomeContext = React.createContext<State | undefined>(undefined);
-
-function HomeProvider({ children, value }: { children: React.ReactNode, value:State | undefined }) {
-    //  value={value}
-  return (
-    <HomeContext.Provider value={value}>{children}</HomeContext.Provider>
-  );
+function HomeProvider({
+  children,
+  value,
+}: {
+  children: React.ReactNode;
+  value: undefined;
+}) {
+  return <HomeContext.Provider value={value}>{children}</HomeContext.Provider>;
 }
 
 function useHomeContext() {
