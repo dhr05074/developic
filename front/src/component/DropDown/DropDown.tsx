@@ -1,32 +1,32 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import { SelectProvider } from "./useSelectContext";
+import { DropDownProvider } from "./useDropDownContext";
 import { DropDownMenu, Label, Polygon, Wrapper } from "./component";
 
-export type SelectValueState = {
+export type DropDownValueState = {
   menu: string[];
   disabled: string;
   location: "left-0" | "right-0";
   size: "small" | "large";
 };
 
-function Select({
+function DropDown({
   children,
   value,
 }: {
   children: React.ReactNode;
-  value: SelectValueState;
+  value: DropDownValueState;
 }) {
   return (
-    <SelectProvider value={value}>
+    <DropDownProvider value={value}>
       <section>{children}</section>
-    </SelectProvider>
+    </DropDownProvider>
   );
 }
 
-Select.Polygon = Polygon;
-Select.Wrapper = Wrapper;
-Select.Label = Label;
-Select.DropDownMenu = DropDownMenu;
+DropDown.Polygon = Polygon;
+DropDown.Wrapper = Wrapper;
+DropDown.Label = Label;
+DropDown.DropDownMenu = DropDownMenu;
 
-export { Select };
+export { DropDown };

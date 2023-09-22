@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelectContext } from "../useSelectContext";
+import { useDropDownContext } from "../useDropDownContext";
 
 function Wrapper({
   children,
@@ -8,7 +8,7 @@ function Wrapper({
   children: React.ReactNode;
   clickEvent: () => void;
 }) {
-  const { location, size } = useSelectContext();
+  const { location, size } = useDropDownContext();
   const style =
     " border-Navy-600 border bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " +
     location;

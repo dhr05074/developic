@@ -1,6 +1,6 @@
-import React from "react";
+import { createContext, useContext } from "react";
 
-const HomeContext = React.createContext<undefined>(undefined);
+const HomeContext = createContext<undefined>(undefined);
 
 function HomeProvider({
   children,
@@ -13,7 +13,7 @@ function HomeProvider({
 }
 
 function useHomeContext() {
-  const context = React.useContext(HomeContext);
+  const context = useContext(HomeContext);
   if (context === undefined) {
     throw new Error("useHomeContext must be used within a CounterProvider");
   }

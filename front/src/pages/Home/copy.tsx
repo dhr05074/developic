@@ -1,7 +1,7 @@
-import SelectComponent from "@/component/Select/Usage";
+import SelectComponent from "@/component/DropDown/Usage";
 import ButtonLink from "@/component/Button/Link.Button";
 import mainImage from "@/assets/images/main_image.svg";
-import useSelectComponent from "@/component/Select/useSelect";
+import useSelectComponent from "@/component/DropDown/useDropDown";
 import { useEffect, useState } from "react";
 import useProfile from "@/hook/Profile.hook";
 

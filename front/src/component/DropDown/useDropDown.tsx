@@ -1,7 +1,7 @@
 import { SelectDifficulty, SelectLang } from "@/recoil/problem.recoil";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
-const useSelect = () => {
+const useDropDown = () => {
   const [isClick, setIsClick] = useState(false);
   const [selected, setSelected] = useState(""); // props.disabled
 
@@ -9,7 +9,7 @@ const useSelect = () => {
   const [optionDifficulty, setOptionDifficulty] =
     useRecoilState(SelectDifficulty);
   // 다음페이지로 넘겨야하기때문에 전역으로 관리했음.
-  const initSelectOption = () => {
+  const initDropDownOption = () => {
     setLang("");
     setDifficulty("");
   };
@@ -21,7 +21,7 @@ const useSelect = () => {
     setOptionDifficulty(value);
   };
 
-  const onClickSelect = () => {
+  const onClickDropDown = () => {
     setIsClick(!isClick);
   };
   const onClickMenu = (e: React.MouseEvent<HTMLLIElement>) => {
@@ -54,12 +54,12 @@ const useSelect = () => {
     isClick,
     setLang,
     setDifficulty,
-    initSelectOption,
+    initDropDownOption,
     setOptions,
     setSelected,
-    onClickSelect,
+    onClickDropDown,
     onClickMenu,
   };
 };
 
-export default useSelect;
+export default useDropDown;

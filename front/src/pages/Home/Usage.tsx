@@ -1,5 +1,5 @@
 //refactoring
-import Select from "@/component/Select/Usage";
+import Select from "@/component/DropDown/Usage";
 import { Home } from "./Home";
 import mainImage from "@/assets/images/main_image.svg";
 function PageHome() {
