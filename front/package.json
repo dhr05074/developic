@@ -76,7 +76,8 @@
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
     "vite": "^4.2.0",
-    "vite-tsconfig-paths": "^4.0.7"
+    "vite-tsconfig-paths": "^4.0.7",
+    "object-path": ">=0.11.8"
   },
   "packageManager": "yarn@1.22.19",
   "msw": {
