@@ -1,4 +1,6 @@
 export * from "./Polygon";
 export * from "./Wrapper";
 export * from "./Label";
-export * from "./DropDownMenu";
+export * from "./MenuWrapper";
+export * from "./Selected";
+export * from "./Menu";

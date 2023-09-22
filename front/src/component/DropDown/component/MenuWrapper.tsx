@@ -1,12 +1,8 @@
 import React from "react";
+import { useDropDownContext } from "../useDropDownContext";
 
-function DropDownMenu({
-  children,
-  isClick,
-}: {
-  children: React.ReactNode;
-  isClick: boolean;
-}) {
+function MenuWrapper({ children }: { children: React.ReactNode }) {
+  const { isClick } = useDropDownContext();
   return (
     <ul
       className={`list-none text-white transition-all ease-in-out ${
@@ -18,4 +14,4 @@ function DropDownMenu({
   );
 }
 
-export { DropDownMenu };
+export { MenuWrapper };

@@ -1,16 +1,13 @@
-import React from "react";
-import { DropDownValueState } from "./DropDown";
+import { createContext, useContext } from "react";
 
-const DropDownContext = React.createContext<DropDownValueState | undefined>(
-  undefined
-);
+const DropDownContext = createContext<ProviderValue | undefined>(undefined);
 
 function DropDownProvider({
   children,
   value,
 }: {
   children: React.ReactNode;
-  value: DropDownValueState | undefined;
+  value: ProviderValue | undefined;
 }) {
   return (
     <DropDownContext.Provider value={value}>
@@ -20,7 +17,7 @@ function DropDownProvider({
 }
 
 function useDropDownContext() {
-  const context = React.useContext(DropDownContext);
+  const context = useContext(DropDownContext);
   if (context === undefined) {
     throw new Error("useDropDownContext must be used within a CounterProvider");
   }

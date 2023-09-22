@@ -1,33 +1,16 @@
-import { useEffect } from "react";
-import useDropDown from "./useDropDown";
-import { DropDown, DropDownValueState } from "./DropDown";
+import { DropDown } from "./DropDown";
 
-export default function Usage(props: DropDownValueState) {
-  //여기서 훅을 사용해야함
-  const {
-    onClickDropDown,
-    setOptions,
-    setSelected,
-    initDropDownOption,
-    selected,
-    isClick,
-  } = useDropDown();
-
-  useEffect(() => {
-    initDropDownOption();
-    setSelected(props.disabled);
-  }, []);
-
+export default function Usage(props: ProviderValue) {
   return (
     <DropDown value={props}>
-      <DropDown.Wrapper clickEvent={onClickDropDown}>
+      <DropDown.Wrapper>
         <DropDown.Label>
-          <p>{selected}</p>
-          <DropDown.Polygon isInverted={isClick} />
+          <DropDown.Selected />
+          <DropDown.Polygon />
         </DropDown.Label>
-        <DropDown.DropDownMenu isClick={isClick}>
-          {isClick && setOptions(props.menu)}
-        </DropDown.DropDownMenu>
+        <DropDown.MenuWrapper>
+          <DropDown.Menu />
+        </DropDown.MenuWrapper>
       </DropDown.Wrapper>
     </DropDown>
   );

@@ -1,14 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useDropDownContext } from "../useDropDownContext";
 
-function Wrapper({
-  children,
-  clickEvent,
-}: {
-  children: React.ReactNode;
-  clickEvent: () => void;
-}) {
-  const { location, size } = useDropDownContext();
+function Wrapper({ children }: { children: React.ReactNode }) {
+  const { location, size, onClickDropDown } = useDropDownContext();
   const style =
     " border-Navy-600 border bg-Navy-700 text-coco-green_500 rounded-[1.6rem] " +
     location;
@@ -19,7 +13,7 @@ function Wrapper({
   }`;
   return (
     <section
-      onClick={clickEvent}
+      onClick={onClickDropDown}
       className={
         "selectBox absolute flex cursor-pointer flex-col gap-4  " +
         style +
