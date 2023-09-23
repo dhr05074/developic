@@ -1,6 +1,6 @@
 import { DropDown } from "./DropDown";
 
-export default function Usage(props: ProviderValue) {
+export default function Usage(props: DropDownProps) {
   return (
     <DropDown value={props}>
       <DropDown.Wrapper>

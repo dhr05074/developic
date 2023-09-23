@@ -4,7 +4,7 @@ import {
   Description,
   Image,
   Wrapper,
-  SelectWrapper,
+  DropDownWrapper,
   Button,
   ButtonWrapper,
 } from "./component";
@@ -30,7 +30,7 @@ Home.Image = Image;
 Home.Wrapper = Wrapper;
 Home.Title = Title;
 Home.Description = Description;
-Home.SelectWrapper = SelectWrapper;
+Home.DropDownWrapper = DropDownWrapper;
 Home.Button = Button;
 Home.ButtonWrapper = ButtonWrapper;
 
