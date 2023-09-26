@@ -3,13 +3,12 @@ import { FunnelProvider } from "./useFunnelContext";
 
 type Props = {
   children: ReactNode;
-  value: undefined;
 };
 
-function Funnel({ children, value }: Props) {
+function Funnel({ children }: Props) {
   const [step, setStep] = useState("Home");
   useDebugValue(step);
-  return <FunnelProvider>{children}</FunnelProvider>;
+  return <FunnelProvider value={{ setStep }}>{children}</FunnelProvider>;
 }
 
-export default Funnel;
+export { Funnel };

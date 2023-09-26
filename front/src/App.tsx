@@ -14,6 +14,7 @@ import Result from "./pages/Result";
 import Profile from "./pages/Profile";
 import LoadingComponent from "./component/Loading/Loading";
 import { GlobalStyle } from "./styles/GlobalStyle";
+import { UsageFunnel } from "./component/Funnel/Usage";
 
 function App(): JSX.Element {
   return (
@@ -25,7 +26,8 @@ function App(): JSX.Element {
           <NavBar />
         </section>
         <section id="body" className="h-full w-full">
-          <Routes>
+          <UsageFunnel />
+          {/* <Routes>
             <Route
               path="/"
               element={<PageHome />}
@@ -51,7 +53,7 @@ function App(): JSX.Element {
               element={<Profile />}
               errorElement={<ErrorPage />}
             />
-          </Routes>
+          </Routes> */}
         </section>
       </div>
     </RecoilRoot>

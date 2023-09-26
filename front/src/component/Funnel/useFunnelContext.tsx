@@ -1,9 +1,17 @@
 import { ReactNode, createContext, useContext } from "react";
 
-const FunnelContext = createContext(undefined);
+const FunnelContext = createContext<FunnelProps | undefined>(undefined);
 
-function FunnelProvider({ children }: { children: ReactNode }) {
-  return <FunnelContext.Provider>{children}</FunnelContext.Provider>;
+function FunnelProvider({
+  children,
+  value,
+}: {
+  children: ReactNode;
+  value: FunnelProps;
+}) {
+  return (
+    <FunnelContext.Provider value={value}>{children}</FunnelContext.Provider>
+  );
 }
 
 function useFunnelContext() {
