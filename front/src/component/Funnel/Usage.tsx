@@ -1,7 +1,12 @@
-import Funnel from "./Funnel";
+import { PageHome } from "@/pages/Home/Usage";
+import { Funnel } from "./Funnel";
 
-function Usage(props) {
-  return <Funnel value={props}></Funnel>;
+function UsageFunnel() {
+  return (
+    <Funnel>
+      <PageHome />
+    </Funnel>
+  );
 }
 
-export default Usage;
+export { UsageFunnel };
