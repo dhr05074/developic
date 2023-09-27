@@ -1,6 +1,6 @@
 import React from "react";
 
-function SelectWrapper({ children }: { children: React.ReactNode }) {
+function DropDownWrapper({ children }: { children: React.ReactNode }) {
   return (
     <section
       id="home_selectButtons"
@@ -11,4 +11,4 @@ function SelectWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { SelectWrapper };
+export { DropDownWrapper };
