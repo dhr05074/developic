@@ -17,13 +17,7 @@ function Home({ children }: { children: React.ReactNode }) {
     setAuth();
   }, []);
 
-  return (
-    <HomeProvider value={undefined}>
-      <section className="flex h-full w-full flex-row  bg-Navy-900">
-        {children}
-      </section>
-    </HomeProvider>
-  );
+  return <HomeProvider value={undefined}>{children}</HomeProvider>;
 }
 
 Home.Image = Image;

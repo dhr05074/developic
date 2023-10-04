@@ -3,7 +3,12 @@ import DropDown from "@/component/DropDown/Usage";
 import { Home } from "./Home";
 import mainImage from "@/assets/images/main_image.svg";
 import { Button } from "@/component/Button/Button";
-function PageHome() {
+
+function PageHome({
+  onNext,
+}: {
+  onNext: React.Dispatch<React.SetStateAction<string>>;
+}) {
   // UI하나만 볼 수 있다.
   // to={{ pathname: props.link?.pathName, search: props.link?.search }}
 
@@ -30,7 +35,8 @@ function PageHome() {
           />
         </Home.DropDownWrapper>
         <Home.ButtonWrapper>
-          <Button name="Start" />
+          {/* Button 리팩터링하기 */}
+          <Button name="Start" action={onNext} />
           {/* <Home.Button name="Start" /> */}
         </Home.ButtonWrapper>
       </Home.Wrapper>

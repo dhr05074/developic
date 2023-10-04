@@ -7,7 +7,7 @@ function FunnelProvider({
   value,
 }: {
   children: ReactNode;
-  value: FunnelProps;
+  value: undefined;
 }) {
   return (
     <FunnelContext.Provider value={value}>{children}</FunnelContext.Provider>

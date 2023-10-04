@@ -1,14 +1,21 @@
 import { ReactNode, useDebugValue, useState } from "react";
 import { FunnelProvider } from "./useFunnelContext";
+import { Step } from "./component";
 
 type Props = {
   children: ReactNode;
 };
 
 function Funnel({ children }: Props) {
-  const [step, setStep] = useState("Home");
-  useDebugValue(step);
-  return <FunnelProvider value={{ setStep }}>{children}</FunnelProvider>;
+  return (
+    <FunnelProvider value={undefined}>
+      {/* funnel Style tag */}
+      <section className="flex h-full w-full flex-row  bg-Navy-900">
+        {children}
+      </section>
+    </FunnelProvider>
+  );
 }
+Funnel.Step = Step;
 
 export { Funnel };

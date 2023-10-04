@@ -9,7 +9,7 @@ import NavBar from "./component/NavBar/NavBar";
 import Problem from "./pages/Problem";
 import ErrorPage from "./pages/Error";
 import { PageHome } from "./pages/Home/Usage";
-import Stepper from "./pages/Stepper";
+import Stepper from "./pages/Loading";
 import Result from "./pages/Result";
 import Profile from "./pages/Profile";
 import LoadingComponent from "./component/Loading/Loading";
