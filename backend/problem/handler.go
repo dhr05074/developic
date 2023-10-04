@@ -1,6 +1,7 @@
 package problem
 
 import (
+	"ariga.io/entcache"
 	"code-connect/ent"
 	"code-connect/ent/problem"
 	"code-connect/gateway"
@@ -12,21 +13,15 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/alitto/pond"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"go.uber.org/zap"
+	"net/http"
+	"strconv"
 	"strings"
-)
-
-const (
-	problemNotReadyCode = "ProblemNotReady"
-	problemNotFoundCode = "ProblemNotFound"
-)
-
-const (
-	problemNotReadyMessage = "문제가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요."
-	problemNotFoundMessage = "문제가 존재하지 않습니다. 문제 ID를 확인해주세요."
-	serverErrorMessage     = "일시적인 서버 오류입니다. 잠시 후에 다시 시도해주세요."
+	"time"
 )
 
 const (
@@ -35,77 +30,133 @@ const (
 	eloScoreTemplateKey        = "{ELO_SCORE}"
 )
 
-var serverErrResp = gateway.GetProblemdefaultJSONResponse{
-	Body: gateway.Error{
-		Message: serverErrorMessage,
-	},
-	StatusCode: 500,
-}
+const (
+	retrieveCodePrompt = "Give me the code"
+)
+
+const (
+	poolMaxWorkers  = 10
+	poolMaxCapacity = 1000
+)
+
+const (
+	problemIDLength      = 8
+	maxRequestCountPerIP = 5
+)
+
+const (
+	problemGenerateCountTTL = 24 * time.Hour
+)
+
+var (
+	ErrExceededMaxRequestCount = errors.New("exceeded max request count")
+)
+
+var pool = pond.New(poolMaxWorkers, poolMaxCapacity)
 
 type Handler struct {
-	paramClient store.KV
-	gptClient   ai.GPTClient
-	entClient   *ent.Client
-	log         *zap.SugaredLogger
-	reqeuestCh  chan message.ProblemMessage
+	paramClient       store.KeyValue
+	redisClient       store.KeyValue
+	entClient         *ent.Client
+	logger            *zap.SugaredLogger
+	requestCh         chan message.ProblemMessage
+	generateGPTClient ai.GPTClientGenerator
 }
 
 func NewHandler(
-	paramClient store.KV,
-	gptClient ai.GPTClient,
+	paramClient store.KeyValue,
+	redisClient store.KeyValue,
 	entClient *ent.Client,
+	gptClientGenerator ai.GPTClientGenerator,
 	reqCh chan message.ProblemMessage,
 ) *Handler {
 	l := log.NewZap().With("handler", "problem")
 
 	return &Handler{
-		paramClient: paramClient,
-		gptClient:   gptClient,
-		entClient:   entClient,
-		log:         l,
-		reqeuestCh:  reqCh,
+		paramClient:       paramClient,
+		redisClient:       redisClient,
+		entClient:         entClient,
+		generateGPTClient: gptClientGenerator,
+		logger:            l,
+		requestCh:         reqCh,
 	}
 }
 
-type GPTOutput struct {
+type gptOutput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Code        string `json:"code"`
 }
 
 func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gateway.RequestProblemResponseObject, error) {
-	problemID := nanoid.Must(8)
+	var internalServerErrorResp = gateway.RequestProblemdefaultJSONResponse{
+		Body: gateway.Error{
+			Code:    gateway.ServerError,
+			Message: gateway.ServerErrorMessage,
+		},
+		StatusCode: http.StatusInternalServerError,
+	}
 
-	// UUID만 담긴 문제 객체를 미리 생성한다.
-	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
-	if err := h.createProblem(ctx, problemID, request); err != nil {
-		h.log.Errorw("failed to create problem", "category", "db", "error", err)
-		return gateway.RequestProblemdefaultJSONResponse{
-			Body: gateway.Error{
-				Message: serverErrorMessage,
-			},
-			StatusCode: 500,
+	userIP, ok := store.IPFromContext(ctx)
+	if !ok {
+		h.logger.Errorw("IP 주소를 가져올 수 없습니다.")
+		return internalServerErrorResp, nil
+	}
+
+	requestCount, err := h.requestCount(ctx, userIP)
+	if err != nil {
+		return internalServerErrorResp, nil
+	}
+
+	err = h.checkRequestCount(userIP, requestCount)
+	if err != nil {
+		return gateway.RequestProblem429JSONResponse{
+			Code:    gateway.TooManyRequests,
+			Message: gateway.TooManyRequestsMessage,
 		}, nil
 	}
 
+	problemID := nanoid.Must(problemIDLength)
+
+	// UUID만 담긴 문제 객체를 미리 생성한다.
+	// 문제가 아예 없는 경우와, 문제 생성 요청이 들어간 상태를 구분하기 위해서다.
+	if err := h.createProblemObject(ctx, problemID, request); err != nil {
+		h.logger.Errorw("문제 객체 생성 실패", "error", err)
+		return internalServerErrorResp, nil
+	}
+
+	err = h.increaseRequestCount(ctx, userIP)
+	if err != nil {
+		h.logger.Errorw("요청 횟수 증가 실패", "error", err)
+		return internalServerErrorResp, nil
+	}
+
 	// 문제를 백그라운드에서 생성한다.
-	go func() {
-		anotherCtx := context.TODO()
+	// 과도한 goroutine 생성 방지를 위해 Worker pool을 활용한다.
+	pool.Submit(
+		func() {
+			var (
+				output   gptOutput
+				err      error
+				emptyCtx = context.TODO()
+			)
 
-		output, err := h.requestProblem(anotherCtx, request)
-		if err != nil {
-			return
-		}
+			output, err = h.requestProblem(emptyCtx, request)
+			if err != nil {
+				h.logger.Errorw("GPT를 통한 문제 출제 실패", "error", err)
+				return
+			}
 
-		if err := h.saveProblem(anotherCtx, problemID, output); err != nil {
-			h.log.Errorw("failed to save problem", "category", "db", "error", err)
-			return
-		}
+			if err = h.saveProblem(emptyCtx, problemID, output); err != nil {
+				h.logger.Errorw("문제 저장 실패", "error", err)
+				return
+			}
 
-		h.reqeuestCh <- message.ProblemMessage{
-			ID: problemID,
-		}
-	}()
+			h.requestCh <- message.ProblemMessage{
+				ID: problemID,
+			}
+		},
+	)
 
 	// 사용자에게는 문제 ID를 바로 반환하고, 백그라운드에서 문제를 생성한다.
 	return gateway.RequestProblem202JSONResponse{
@@ -113,83 +164,131 @@ func (h *Handler) RequestProblem(ctx context.Context, request gateway.RequestPro
 	}, nil
 }
 
-func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (GPTOutput, error) {
+func (h *Handler) checkRequestCount(userIP string, requestCount int) error {
+	if requestCount > maxRequestCountPerIP {
+		h.logger.Errorw("IP 주소당 요청 횟수 초과", "ip", userIP)
+		return ErrExceededMaxRequestCount
+	}
+
+	return nil
+}
+
+func (h *Handler) requestCount(ctx context.Context, userIP string) (count int, err error) {
+	requestCountString, err := h.redisClient.Get(ctx, userIP)
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(requestCountString)
+}
+
+func (h *Handler) increaseRequestCount(ctx context.Context, userIP string) error {
+	cnt, err := h.redisClient.Incr(ctx, userIP)
+	if err != nil {
+		return err
+	}
+
+	// 만약 요청 횟수가 1이라면 해당 레코드가 새로 생성된 것이므로, 만료 시간을 설정한다.
+	if cnt == 1 {
+		if err := h.redisClient.Expire(ctx, userIP, problemGenerateCountTTL); err != nil {
+			h.logger.Errorw("요청 횟수 만료 시간 설정 실패", "error", err)
+		}
+	}
+
+	return nil
+}
+
+func (h *Handler) createProblemObject(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
+	var difficulty *int
+	if request.Body.EloScore != nil {
+		difficultyValue := int(*request.Body.EloScore)
+		difficulty = &difficultyValue
+	}
+
+	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
+}
+
+func (h *Handler) requestProblem(ctx context.Context, request gateway.RequestProblemRequestObject) (gptOutput, error) {
+	now := time.Now()
+
 	prompt, err := h.paramClient.Get(ctx, generatingProblemPromptKey)
 	if err != nil {
-		h.log.Errorw("failed to get prompt", "category", "kv", "error", err)
-		return GPTOutput{}, err
+		h.logger.Errorw("프롬포트 조회 실패", "key", generatingProblemPromptKey, "error", err)
+		return gptOutput{}, err
 	}
 
-	prompt = h.injectData(prompt, request)
-	h.gptClient.AddPrompt(prompt)
-
-	result, err := h.gptClient.Complete(ctx)
+	gptClient, err := h.generateGPTClient()
 	if err != nil {
-		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
-		return GPTOutput{}, err
+		h.logger.Errorw("GPT 클라이언트 생성 실패", "error", err)
+		return gptOutput{}, err
 	}
 
-	var output GPTOutput
+	prompt = h.injectParameterToPrompt(prompt, request)
+	gptClient.AddPrompt(prompt)
+
+	result, err := gptClient.Complete(ctx)
+	if err != nil {
+		h.logger.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
+		return gptOutput{}, err
+	}
+
+	var output gptOutput
 	if err := json.Unmarshal([]byte(result), &output); err != nil {
-		h.log.Errorw("failed to unmarshal result", "category", "internal", "error", err)
-		return GPTOutput{}, err
+		h.logger.Errorw("결과 JSON 언마샬 실패", "error", err)
+		return gptOutput{}, err
 	}
 
-	h.gptClient.AddPrompt("Give me the code")
-	output.Code, err = h.gptClient.Complete(ctx)
+	output.Code, err = h.generateScratchCode(ctx, gptClient)
 	if err != nil {
-		h.log.Errorw("failed to complete prompt", "category", "external_api", "api_category", "gpt", "error", err)
-		return GPTOutput{}, err
+		h.logger.Errorw("스크래치 코드 생성 실패", "error", err)
+		return gptOutput{}, err
 	}
 
-	h.log.Infof("problem generated")
-
-	output.Code = str.ExtractCodeBlocksFromMarkdown(output.Code)[0]
-	encoder := base64.StdEncoding
-	output.Code = encoder.EncodeToString([]byte(output.Code))
+	h.logger.Infow("문제 생성 완료", "elapsed", time.Since(now).String())
 
 	return output, nil
 }
 
-func (h *Handler) injectData(prompt string, req gateway.RequestProblemRequestObject) string {
+func (h *Handler) injectParameterToPrompt(prompt string, req gateway.RequestProblemRequestObject) string {
 	prompt = strings.ReplaceAll(prompt, languageTemplateKey, string(req.Body.Language))
 	prompt = strings.ReplaceAll(prompt, eloScoreTemplateKey, fmt.Sprintf("%d", req.Body.EloScore))
 
 	return prompt
 }
 
-func (h *Handler) createProblem(ctx context.Context, uuid string, request gateway.RequestProblemRequestObject) error {
-	var difficulty *int
-	if request.Body.EloScore != nil {
-		elo := int(*request.Body.EloScore)
-		difficulty = &elo
+func (h *Handler) generateScratchCode(ctx context.Context, gptClient ai.GPTClient) (string, error) {
+	gptClient.AddPrompt(retrieveCodePrompt)
+
+	code, err := gptClient.Complete(ctx)
+	if err != nil {
+		h.logger.Errorw("GPT의 프롬포트 처리 실패", "type", "gpt", "error", err)
+		return "", err
 	}
 
-	return h.entClient.Problem.Create().SetUUID(uuid).SetLanguage(request.Body.Language).SetNillableDifficulty(difficulty).Exec(ctx)
+	code = h.encodeCode(h.extractCode(code))
+
+	return code, nil
 }
 
-func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput) error {
-	tx, err := h.entClient.Tx(ctx)
-	if err != nil {
-		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
-		return err
-	}
+func (h *Handler) extractCode(code string) string {
+	return str.ExtractCodeBlocksFromMarkdown(code)[0]
+}
 
-	p, err := tx.Problem.Query().ForUpdate().Where(problem.UUID(uuid)).Only(ctx)
+func (h *Handler) encodeCode(code string) string {
+	encoder := base64.StdEncoding
+	return encoder.EncodeToString([]byte(code))
+}
+
+func (h *Handler) saveProblem(ctx context.Context, uuid string, output gptOutput) error {
+	p, err := h.entClient.Problem.Query().Where(problem.UUID(uuid)).Only(ctx)
 	if err != nil {
-		h.log.Errorw("failed to get problem", "category", "db", "error", err)
+		h.logger.Errorw("failed to get problem", "category", "db", "error", err)
 		return err
 	}
 
 	err = p.Update().SetTitle(output.Title).SetDescription(output.Description).SetCode(output.Code).Exec(ctx)
 	if err != nil {
-		h.log.Errorw("failed to update problem", "category", "db", "error", err)
-		return err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
+		h.logger.Errorw("failed to update problem", "category", "db", "error", err)
 		return err
 	}
 
@@ -197,45 +296,48 @@ func (h *Handler) saveProblem(ctx context.Context, uuid string, output GPTOutput
 }
 
 func (h *Handler) GetProblem(ctx context.Context, request gateway.GetProblemRequestObject) (gateway.GetProblemResponseObject, error) {
-	tx, err := h.entClient.Tx(ctx)
-	if err != nil {
-		h.log.Errorw("failed to create transaction", "category", "db", "error", err)
-		return serverErrResp, nil
-	}
+	const cacheTTL = 1 * time.Second
 
-	p, err := tx.Problem.Query().Where(problem.UUID(request.Id)).Only(ctx)
+	queriedProblem, err := h.entClient.Problem.Query().Where(problem.UUID(request.Id)).Only(
+		entcache.WithTTL(
+			ctx, cacheTTL,
+		),
+	)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return gateway.GetProblem404JSONResponse{
-				Code:    problemNotFoundCode,
-				Message: problemNotFoundMessage,
+				Code:    gateway.ProblemNotFound,
+				Message: gateway.ProblemNotFoundMessage,
 			}, nil
 		}
 
-		h.log.Errorw("failed to get problem", "category", "db", "error", err)
-		return serverErrResp, nil
-	}
-
-	// 문제 생성 요청은 들어갔지만 아직 문제가 생성되지 않은 경우
-	if p.Code == "" || p.Title == "" {
-		return gateway.GetProblem409JSONResponse{
-			Code:    problemNotReadyCode,
-			Message: problemNotReadyMessage,
+		h.logger.Errorw("failed to get problem", "category", "db", "error", err)
+		return gateway.GetProblemdefaultJSONResponse{
+			Body: gateway.Error{
+				Code:    gateway.ServerError,
+				Message: gateway.ServerErrorMessage,
+			},
+			StatusCode: http.StatusInternalServerError,
 		}, nil
 	}
 
-	if err := tx.Commit(); err != nil {
-		h.log.Errorw("failed to commit transaction", "category", "db", "error", err)
-
-		return serverErrResp, nil
+	if h.isProblemNotCompleted(queriedProblem) {
+		return gateway.GetProblem409JSONResponse{
+			Code:    gateway.ProblemNotReady,
+			Message: gateway.ProblemNotReadyMessage,
+		}, nil
 	}
 
 	return gateway.GetProblem200JSONResponse{
 		N200GetProblemJSONResponse: gateway.N200GetProblemJSONResponse{
-			Code:        p.Code,
-			Id:          p.UUID,
-			Title:       p.Title,
-			Description: p.Description,
+			Code:        queriedProblem.Code,
+			Id:          queriedProblem.UUID,
+			Title:       queriedProblem.Title,
+			Description: queriedProblem.Description,
 		},
 	}, nil
+}
+
+func (h *Handler) isProblemNotCompleted(p *ent.Problem) bool {
+	return p.Code == "" || p.Title == ""
 }

@@ -1,66 +1,73 @@
-package problem
+package problem_test
 
 import (
+	"code-connect/ent"
 	"code-connect/ent/enttest"
 	"code-connect/gateway"
 	"code-connect/mocks"
+	"code-connect/pkg/ai"
+	"code-connect/problem"
+	"code-connect/schema/message"
 	"context"
-	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/stretchr/testify/suite"
 	"testing"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type ProblemHandlerTestSuite struct {
+func gptClientGenerator(mockClient *mocks.GPTClient) ai.GPTClientGenerator {
+	return func() (ai.GPTClient, error) {
+		return mockClient, nil
+	}
+}
+
+type RequestProblemTestSuite struct {
 	suite.Suite
 
-	hdl *Handler
-	kv  *mocks.KV
-	gpt *mocks.GPTClient
+	hdl           *problem.Handler
+	entClient     *ent.Client
+	mockGPTClient *mocks.GPTClient
 }
 
-func (s *ProblemHandlerTestSuite) SetupTest() {
-	s.kv = &mocks.KV{}
-	s.gpt = &mocks.GPTClient{}
-	cli := enttest.Open(s.T(), "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+func (s *RequestProblemTestSuite) SetupTest() {
+	s.entClient = enttest.Open(s.T(), "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 
-	s.hdl = NewHandler(s.kv, s.gpt, cli, nil)
+	reqCh := make(chan message.ProblemMessage)
+	s.hdl = problem.NewHandler(nil, nil, s.entClient, gptClientGenerator(s.mockGPTClient), reqCh)
 }
 
-func (s *ProblemHandlerTestSuite) TestWhenConcurrentlyAccessTheSameProblem_ThenFinallyProblemCreated() {
-	ctx := context.Background()
+func (s *RequestProblemTestSuite) TestCreateProblemDBFailed_Return500Error() {
+	s.Require().NoError(s.entClient.Close())
 
-	id := nanoid.Must(8)
-	s.Require().NoError(s.hdl.createProblem(ctx, id, gateway.RequestProblemRequestObject{
+	req := gateway.RequestProblemRequestObject{
+		Body: &gateway.RequestProblemJSONRequestBody{},
+	}
+
+	respIface, err := s.hdl.RequestProblem(context.Background(), req)
+	s.Require().NoError(err)
+
+	resp, ok := respIface.(gateway.RequestProblemdefaultJSONResponse)
+	s.Require().True(ok)
+	s.Require().Equal(500, resp.StatusCode)
+}
+
+func (s *RequestProblemTestSuite) TestCreateProblemELOScoreNotNilAndValid_Return200OK() {
+	var score int32 = 1500
+	req := gateway.RequestProblemRequestObject{
 		Body: &gateway.RequestProblemJSONRequestBody{
-			EloScore: nil,
+			EloScore: &score,
 			Language: gateway.Go,
 		},
-	}))
+	}
 
-	resp, err := s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
-	s.Require().NoError(err)
-	s.Require().NoError(s.hdl.saveProblem(ctx, id, GPTOutput{
-		Title: "hi",
-		Code:  "21",
-	}))
-	resp, err = s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
+	respIface, err := s.hdl.RequestProblem(context.Background(), req)
 	s.Require().NoError(err)
 
-	_, ok := resp.(gateway.GetProblem409JSONResponse)
+	resp, ok := respIface.(gateway.RequestProblem202JSONResponse)
 	s.Require().True(ok)
-
-	s.Eventually(func() bool {
-		resp, err := s.hdl.GetProblem(ctx, gateway.GetProblemRequestObject{Id: id})
-		s.Require().NoError(err)
-
-		_, ok := resp.(gateway.GetProblem200JSONResponse)
-		return ok
-	}, 500*time.Millisecond, 10*time.Millisecond)
+	s.Require().NotEmpty(resp.ProblemId)
 }
 
-func TestHandler_ProblemHandler(t *testing.T) {
-	suite.Run(t, new(ProblemHandlerTestSuite))
+func TestHandler_RequestProblem(t *testing.T) {
+	suite.Run(t, new(RequestProblemTestSuite))
 }

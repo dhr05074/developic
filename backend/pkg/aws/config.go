@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-func Config(ctx context.Context) (aws.Config, error) {
+func LoadConfig(ctx context.Context) (aws.Config, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return aws.Config{}, err

@@ -84,13 +84,42 @@ components:
         - message
       properties:
         code:
-          type: string
-          description: "오류 구분 코드입니다."
-          example: "4c4d3b2a"
+          $ref: "#/components/schemas/ErrorCode"
         message:
-          type: string
-          description: "상세한 오류 정보를 알려주는 메시지입니다."
-          example: "you don't have the permission to access this resource"
+          $ref: "#/components/schemas/ErrorMessage"
+    ErrorCode:
+      type: string
+      description: "Developic에서 사용되는 오류 코드입니다."
+      enum:
+        - "UserNotFound"
+        - "ProblemNotFound"
+        - "ProblemNotReady"
+        - "RecordNotFound"
+        - "InvalidAuthorization"
+        - "RecordNotFound"
+        - "ServerError"
+        - "TooManyRequests"
+      default: "ServerError"
+    ErrorMessage:
+      type: string
+      description: "Developic에서 사용되는 오류 메시지입니다."
+      enum:
+        - "해당 유저를 찾을 수 없습니다."
+        - "해당 문제를 찾을 수 없습니다."
+        - "해당 문제는 현재 생성 중입니다."
+        - "해당 레코드를 찾을 수 없습니다."
+        - "유효하지 않은 인증 정보입니다."
+        - "서버 내부 오류가 발생했습니다."
+        - "요청이 너무 많습니다."
+      x-enum-varnames:
+        - "UserNotFoundMessage"
+        - "ProblemNotFoundMessage"
+        - "ProblemNotReadyMessage"
+        - "RecordNotFoundMessage"
+        - "InvalidAuthorizationMessage"
+        - "ServerErrorMessage"
+        - "TooManyRequestsMessage"
+      default: "서버 내부 오류가 발생했습니다."
     ELOScore:
       type: integer
       format: int32
@@ -218,6 +247,15 @@ paths:
                 properties:
                   problem_id:
                     $ref: "#/components/schemas/ProblemID"
+        429:
+          description: 문제 생성 요청이 너무 많아, 시스템에서 문제 생성을 거부하고 있습니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "TooManyRequests"
+                message: "문제 생성 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
         default:
           $ref: "#/components/responses/InternalServerError"
   /problems/{id}:
@@ -261,6 +299,15 @@ paths:
       responses:
         202:
           $ref: "#/components/responses/202Submit"
+        404:
+          description: 존재하지 않는 문제 ID를 입력한 상태입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "ProblemNotFound"
+                message: "문제가 존재하지 않습니다. 문제 ID를 확인해 주세요."
         default:
           $ref: "#/components/responses/InternalServerError"
   /records/{id}:
@@ -328,6 +375,15 @@ paths:
                 required:
                   - elo_score
                   - nickname
+        401:
+          description: 토큰이 잘못되었거나, 존재하지 않는 경우입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "InvalidToken"
+                message: "토큰이 잘못되었습니다."
         404:
           description: 유저가 존재하지 않는 경우입니다.
           content:

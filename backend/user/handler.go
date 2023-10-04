@@ -11,18 +11,25 @@ import (
 const (
 	userNotFoundErrorCode    = "UserNotFound"
 	userNotFoundErrorMessage = "유저가 존재하지 않습니다."
+
+	invalidAuthCtxErrorCode    = "InvalidAuthorization"
+	invalidAuthCtxErrorMessage = "유효하지 않은 인증 정보입니다."
 )
 
 type Handler struct {
 	entClient *ent.Client
 }
 
-func (h *Handler) GetMe(ctx context.Context, req gateway.GetMeRequestObject) (gateway.GetMeResponseObject, error) {
+func NewHandler(entClient *ent.Client) *Handler {
+	return &Handler{entClient: entClient}
+}
+
+func (h *Handler) GetMe(ctx context.Context, _ gateway.GetMeRequestObject) (gateway.GetMeResponseObject, error) {
 	userID, ok := store.UsernameFromContext(ctx)
 	if !ok {
-		return gateway.GetMedefaultJSONResponse{
-			Body:       gateway.Error{},
-			StatusCode: 0,
+		return gateway.GetMe401JSONResponse{
+			Code:    invalidAuthCtxErrorCode,
+			Message: invalidAuthCtxErrorMessage,
 		}, nil
 	}
 

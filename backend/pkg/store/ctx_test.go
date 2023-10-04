@@ -20,17 +20,21 @@ func (h *TestHandler) Test(ctx context.Context) (string, error) {
 
 func TestUsernameFromContext_WhenExtractedAtEchoRequestContext(t *testing.T) {
 	app := echo.New()
-	app.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.SetRequest(c.Request().WithContext(WithUsername(c.Request().Context(), "test")))
-			return next(c)
-		}
-	})
-	app.GET("/", func(c echo.Context) error {
-		username, _ := new(TestHandler).Test(c.Request().Context())
+	app.Use(
+		func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				c.SetRequest(c.Request().WithContext(CtxWithUsername(c.Request().Context(), "test")))
+				return next(c)
+			}
+		},
+	)
+	app.GET(
+		"/", func(c echo.Context) error {
+			username, _ := new(TestHandler).Test(c.Request().Context())
 
-		return c.String(200, username)
-	})
+			return c.String(200, username)
+		},
+	)
 
 	req := httptest.NewRequest("GET", "/", nil)
 	rec := httptest.NewRecorder()

@@ -21,7 +21,7 @@ const (
 
 type ScoreWorker struct {
 	entClient   *ent.Client
-	paramClient store.KV
+	paramClient store.KeyValue
 	problemCh   chan message.ProblemMessage
 	submitCh    chan message.ProblemMessage
 	gptClient   ai.GPTClient
@@ -35,7 +35,7 @@ type ScoreResult struct {
 }
 
 type NewScoreWorkerParams struct {
-	ParamClient store.KV
+	ParamClient store.KeyValue
 	EntClient   *ent.Client
 	GptClient   ai.GPTClient
 	ProblemCh   chan message.ProblemMessage
